@@ -1,0 +1,22 @@
+services:
+  backend:
+    build:
+      context: ./Backend
+    restart: unless-stopped
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://${MYSQL_HOST:?MYSQL_HOST is required}:${MYSQL_PORT:-3306}/${MYSQL_DATABASE:?MYSQL_DATABASE is required}?sslMode=${MYSQL_SSL_MODE:-REQUIRED}&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER:?MYSQL_USER is required}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:?MYSQL_PASSWORD is required}
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+
+  frontend:
+    build:
+      context: ./Frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      NODE_ENV: production
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
