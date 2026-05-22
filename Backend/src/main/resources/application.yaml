@@ -1,0 +1,12 @@
+# Server Configuration
+server:
+  port: 8080
+  servlet:
+    context-path: /mlnStudy
+
+spring:
+  application:
+    name: web-sales-backend
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
