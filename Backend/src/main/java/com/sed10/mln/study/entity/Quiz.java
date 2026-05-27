@@ -1,0 +1,21 @@
+package com.sed10.mln.study.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+import java.time.LocalDateTime;
+
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@Entity
+@Table(name = "Quiz")
+public class Quiz {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) @EqualsAndHashCode.Include Long id;
+    @ManyToOne @JoinColumn(name = "lesson_id") Lesson lesson;
+    @Column(length = 255) String title;
+    @Column(name = "time_limit") Integer timeLimit;
+}

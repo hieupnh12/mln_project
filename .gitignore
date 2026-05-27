@@ -198,3 +198,6 @@ Backend/uploads/
 .env.prod
 .env.production
 secrets.yaml
+
+# Environment Variables
+.env
