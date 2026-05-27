@@ -5,16 +5,23 @@
   "scripts": {
     "build": "react-router build",
     "dev": "react-router dev",
+    "dev:local": "react-router dev --host 127.0.0.1 --port 3000",
+    "dev:public": "react-router dev --host 0.0.0.0 --port 3000",
     "start": "react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc"
   },
   "dependencies": {
     "@react-router/node": "7.15.1",
     "@react-router/serve": "7.15.1",
+    "@tanstack/react-query": "^5.100.14",
+    "axios": "^1.16.1",
+    "framer-motion": "^12.40.0",
     "isbot": "^5.1.36",
+    "lucide-react": "^1.16.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
-    "react-router": "7.15.1"
+    "react-router": "7.15.1",
+    "zustand": "^5.0.13"
   },
   "devDependencies": {
     "@react-router/dev": "7.15.1",
