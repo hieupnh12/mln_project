@@ -82,6 +82,10 @@ Make sure to deploy the output of `npm run build`
 
 This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever CSS framework you prefer.
 
+## Team Design Standard
+
+Before creating or changing UI/API flows, follow the shared project standard in [`../DESIGN.md`](../DESIGN.md). It defines the color tokens, responsive rules, component rules, API integration pattern, and AI task prompt format used by the team.
+
 ---
 
 Built with ❤️ using React Router.
