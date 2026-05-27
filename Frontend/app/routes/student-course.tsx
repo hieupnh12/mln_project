@@ -2,6 +2,8 @@ import { Link } from "react-router";
 import { useState } from "react";
 
 import type { Route } from "./+types/student-course";
+import { ProtectedRoute } from "../shared/components/protected-route";
+import { ROUTE_ACCESS } from "../shared/constants/route-access";
 
 type LearningTab = "lectures" | "flashcards" | "tests";
 
@@ -113,6 +115,14 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function StudentCourse() {
+  return (
+    <ProtectedRoute allowedRoles={ROUTE_ACCESS.student}>
+      <StudentCourseContent />
+    </ProtectedRoute>
+  );
+}
+
+function StudentCourseContent() {
   const [activeTab, setActiveTab] = useState<LearningTab>("lectures");
 
   return (
