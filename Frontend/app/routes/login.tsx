@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router";
 import { useState } from "react";
 
 import type { Route } from "./+types/login";
-import { signInWithGoogleAsRole } from "../features/auth/services/mock-auth.service";
+import { signInWithGoogleAsRole } from "../features/auth/services/auth.service";
 import type { UserRole } from "../features/auth/types/auth.types";
 
 const illustrationImage =

@@ -1,6 +1,8 @@
 import { Link } from "react-router";
 
 import type { Route } from "./+types/student-dashboard";
+import { ProtectedRoute } from "../shared/components/protected-route";
+import { ROUTE_ACCESS } from "../shared/constants/route-access";
 
 const student = {
   name: "Nguyễn Văn A",
@@ -114,6 +116,14 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function StudentDashboard() {
+  return (
+    <ProtectedRoute allowedRoles={ROUTE_ACCESS.student}>
+      <StudentDashboardContent />
+    </ProtectedRoute>
+  );
+}
+
+function StudentDashboardContent() {
   return (
     <div className="min-h-svh bg-background pb-24 font-body-md text-on-surface md:pb-0">
       <header className="sticky top-0 z-50 border-b border-outline-variant/50 bg-surface/95 shadow-[0_4px_20px_rgba(35,39,51,0.04)] backdrop-blur">
