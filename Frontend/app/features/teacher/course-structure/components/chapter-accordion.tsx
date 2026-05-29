@@ -1,7 +1,7 @@
 import { useState } from "react";
 
-import type { Chapter } from "../types/teacher-dashboard.types";
-import { MaterialIcon } from "./teacher-icons";
+import type { Chapter } from "../types/course-structure.types";
+import { MaterialIcon } from "../../components/teacher-icons";
 
 export function ChapterAccordion({ chapters }: { chapters: Chapter[] }) {
   const [activeChapterId, setActiveChapterId] = useState(chapters[0]?.id ?? "");

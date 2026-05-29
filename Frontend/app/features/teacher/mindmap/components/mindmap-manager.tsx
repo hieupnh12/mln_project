@@ -1,5 +1,5 @@
-import { mindmapNodes } from "../constants/teacher-dashboard.constants";
-import { MaterialIcon } from "./teacher-icons";
+import { mindmapNodes } from "../constants/mindmap.constants";
+import { MaterialIcon } from "../../components/teacher-icons";
 
 export function MindmapManager() {
   return (
