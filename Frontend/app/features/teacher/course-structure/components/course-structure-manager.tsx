@@ -1,7 +1,7 @@
-import { chapters } from "../constants/teacher-dashboard.constants";
+import { chapters } from "../constants/course-structure.constants";
 import { ChapterAccordion } from "./chapter-accordion";
-import { MaterialIcon } from "./teacher-icons";
-import { TeacherVisualGrid } from "./teacher-visual-grid";
+import { MaterialIcon } from "../../components/teacher-icons";
+import { TeacherVisualGrid } from "../../components/teacher-visual-grid";
 
 export function CourseStructureManager() {
   return (

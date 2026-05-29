@@ -1,5 +1,5 @@
-import { pdfDocuments } from "../constants/teacher-dashboard.constants";
-import { MaterialIcon } from "./teacher-icons";
+import { pdfDocuments } from "../constants/pdf-document.constants";
+import { MaterialIcon } from "../../components/teacher-icons";
 
 export function PdfManager() {
   return (

@@ -1,11 +1,9 @@
-import {
-  chapters,
-  flashcardSets,
-  pdfDocuments,
-  questionItems,
-  quizItems,
-} from "../constants/teacher-dashboard.constants";
-import { MaterialIcon } from "./teacher-icons";
+import { chapters } from "../../course-structure/constants/course-structure.constants";
+import { flashcardSets } from "../../flashcard/constants/flashcard.constants";
+import { pdfDocuments } from "../../pdf-document/constants/pdf-document.constants";
+import { questionItems } from "../../question-library/constants/question-library.constants";
+import { quizItems } from "../../quiz-management/constants/quiz-management.constants";
+import { MaterialIcon } from "../../components/teacher-icons";
 
 export function TeacherOverview() {
   return (

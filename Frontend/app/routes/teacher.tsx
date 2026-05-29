@@ -1,4 +1,4 @@
-import { TeacherDashboardPage } from "../features/teacher/pages/teacher-dashboard-page";
+import { TeacherLayout } from "../layouts/teacher-layout";
 import { ProtectedRoute } from "../shared/components/protected-route";
 import { ROUTE_ACCESS } from "../shared/constants/route-access";
 
@@ -15,7 +15,7 @@ export function meta() {
 export default function TeacherRoute() {
   return (
     <ProtectedRoute allowedRoles={ROUTE_ACCESS.teacher}>
-      <TeacherDashboardPage />
+      <TeacherLayout />
     </ProtectedRoute>
   );
 }
