@@ -15,6 +15,7 @@ export default [
     route("pdfs", "routes/teacher-pdfs.tsx"),
     route("mindmaps", "routes/teacher-mindmaps.tsx"),
     route("flashcards", "routes/teacher-flashcards.tsx"),
+    route("flashcards/new", "routes/teacher-create-flashcard.tsx"),
     route("questions", "routes/teacher-questions.tsx"),
     route("quizzes", "routes/teacher-quizzes.tsx"),
   ]),

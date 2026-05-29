@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router";
 
 import { StudentMaterialIcon as MaterialIcon } from "../../components/student-material-icon";
@@ -225,7 +225,7 @@ export function StudentCoursePage() {
                       <span
                         className={
                           chapter.state === "open" ||
-                          chapter.state === "locked"
+                            chapter.state === "locked"
                             ? "text-label-md font-medium text-on-surface-variant"
                             : "text-label-md font-medium text-primary"
                         }
