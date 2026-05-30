@@ -1,3 +1,25 @@
+# .env ở thư mục gốc repo (MLNProject/.env), không phải Backend/
+springdotenv:
+  directory: ..
+  filename: .env
+  ignore-if-missing: true
+
+# false = tắt Basic Auth khi dev/test API (Postman). Production: đặt true hoặc APP_SECURITY_ENABLED=true
+app:
+  security:
+    enabled: false
+  libreoffice:
+    enabled: true
+    path: ${LIBREOFFICE_PATH:C:/Program Files/LibreOffice/program/soffice.exe}
+    convert-timeout-seconds: 120
+
+cloudinary:
+  cloud:
+    name: ${CLOUDINARY_CLOUD_NAME:dpf4ph1qu}
+  api:
+    key: ${CLOUDINARY_API_KEY:756234473817482}
+    secret: ${CLOUDINARY_API_SECRET:T5qQXodnthydHuSyQYrF-xk98Eo}
+
 # Server Configuration
 server:
   port: 8080
@@ -24,7 +46,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: ${SPRING_DATASOURCE_URL:jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:mln_study}?sslMode=${MYSQL_SSL_MODE:DISABLED}&allowPublicKeyRetrieval=true&serverTimezone=UTC}
     username: ${SPRING_DATASOURCE_USERNAME:${MYSQL_USER:root}}
-    password: ${SPRING_DATASOURCE_PASSWORD:${MYSQL_PASSWORD:}}
+    password:  ${SPRING_DATASOURCE_PASSWORD:${MYSQL_PASSWORD:}}
 
   jpa:
     hibernate:
@@ -34,6 +56,11 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
+
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 100MB
 
 jwt:
   signerKey: ""
