@@ -258,20 +258,34 @@ export function FlashcardManager() {
           ) : (
             // LIST OF CARDS INSIDE SELECTED LESSON
             <section className="space-y-md">
-              <div className="flex items-center justify-between px-1">
+              <div className="flex items-center justify-between gap-4 px-1 flex-wrap">
                 <h4 className="text-headline-sm font-semibold text-primary">
                   Danh sách thẻ ghi nhớ hiện có
                 </h4>
-                <button
-                  onClick={() => {
-                    setSelectedLessonId(0);
-                    handleResetEditor();
-                  }}
-                  className="text-label-md font-medium text-secondary hover:underline flex items-center gap-xs"
-                >
-                  <MaterialIcon>arrow_back</MaterialIcon>
-                  <span>Quay lại</span>
-                </button>
+                <div className="flex items-center gap-sm">
+                  <button
+                    onClick={() => {
+                      handleResetEditor();
+                      document.getElementById("quick-editor-term")?.focus();
+                      document.getElementById("quick-editor-container")?.scrollIntoView({ behavior: "smooth" });
+                    }}
+                    className="flex items-center gap-xs rounded-lg bg-secondary-container px-3 py-1.5 text-label-md font-medium text-primary hover:bg-secondary-container/90 transition-all shadow-xs"
+                    type="button"
+                  >
+                    <MaterialIcon className="text-sm">add</MaterialIcon>
+                    <span>Thêm thẻ mới</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSelectedLessonId(0);
+                      handleResetEditor();
+                    }}
+                    className="flex items-center gap-xs rounded-lg border border-outline-variant px-3 py-1.5 text-label-md font-medium text-on-surface-variant hover:bg-surface-container-low transition-colors"
+                  >
+                    <MaterialIcon className="text-sm">arrow_back</MaterialIcon>
+                    <span>Quay lại</span>
+                  </button>
+                </div>
               </div>
 
               {isLoadingCards ? (
@@ -292,9 +306,21 @@ export function FlashcardManager() {
                     <MaterialIcon>style</MaterialIcon>
                   </div>
                   <h4 className="text-headline-sm font-semibold text-primary">Bộ thẻ này trống</h4>
-                  <p className="text-body-sm text-on-surface-variant max-w-sm mt-xs">
-                    Hãy soạn thảo và thêm nhanh thẻ ghi nhớ mới bằng bảng bên phải!
+                  <p className="text-body-sm text-on-surface-variant max-w-sm mt-xs mb-md">
+                    Hãy bắt đầu thêm những thẻ ghi nhớ đầu tiên cho bài học ôn tập!
                   </p>
+                  <button
+                    onClick={() => {
+                      handleResetEditor();
+                      document.getElementById("quick-editor-term")?.focus();
+                      document.getElementById("quick-editor-container")?.scrollIntoView({ behavior: "smooth" });
+                    }}
+                    className="flex items-center gap-xs rounded-lg bg-primary px-4 py-2 text-label-md font-medium text-white hover:bg-primary/95 transition-all shadow-sm"
+                    type="button"
+                  >
+                    <MaterialIcon className="text-sm">add</MaterialIcon>
+                    <span>Thêm thẻ ngay</span>
+                  </button>
                 </div>
               ) : (
                 <div className="space-y-sm">
@@ -353,6 +379,22 @@ export function FlashcardManager() {
                       </article>
                     );
                   })}
+                  
+                  {/* DASHED ADD CARD BUTTON CARD */}
+                  <button
+                    onClick={() => {
+                      handleResetEditor();
+                      document.getElementById("quick-editor-term")?.focus();
+                      document.getElementById("quick-editor-container")?.scrollIntoView({ behavior: "smooth" });
+                    }}
+                    className="w-full flex items-center justify-center gap-sm rounded-2xl border-2 border-dashed border-outline-variant/60 py-md bg-surface-container-lowest hover:border-primary hover:bg-primary/[0.01] hover:text-primary transition-all duration-200 group text-on-surface-variant cursor-pointer"
+                    type="button"
+                  >
+                    <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-secondary-container text-primary group-hover:scale-110 transition-transform">
+                      <MaterialIcon className="text-sm">add</MaterialIcon>
+                    </div>
+                    <span className="text-label-md font-bold">Thêm thẻ mới trực tiếp</span>
+                  </button>
                 </div>
               )}
             </section>
@@ -360,7 +402,7 @@ export function FlashcardManager() {
         </div>
 
         {/* RIGHT COLUMN: Quick Editor Sidebar */}
-        <aside className="rounded-2xl border border-outline-variant/20 bg-white p-md shadow-[0_4px_20px_rgba(35,39,51,0.04)] h-fit sticky top-24">
+        <aside id="quick-editor-container" className="rounded-2xl border border-outline-variant/20 bg-white p-md shadow-[0_4px_20px_rgba(35,39,51,0.04)] h-fit sticky top-24">
           <div className="flex items-center justify-between border-b border-outline-variant/10 pb-sm mb-md">
             <h4 className="text-headline-md font-semibold text-primary">
               {selectedLessonId === 0
@@ -405,6 +447,7 @@ export function FlashcardManager() {
                   Mặt trước (Thuật ngữ)
                 </span>
                 <textarea
+                  id="quick-editor-term"
                   value={termInput}
                   onChange={(e) => setTermInput(e.target.value)}
                   placeholder="Nhập thuật ngữ hoặc câu hỏi..."
