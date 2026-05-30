@@ -1,3 +1,4 @@
+import type { LessonOptionDto } from "../../types/question-library-api.types";
 import type { QuestionDraft } from "../../types/question-library.types";
 import { CreateQuestionEditor } from "./create-question/create-question-editor";
 import { CreateQuestionFooter } from "./create-question/create-question-footer";
@@ -9,6 +10,11 @@ import { ModalOverlay } from "./modal-overlay";
 type AddQuestionModalProps = {
   open: boolean;
   draft: QuestionDraft;
+  lessonOptions: LessonOptionDto[];
+  lessonsLoading?: boolean;
+  lessonsError?: boolean;
+  onRetryLessons?: () => void;
+  saving?: boolean;
   onClose: () => void;
   onDraftChange: (draft: QuestionDraft) => void;
   onDiscard: () => void;
@@ -19,6 +25,11 @@ type AddQuestionModalProps = {
 export function AddQuestionModal({
   open,
   draft,
+  lessonOptions,
+  lessonsLoading = false,
+  lessonsError = false,
+  onRetryLessons,
+  saving = false,
   onClose,
   onDraftChange,
   onDiscard,
@@ -37,7 +48,14 @@ export function AddQuestionModal({
               <CreateQuestionOptions draft={draft} onChange={onDraftChange} />
             </div>
             <div className="lg:col-span-5">
-              <CreateQuestionMetadata draft={draft} onChange={onDraftChange} />
+              <CreateQuestionMetadata
+                draft={draft}
+                lessonOptions={lessonOptions}
+                lessonsError={lessonsError}
+                lessonsLoading={lessonsLoading}
+                onChange={onDraftChange}
+                onRetryLessons={onRetryLessons}
+              />
             </div>
           </section>
         </div>
@@ -46,6 +64,7 @@ export function AddQuestionModal({
           onDiscard={onDiscard}
           onPublish={onPublish}
           onSaveDraft={onSaveDraft}
+          saving={saving}
         />
       </div>
     </ModalOverlay>

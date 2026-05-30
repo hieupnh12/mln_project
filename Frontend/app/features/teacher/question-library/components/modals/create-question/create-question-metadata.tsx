@@ -1,25 +1,141 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { MaterialIcon } from "../../../../components/teacher-icons";
-import {
-  chapterOptions,
-  courseOptions,
-  difficultyOptions,
-  lessonOptions,
-} from "../../../constants/question-library.constants";
+import { difficultyOptions } from "../../../constants/question-library.constants";
 import {
   bloomLevelOptions,
   createQuestionReferenceImage,
 } from "../../../constants/create-question.constants";
+import type { LessonOptionDto } from "../../../types/question-library-api.types";
 import type { BloomLevel, Difficulty, QuestionDraft } from "../../../types/question-library.types";
+import {
+  applyLessonToDraft,
+  findLessonOption,
+  getChapterTitles,
+  getLessonsForChapter,
+  getSubjectTitles,
+} from "../../../utils/lesson-options";
 
 type CreateQuestionMetadataProps = {
   draft: QuestionDraft;
+  lessonOptions: LessonOptionDto[];
+  lessonsLoading?: boolean;
+  lessonsError?: boolean;
+  onRetryLessons?: () => void;
   onChange: (draft: QuestionDraft) => void;
 };
 
-export function CreateQuestionMetadata({ draft, onChange }: CreateQuestionMetadataProps) {
+function HierarchySelect({
+  label,
+  disabled,
+  onChange,
+  options,
+  placeholder,
+  value,
+}: {
+  label: string;
+  value: string | number;
+  options: { value: string | number; label: string }[];
+  placeholder: string;
+  disabled?: boolean;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <div className="space-y-xs">
+      <span className="text-label-md text-on-surface-variant">{label}</span>
+      <select
+        className="w-full appearance-none rounded-lg border-none bg-surface-container px-4 py-3 text-body-md focus:ring-2 focus:ring-secondary/20 disabled:opacity-60"
+        disabled={disabled}
+        onChange={(e) => onChange(e.target.value)}
+        value={value}
+      >
+        {placeholder ? (
+          <option disabled value="">
+            {placeholder}
+          </option>
+        ) : null}
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
+export function CreateQuestionMetadata({
+  draft,
+  lessonOptions,
+  lessonsLoading = false,
+  lessonsError = false,
+  onRetryLessons,
+  onChange,
+}: CreateQuestionMetadataProps) {
   const [tagInput, setTagInput] = useState("");
+
+  const subjectOptions = useMemo(() => getSubjectTitles(lessonOptions), [lessonOptions]);
+  const selectedFromId = findLessonOption(lessonOptions, draft.lessonId);
+
+  const activeSubject = selectedFromId
+    ? selectedFromId.subjectTitle
+    : draft.course && subjectOptions.includes(draft.course)
+      ? draft.course
+      : (subjectOptions[0] ?? "");
+
+  const chapterOptions = useMemo(
+    () => getChapterTitles(lessonOptions, activeSubject),
+    [lessonOptions, activeSubject],
+  );
+
+  const activeChapter = selectedFromId
+    ? selectedFromId.chapterTitle
+    : draft.chapter && chapterOptions.includes(draft.chapter)
+      ? draft.chapter
+      : (chapterOptions[0] ?? "");
+
+  const lessonsInChapter = useMemo(
+    () => getLessonsForChapter(lessonOptions, activeSubject, activeChapter),
+    [lessonOptions, activeSubject, activeChapter],
+  );
+
+  const activeLessonId = selectedFromId
+    ? selectedFromId.id
+    : draft.lessonId != null &&
+        lessonsInChapter.some((item) => item.id === draft.lessonId)
+      ? draft.lessonId
+      : lessonsInChapter[0]?.id;
+
+  function syncFromLesson(option: LessonOptionDto) {
+    onChange(applyLessonToDraft(draft, option));
+  }
+
+  function handleSubjectChange(subjectTitle: string) {
+    const first = lessonOptions.find((item) => item.subjectTitle === subjectTitle);
+    if (first) {
+      syncFromLesson(first);
+    } else {
+      onChange({ ...draft, course: subjectTitle, chapter: "", lesson: "", lessonId: undefined });
+    }
+  }
+
+  function handleChapterChange(chapterTitle: string) {
+    const first = lessonOptions.find(
+      (item) => item.subjectTitle === activeSubject && item.chapterTitle === chapterTitle,
+    );
+    if (first) {
+      syncFromLesson(first);
+    } else {
+      onChange({ ...draft, chapter: chapterTitle, lesson: "", lessonId: undefined });
+    }
+  }
+
+  function handleLessonChange(lessonId: string) {
+    const option = lessonOptions.find((item) => item.id === Number(lessonId));
+    if (option) {
+      syncFromLesson(option);
+    }
+  }
 
   function addTag() {
     const value = tagInput.trim();
@@ -32,45 +148,67 @@ export function CreateQuestionMetadata({ draft, onChange }: CreateQuestionMetada
     onChange({ ...draft, tags: draft.tags.filter((item) => item !== tag) });
   }
 
+  const hierarchyDisabled = lessonsLoading || lessonsError || lessonOptions.length === 0;
+
   return (
     <div className="space-y-md">
       <div className="grid grid-cols-2 gap-md">
-        <div className="col-span-2 space-y-xs">
-          <span className="text-label-md text-on-surface-variant">Môn học</span>
-          <select
-            className="w-full appearance-none rounded-lg border-none bg-surface-container px-4 py-3 text-body-md focus:ring-2 focus:ring-secondary/20"
-            onChange={(e) => onChange({ ...draft, course: e.target.value })}
-            value={draft.course}
-          >
-            {courseOptions.map((item) => (
-              <option key={item}>{item}</option>
-            ))}
-          </select>
+        <div className="col-span-2">
+          {lessonsLoading ? (
+            <p className="rounded-lg bg-surface-container px-4 py-3 text-body-md text-on-surface-variant">
+              Đang tải môn, chương, bài học...
+            </p>
+          ) : lessonsError ? (
+            <div className="space-y-2 rounded-lg bg-error-container/30 px-4 py-3 text-body-md text-on-error-container">
+              <p>Không tải được danh sách từ API.</p>
+              {onRetryLessons && (
+                <button
+                  className="text-label-md font-medium underline"
+                  onClick={onRetryLessons}
+                  type="button"
+                >
+                  Thử tải lại
+                </button>
+              )}
+            </div>
+          ) : lessonOptions.length === 0 ? (
+            <p className="rounded-lg bg-surface-container px-4 py-3 text-body-md text-on-surface-variant">
+              Chưa có dữ liệu lesson trong DB.
+            </p>
+          ) : (
+            <>
+              <HierarchySelect
+                label="Môn học"
+                onChange={handleSubjectChange}
+                options={subjectOptions.map((title) => ({ value: title, label: title }))}
+                placeholder=""
+                value={activeSubject}
+              />
+              <div className="mt-md grid grid-cols-2 gap-md">
+                <HierarchySelect
+                  disabled={chapterOptions.length === 0}
+                  label="Chương"
+                  onChange={handleChapterChange}
+                  options={chapterOptions.map((title) => ({ value: title, label: title }))}
+                  placeholder="Chọn chương"
+                  value={activeChapter}
+                />
+                <HierarchySelect
+                  disabled={lessonsInChapter.length === 0}
+                  label="Bài học"
+                  onChange={handleLessonChange}
+                  options={lessonsInChapter.map((item) => ({
+                    value: item.id,
+                    label: item.title,
+                  }))}
+                  placeholder="Chọn bài học"
+                  value={activeLessonId ?? ""}
+                />
+              </div>
+            </>
+          )}
         </div>
-        <div className="space-y-xs">
-          <span className="text-label-md text-on-surface-variant">Chương</span>
-          <select
-            className="w-full rounded-lg border-none bg-surface-container px-4 py-3 text-body-md focus:ring-2 focus:ring-secondary/20"
-            onChange={(e) => onChange({ ...draft, chapter: e.target.value })}
-            value={draft.chapter}
-          >
-            {chapterOptions.map((item) => (
-              <option key={item}>{item}</option>
-            ))}
-          </select>
-        </div>
-        <div className="space-y-xs">
-          <span className="text-label-md text-on-surface-variant">Bài học</span>
-          <select
-            className="w-full rounded-lg border-none bg-surface-container px-4 py-3 text-body-md focus:ring-2 focus:ring-secondary/20"
-            onChange={(e) => onChange({ ...draft, lesson: e.target.value })}
-            value={draft.lesson}
-          >
-            {lessonOptions.map((item) => (
-              <option key={item}>{item}</option>
-            ))}
-          </select>
-        </div>
+
         <div className="col-span-2 space-y-xs">
           <span className="text-label-md text-on-surface-variant">Độ khó</span>
           <div className="flex gap-2">
@@ -83,6 +221,7 @@ export function CreateQuestionMetadata({ draft, onChange }: CreateQuestionMetada
                       ? "flex-1 rounded-lg border-2 border-secondary bg-secondary-container px-3 py-2 text-label-md font-bold text-on-secondary-container"
                       : "flex-1 rounded-lg border border-outline-variant bg-white px-3 py-2 text-label-md transition hover:border-secondary"
                   }
+                  disabled={hierarchyDisabled}
                   key={level}
                   onClick={() => onChange({ ...draft, difficulty: level as Difficulty })}
                   type="button"

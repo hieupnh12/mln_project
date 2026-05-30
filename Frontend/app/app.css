@@ -312,3 +312,16 @@ a {
     transform: translateY(0);
   }
 }
+
+@keyframes async-progress-slide {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(320%);
+  }
+}
+
+.async-progress-indeterminate {
+  animation: async-progress-slide 1.2s ease-in-out infinite;
+}

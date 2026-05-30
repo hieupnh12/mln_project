@@ -1,0 +1,3 @@
+export const ASYNC_ACTIVITY_AUTO_DISMISS_MS = 6_000;
+
+export const ASYNC_ACTIVITY_MAX_ITEMS = 12;

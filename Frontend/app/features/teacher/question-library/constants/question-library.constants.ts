@@ -1,3 +1,4 @@
+import type { QuestionFilters } from "../types/question-library.types";
 import type {
   Difficulty,
   QuestionDraft,
@@ -5,6 +6,24 @@ import type {
   QuestionStatus,
   QuestionType,
 } from "../types/question-library.types";
+
+/** Paths relative to api client base (`/api` in dev via Vite proxy → backend `/mlnStudy/api`). */
+export const QUESTION_LIBRARY_ENDPOINTS = {
+  metadata: "/teacher/question-library/metadata",
+  questions: "/teacher/question-library/questions",
+  stats: "/teacher/question-library/stats",
+  batchImport: "/teacher/question-library/questions/batch-import",
+  checkDuplicate: "/teacher/question-library/questions/check-duplicate",
+  questionById: (id: string) => `/teacher/question-library/questions/${id}`,
+} as const;
+
+export const QUESTION_LIBRARY_QUERY_KEYS = {
+  root: ["teacher", "question-library"] as const,
+  metadata: ["teacher", "question-library", "metadata"] as const,
+  stats: ["teacher", "question-library", "stats"] as const,
+  questions: (filters: QuestionFilters) =>
+    ["teacher", "question-library", "questions", filters] as const,
+};
 
 export const QUESTION_PAGE_SIZE = 10;
 
@@ -51,9 +70,10 @@ export const emptyQuestionDraft: QuestionDraft = {
   question: "",
   type: "Trắc nghiệm",
   difficulty: "Vận dụng",
-  course: courseOptions[0],
-  chapter: chapterOptions[0],
-  lesson: lessonOptions[0],
+  lessonId: undefined,
+  course: "",
+  chapter: "",
+  lesson: "",
   answer: "",
   explanation: "",
   bloomLevel: "Hiểu",

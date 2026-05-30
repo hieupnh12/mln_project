@@ -5,13 +5,23 @@ export type ImportPreviewRow = {
   typeLabel: string;
   difficulty: string;
   tags: string;
+  subject?: string;
+  chapter?: string;
+  lesson?: string;
+  lessonId?: number;
+  lessonLabel?: string;
+  lessonError?: string;
+  options?: string[];
+  answer?: string;
+  explanation?: string;
 };
 
 export type ImportFieldMapping = {
   id: string;
+  systemField: string;
   systemLabel: string;
-  selectedColumn: string;
-  options: string[];
+  excelColumn: string | null;
+  matched: boolean;
 };
 
 export type ImportBatchStep = "upload" | "review";

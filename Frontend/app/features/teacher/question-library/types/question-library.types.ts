@@ -11,6 +11,7 @@ export type QuestionMode = "single" | "batch";
 
 export type QuestionItem = {
   id: string;
+  lessonId?: number;
   title: string;
   question: string;
   type: QuestionType;
@@ -24,6 +25,7 @@ export type QuestionItem = {
   estimatedTime: number;
   tags: string[];
   options: string[];
+  explanation?: string;
   updatedBy: string;
 };
 
@@ -48,6 +50,7 @@ export type BloomLevel =
   | "Đánh giá";
 
 export type QuestionDraft = Omit<QuestionItem, "id" | "status" | "updatedBy"> & {
+  lessonId?: number;
   explanation: string;
   bloomLevel: BloomLevel;
   correctOptionIndex: number;

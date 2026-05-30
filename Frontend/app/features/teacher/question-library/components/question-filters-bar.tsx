@@ -2,19 +2,21 @@ import type { ReactNode } from "react";
 
 import { MaterialIcon } from "../../components/teacher-icons";
 import {
-  chapterOptions,
-  courseOptions,
   defaultQuestionFilters,
   difficultyOptions,
-  lessonOptions,
+  questionStatusOptions,
   questionTypeOptions,
+  statusDisplayLabels,
 } from "../constants/question-library.constants";
-import type { Difficulty, QuestionFilters, QuestionType } from "../types/question-library.types";
+import type { Difficulty, QuestionFilters, QuestionStatus, QuestionType } from "../types/question-library.types";
 
 type QuestionFiltersBarProps = {
   filters: QuestionFilters;
   selectedCount: number;
   canDelete: boolean;
+  courseOptions: string[];
+  chapterOptions: string[];
+  lessonOptions: string[];
   onChange: (filters: QuestionFilters) => void;
   onReset: () => void;
   onDeleteSelected: () => void;
@@ -26,6 +28,9 @@ export function QuestionFiltersBar({
   filters,
   selectedCount,
   canDelete,
+  courseOptions,
+  chapterOptions,
+  lessonOptions,
   onChange,
   onReset,
   onDeleteSelected,
@@ -46,7 +51,7 @@ export function QuestionFiltersBar({
           value={filters.search}
         />
       </div>
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-7">
         <FilterSelect
           onChange={(course) => onChange({ ...filters, course })}
           value={filters.course}
@@ -103,6 +108,19 @@ export function QuestionFiltersBar({
           {questionTypeOptions.map((item) => (
             <option key={item} value={item}>
               {item}
+            </option>
+          ))}
+        </FilterSelect>
+        <FilterSelect
+          onChange={(status) =>
+            onChange({ ...filters, status: status as QuestionStatus | "all" })
+          }
+          value={filters.status}
+        >
+          <option value="all">Trạng thái</option>
+          {questionStatusOptions.map((item) => (
+            <option key={item} value={item}>
+              {statusDisplayLabels[item]}
             </option>
           ))}
         </FilterSelect>

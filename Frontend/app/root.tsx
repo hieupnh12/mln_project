@@ -6,8 +6,11 @@ import {
   Scripts,
   ScrollRestoration,
 } from "react-router";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 import type { Route } from "./+types/root";
+import { AsyncActivityBar } from "./shared/components/async-activity-bar";
 import { AppQueryProvider } from "./shared/providers/query-provider";
 import "./app.css";
 
@@ -39,6 +42,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <AppQueryProvider>{children}</AppQueryProvider>
+        <AsyncActivityBar />
+        <ToastContainer
+          className="text-label-md"
+          closeButton
+          limit={4}
+          newestOnTop
+          theme="light"
+          toastClassName="!rounded-lg !border !border-outline-variant/20 !shadow-sm"
+        />
         <ScrollRestoration />
         <Scripts />
       </body>
