@@ -23,14 +23,22 @@ public class ChapterController {
     final ChapterService chapterSer;
 
     @PostMapping("/create/{subjectId}")
-    public ChapterResponse createChapter(@RequestBody ChapterRequest request, @PathVariable Long subjectId) {
-        return chapterSer.createChapter(request, subjectId);
+    public ApiResponse<ChapterResponse> createChapter(@RequestBody ChapterRequest request, @PathVariable Long subjectId) {
+        return ApiResponse.<ChapterResponse>builder()
+                .result(chapterSer.createChapter(request, subjectId))
+                .message("Create chapter successfully")
+                .code(1010)
+                .build();
     }
 
 
     @GetMapping("/{subjectId}")
-    public List<ChapterResponse> getChapterBySubjectId(@PathVariable Long subjectId) {
-        return chapterSer.getChapterBySubjectId(subjectId);
+    public ApiResponse<List<ChapterResponse>> getChapterBySubjectId(@PathVariable Long subjectId) {
+        return ApiResponse.<List<ChapterResponse>>builder()
+                .result(chapterSer.getChapterBySubjectId(subjectId))
+                .message("Get chapter by subject id successfully")
+                .code(1011)
+                .build();
     }
 
 
@@ -44,12 +52,23 @@ public class ChapterController {
     // }
 
     @PatchMapping("/{id}")
-    public ChapterResponse updateChapter(@PathVariable Long id, @RequestBody ChapterRequest request) {
-        return chapterSer.updateChapter(id, request);
+    public ApiResponse<ChapterResponse> updateChapter(@PathVariable Long id, @RequestBody ChapterRequest request) {
+        return ApiResponse.<ChapterResponse>builder()
+                .result(chapterSer.updateChapter(id, request))
+                .message("Update chapter successfully")
+                .code(1012)
+                .build();
     }
 
     @DeleteMapping("/{id}")
-    public void deleteChapter(@PathVariable Long id) {
+    public ApiResponse<Void> deleteChapter(@PathVariable Long id) {
         chapterSer.deleteChapter(id);
+        return ApiResponse.<Void>builder()
+                .message("Delete chapter successfully")
+                .code(1013)
+                .build();
     }
+    
+
+    
 }

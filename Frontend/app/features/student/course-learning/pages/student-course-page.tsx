@@ -51,7 +51,7 @@ export function StudentCoursePage() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-7xl px-margin-mobile py-md md:px-margin-desktop">
+      <main className="mx-auto w-full px-margin-mobile py-md md:px-margin-desktop">
         <section className="mb-lg">
           <div className="flex flex-col justify-between gap-md md:flex-row md:items-end">
             <div className="min-w-0">

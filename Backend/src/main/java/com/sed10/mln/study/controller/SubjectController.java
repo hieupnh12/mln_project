@@ -23,13 +23,21 @@ public class SubjectController {
     final SubjectService subjectSer;
 
     @PostMapping("/create")
-    public SubjectResponse createSubject(@RequestBody SubjectRequest request) {
-        return subjectSer.createSubject(request);
+    public ApiResponse<SubjectResponse> createSubject(@RequestBody SubjectRequest request) {
+        return ApiResponse.<SubjectResponse>builder()
+                .result(subjectSer.createSubject(request))
+                .message("Create subject successfully")
+                .code(1010)
+                .build();
     }
 
     @GetMapping("/{id}")
-    public SubjectResponse getSubjectById(@PathVariable Long id) {
-        return subjectSer.getSubjectById(id);
+    public ApiResponse<SubjectResponse> getSubjectById(@PathVariable Long id) {
+        return ApiResponse.<SubjectResponse>builder()
+                .result(subjectSer.getSubjectById(id))
+                .message("Get subject by id successfully")
+                .code(1011)
+                .build();
     }
 
     @GetMapping("/all")
@@ -44,13 +52,20 @@ public class SubjectController {
     
 
     @PutMapping("/{id}")
-    public SubjectResponse updateSubject(@PathVariable Long id, @RequestBody SubjectRequest request) {
-        return subjectSer.updateSubject(id, request);
+    public ApiResponse<SubjectResponse> updateSubject(@PathVariable Long id, @RequestBody SubjectRequest request) {
+        return ApiResponse.<SubjectResponse>builder()
+                .result(subjectSer.updateSubject(id, request))
+                .message("Update subject successfully")
+                .code(1012)
+                .build();
     }
 
 
     @DeleteMapping("/{id}")
-    public void deleteSubject(@PathVariable Long id) {
-        subjectSer.deleteSubject(id);
+    public ApiResponse<Void> deleteSubject(@PathVariable Long id) {
+        return ApiResponse.<Void>builder()
+                .message("Delete subject successfully")
+                .code(1013)
+                .build();
     }
 }

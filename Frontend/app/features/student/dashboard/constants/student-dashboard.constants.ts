@@ -1,7 +1,6 @@
-import { getStudentCoursePath, STUDENT_ROUTES } from "../../constants/student-routes.constants";
+import { STUDENT_ROUTES } from "../../constants/student-routes.constants";
 import type {
   CourseTone,
-  StudentDashboardCourse,
   StudentNavItem,
   StudentResource,
 } from "../../types/student.types";
@@ -17,36 +16,6 @@ export const studentDashboardNavItems: StudentNavItem[] = [
   { label: "Curriculum", href: "#curriculum" },
   { label: "Resources", href: "#resources" },
   { label: "Analytics", href: "#analytics" },
-];
-
-export const studentDashboardCourses: StudentDashboardCourse[] = [
-  {
-    slug: "philosophy",
-    title: "Triết học Mác - Lênin",
-    status: "Đang học",
-    progress: 75,
-    lessons: "12/16 Bài học",
-    icon: "school",
-    tone: "mint",
-  },
-  {
-    slug: "political-economy",
-    title: "Kinh tế chính trị Mác - Lênin",
-    status: "Mới bắt đầu",
-    progress: 20,
-    lessons: "3/15 Bài học",
-    icon: "payments",
-    tone: "warm",
-  },
-  {
-    slug: "scientific-socialism",
-    title: "Chủ nghĩa xã hội khoa học",
-    status: "Chưa bắt đầu",
-    progress: 0,
-    lessons: "0/12 Bài học",
-    icon: "diversity_3",
-    tone: "mint",
-  },
 ];
 
 export const studentDashboardBottomNavItems: StudentNavItem[] = [
@@ -89,5 +58,3 @@ export const courseToneClass: Record<
     border: "border-tertiary-fixed/60",
   },
 };
-
-export const featuredStudentCoursePath = getStudentCoursePath("philosophy");
