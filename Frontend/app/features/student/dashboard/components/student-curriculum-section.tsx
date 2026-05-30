@@ -1,6 +1,6 @@
 import { Link } from "react-router";
 
-import { useSubjects } from "~/features/subject/hooks/use-subjects";
+import { useSubjects } from "../hooks/dashboard.hooks";
 
 import { StudentMaterialIcon as MaterialIcon } from "../../components/student-material-icon";
 import { getStudentCoursePath } from "../../constants/student-routes.constants";

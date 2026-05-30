@@ -1,8 +1,8 @@
 import { apiClient } from "~/shared/services/api-client";
 import type { BackendApiResponse } from "~/shared/types/api.types";
 
-import { SUBJECT_ENDPOINTS } from "../constants/subject.constants";
-import type { SubjectResponse } from "../types/subject.types";
+import { SUBJECT_ENDPOINTS } from "../dashboard/constants/student-dashboard.constants";
+import type { SubjectResponse } from "../types/student.types";
 
 export async function fetchAllSubjects() {
   const response = await apiClient.get<BackendApiResponse<SubjectResponse[]>>(

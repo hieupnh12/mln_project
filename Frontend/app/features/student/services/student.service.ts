@@ -1,5 +1,5 @@
-import { fetchAllSubjects, fetchSubjectById } from "../api/subject.api";
-import type { SubjectListItem } from "../types/subject.types";
+import { fetchAllSubjects, fetchSubjectById } from "../api/student.api";
+import type { SubjectListItem } from "../types/student.types";
 
 function mapSubjectResponse(subject: {
   subjectId: number;

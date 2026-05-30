@@ -1,4 +1,4 @@
-import type { SubjectListItem } from "~/features/subject/types/subject.types";
+import type { SubjectListItem } from "../../types/student.types";
 
 import type { CourseTone, StudentDashboardCourse } from "../../types/student.types";
 

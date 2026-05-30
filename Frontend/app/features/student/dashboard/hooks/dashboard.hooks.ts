@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 
-import { SUBJECT_QUERY_KEYS } from "../constants/subject.constants";
-import { getAllSubjects } from "../services/subject.service";
+import { getAllSubjects } from "../../services/student.service";
+import { SUBJECT_QUERY_KEYS } from "../constants/student-dashboard.constants";
 
 export function useSubjects() {
   return useQuery({
