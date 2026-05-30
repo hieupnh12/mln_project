@@ -6,6 +6,18 @@ import type {
   QuestionType,
 } from "../types/question-library.types";
 
+export const QUESTION_PAGE_SIZE = 10;
+
+export const defaultQuestionFilters = {
+  search: "",
+  course: "all",
+  chapter: "all",
+  lesson: "all",
+  difficulty: "all",
+  type: "all",
+  status: "all",
+} as const;
+
 export const courseOptions = [
   "Triết học Mác - Lênin",
   "Kinh tế chính trị Mác - Lênin",
@@ -28,17 +40,27 @@ export const questionStatusOptions: QuestionStatus[] = [
   "Đã xuất bản",
 ];
 
+export const statusDisplayLabels: Record<QuestionStatus, string> = {
+  "Bản nháp": "Bản nháp",
+  "Cần duyệt": "Cần duyệt",
+  "Đã xuất bản": "Đã duyệt",
+};
+
 export const emptyQuestionDraft: QuestionDraft = {
   title: "",
   question: "",
   type: "Trắc nghiệm",
-  difficulty: "Cơ bản",
+  difficulty: "Vận dụng",
   course: courseOptions[0],
   chapter: chapterOptions[0],
   lesson: lessonOptions[0],
   answer: "",
+  explanation: "",
+  bloomLevel: "Hiểu",
+  correctOptionIndex: 0,
   score: 1,
   estimatedTime: 60,
+  tags: [],
   options: ["", "", "", ""],
 };
 
@@ -52,57 +74,81 @@ Type: Trắc nghiệm`;
 
 export const questionItems: QuestionItem[] = [
   {
-    id: "Q001",
-    title: "Vấn đề cơ bản của triết học",
-    question: "Vấn đề cơ bản của triết học gồm những mặt nào?",
+    id: "Q-1024",
+    title: "Chủ nghĩa duy vật biện chứng nghiên cứu điều gì?",
+    question: "Chủ nghĩa duy vật biện chứng nghiên cứu điều gì?",
     type: "Trắc nghiệm",
     difficulty: "Cơ bản",
     status: "Đã xuất bản",
     course: courseOptions[0],
-    chapter: "Chương 1",
-    lesson: "Bài 1.1",
-    answer: "Vật chất và ý thức",
+    chapter: "Chương 2",
+    lesson: "Bài 2.1",
+    answer: "Những quy luật chung nhất của tự nhiên, xã hội và tư duy",
     score: 1,
     estimatedTime: 60,
-    tags: ["nhập môn", "triết học"],
+    tags: ["dialetics", "basic"],
     options: [
-      "Vật chất và ý thức",
+      "Những quy luật chung nhất của tự nhiên, xã hội và tư duy",
       "Kinh tế và chính trị",
       "Tự nhiên và xã hội",
       "Lý luận và thực tiễn",
     ],
+    updatedBy: "TS. Trần Văn B",
   },
   {
-    id: "Q002",
-    title: "Vai trò của thực tiễn",
-    question: "Phân tích vai trò của thực tiễn đối với nhận thức.",
+    id: "Q-1025",
+    title:
+      "Vai trò của sản xuất vật chất đối với sự tồn tại và phát triển của xã hội?",
+    question:
+      "Vai trò của sản xuất vật chất đối với sự tồn tại và phát triển của xã hội?",
     type: "Tự luận",
     difficulty: "Vận dụng",
-    status: "Cần duyệt",
+    status: "Đã xuất bản",
     course: courseOptions[0],
-    chapter: "Chương 2",
-    lesson: "Bài 2.1",
+    chapter: "Chương 3",
+    lesson: "Bài 3.1",
     answer:
-      "Thực tiễn là cơ sở, động lực, mục đích và tiêu chuẩn của chân lý.",
+      "Sản xuất vật chất là cơ sở tồn tại và phát triển của mọi hình thái xã hội.",
     score: 3,
     estimatedTime: 300,
-    tags: ["nhận thức luận"],
+    tags: ["lịch sử"],
     options: [],
+    updatedBy: "TS. Trần Văn B",
   },
   {
-    id: "Q003",
-    title: "Quy luật lượng - chất",
-    question: "Quy luật lượng - chất chỉ áp dụng trong tự nhiên.",
-    type: "Đúng/Sai",
+    id: "Q-1026",
+    title:
+      "Phân tích mối quan hệ giữa lực lượng sản xuất và quan hệ sản xuất.",
+    question:
+      "Phân tích mối quan hệ giữa lực lượng sản xuất và quan hệ sản xuất.",
+    type: "Tự luận",
     difficulty: "Nâng cao",
     status: "Bản nháp",
     course: courseOptions[0],
     chapter: "Chương 3",
     lesson: "Bài 3.1",
-    answer: "Sai",
-    score: 2,
-    estimatedTime: 90,
-    tags: ["phép biện chứng"],
-    options: ["Đúng", "Sai"],
+    answer: "",
+    score: 4,
+    estimatedTime: 420,
+    tags: ["marx", "advanced"],
+    options: [],
+    updatedBy: "GS. Đặng Văn A",
+  },
+  {
+    id: "Q-1027",
+    title: "Vấn đề cơ bản của triết học",
+    question: "Vấn đề cơ bản của triết học gồm những mặt nào?",
+    type: "Trắc nghiệm",
+    difficulty: "Cơ bản",
+    status: "Cần duyệt",
+    course: courseOptions[1],
+    chapter: "Chương 1",
+    lesson: "Bài 1.1",
+    answer: "Vật chất và ý thức",
+    score: 1,
+    estimatedTime: 60,
+    tags: ["nhập môn"],
+    options: ["Vật chất và ý thức", "Kinh tế và chính trị", "Tự nhiên và xã hội"],
+    updatedBy: "TS. Lê Thị C",
   },
 ];

@@ -24,6 +24,7 @@ export type QuestionItem = {
   estimatedTime: number;
   tags: string[];
   options: string[];
+  updatedBy: string;
 };
 
 export type QuestionFilters = {
@@ -32,7 +33,22 @@ export type QuestionFilters = {
   chapter: string;
   lesson: string;
   difficulty: Difficulty | "all";
+  type: QuestionType | "all";
   status: QuestionStatus | "all";
 };
 
-export type QuestionDraft = Omit<QuestionItem, "id" | "status" | "tags">;
+export type QuestionModalId = "add" | "import" | "export";
+
+export type BloomLevel =
+  | "Nhận biết"
+  | "Hiểu"
+  | "Vận dụng"
+  | "Phân tích"
+  | "Tổng hợp"
+  | "Đánh giá";
+
+export type QuestionDraft = Omit<QuestionItem, "id" | "status" | "updatedBy"> & {
+  explanation: string;
+  bloomLevel: BloomLevel;
+  correctOptionIndex: number;
+};
