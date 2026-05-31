@@ -135,7 +135,27 @@ public class MaterialService {
     public List<MaterialResponse> listMaterialByLessonId(Long lessonId) {
         lessonRepo.findById(lessonId).orElseThrow(() -> new AppException(ErrorCode.LESSON_NOT_FOUND));
         List<Material> materials = materialRepo.findByLessonId(lessonId);
-        return materialMap.toMaterialListResponse(materials);
+        return materials.stream().map(this::toMaterialResponseWithPreview).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public MaterialResponse toMaterialResponseWithPreview(Material material) {
+        MaterialResponse response = materialMap.toMaterialResponse(material);
+        response.setPreviewImageUrl(resolvePreviewImageUrl(material));
+        return response;
+    }
+
+    @Transactional(readOnly = true)
+    public String resolvePreviewImageUrl(Material material) {
+        if (ContentType.YOUTUBE.name().equals(material.getContentType())) {
+            return YoutubeUrlUtil.extractVideoId(material.getResourceUrl())
+                    .map(videoId -> "https://img.youtube.com/vi/" + videoId + "/hqdefault.jpg")
+                    .orElse(null);
+        }
+
+        return slideRepo.findFirstByMaterialIdOrderBySlideIndexAsc(material.getId())
+                .map(Slide::getImageUrl)
+                .orElse(null);
     }
 
     private MaterialDetailResponse createYoutubeMaterial(Lesson lesson, String title, String youtubeUrl) {

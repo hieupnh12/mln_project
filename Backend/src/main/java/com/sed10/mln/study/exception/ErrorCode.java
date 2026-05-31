@@ -8,11 +8,13 @@ import org.springframework.http.HttpStatusCode;
 public enum ErrorCode {
     UNCATEGORIZED_EXCEPTION(9999, "Lỗi hệ thống không xác định", HttpStatus.INTERNAL_SERVER_ERROR),
     SMS_FAILED(2000, "Gửi SMS thất bại. Vui lòng thử lại sau", HttpStatus.BAD_REQUEST),
-    // Thêm các mã lỗi khác ở đây
+    QUESTION_NOT_FOUND(3001, "Không tìm thấy câu hỏi", HttpStatus.NOT_FOUND),
+    LESSON_NOT_FOUND(3002, "Không tìm thấy bài học", HttpStatus.NOT_FOUND),
+    QUESTION_CONTENT_REQUIRED(3003, "Nội dung câu hỏi không được để trống", HttpStatus.BAD_REQUEST),
+    QUESTION_DUPLICATE_EXACT(3004, "Câu hỏi đã tồn tại trong ngân hàng đề", HttpStatus.CONFLICT),
     SUBJECT_NOT_FOUND(1000, "Subject not found", HttpStatus.NOT_FOUND),
     CHAPTER_NOT_FOUND(1001, "Chapter not found", HttpStatus.NOT_FOUND),
     MATERIAL_NOT_FOUND(1002, "Material not found", HttpStatus.NOT_FOUND),
-    LESSON_NOT_FOUND(1003, "Lesson not found", HttpStatus.NOT_FOUND),
     USER_NOT_FOUND(1004, "User not found", HttpStatus.NOT_FOUND),
     LESSON_CREATE_FAILED(1005, "Lesson create failed", HttpStatus.BAD_REQUEST),
     INVALID_FILE_UPLOAD(1006, "File upload is empty or invalid", HttpStatus.BAD_REQUEST),

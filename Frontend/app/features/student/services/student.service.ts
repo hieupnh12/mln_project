@@ -1,26 +1,21 @@
 import { fetchAllSubjects, fetchSubjectById } from "../api/student.api";
-import type { SubjectListItem } from "../types/student.types";
+import type { SubjectListItem, SubjectResponse } from "../types/student.types";
 
-function mapSubjectResponse(subject: {
-  subjectId: number;
-  subjectCode: string;
-  title: string;
-  description: string;
-}): SubjectListItem {
+function mapSubjectDto(dto: SubjectResponse): SubjectListItem {
   return {
-    id: subject.subjectId,
-    code: subject.subjectCode,
-    title: subject.title,
-    description: subject.description,
+    id: dto.subjectId,
+    code: dto.subjectCode,
+    title: dto.title,
+    description: dto.description ?? "",
   };
 }
 
 export async function getAllSubjects(): Promise<SubjectListItem[]> {
-  const payload = await fetchAllSubjects();
-  return (payload.result ?? []).map(mapSubjectResponse);
+  const subjects = await fetchAllSubjects();
+  return subjects.map(mapSubjectDto);
 }
 
 export async function getSubjectById(id: number): Promise<SubjectListItem> {
-  const payload = await fetchSubjectById(id);
-  return mapSubjectResponse(payload.result);
+  const subject = await fetchSubjectById(id);
+  return mapSubjectDto(subject);
 }

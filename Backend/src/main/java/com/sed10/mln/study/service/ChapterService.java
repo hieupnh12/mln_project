@@ -4,12 +4,12 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import lombok.experimental.FieldDefaults;
 import lombok.AccessLevel;
-import com.sed10.mln.study.repository.ChapterRepository;
-import com.sed10.mln.study.repository.SubjectRepository;
+import com.sed10.mln.study.repository.*;
+
 import com.sed10.mln.study.dto.request.ChapterRequest;
 import com.sed10.mln.study.dto.response.ChapterResponse;
 import com.sed10.mln.study.entity.Chapter;
@@ -27,6 +27,8 @@ public class ChapterService {
     final ChapterRepository chapterRepo;
     final ChapterMapper chapterMap;
     final SubjectRepository subjectRepo;
+    final LessonRepository lessonRepo;
+    final LessonService lessonSer;
     
 
     
@@ -65,6 +67,7 @@ public class ChapterService {
 
     public void deleteChapter(Long id) {
         Chapter chapter = chapterRepo.findById(id).orElseThrow(() -> new AppException(ErrorCode.CHAPTER_NOT_FOUND));
+        lessonRepo.listlessonAndMaterialByChapterId(id).forEach(lesson -> lessonSer.deleteLesson(lesson.getId()));
         chapterRepo.delete(chapter);
     }
     

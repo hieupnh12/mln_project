@@ -1,4 +1,101 @@
-import type { ImportFieldMapping, ImportPreviewRow } from "../types/import-batch.types";
+import type { ImportPreviewRow } from "../types/import-batch.types";
+
+export const IMPORT_TEMPLATE_FILENAME = "mau-import-cau-hoi.xlsx";
+
+export const IMPORT_TEMPLATE_SHEET_NAME = "Cau hoi";
+
+/** Column headers in the Excel template (row 1). Keys match import field mapping. */
+export const IMPORT_TEMPLATE_HEADERS = [
+  "subject",
+  "chapter",
+  "lesson",
+  "content",
+  "type",
+  "difficulty",
+  "tags",
+  "option_a",
+  "option_b",
+  "option_c",
+  "option_d",
+  "correct_answer",
+  "explanation",
+] as const;
+
+export const IMPORT_TEMPLATE_HEADER_LABELS: Record<(typeof IMPORT_TEMPLATE_HEADERS)[number], string> = {
+  subject: "Môn học",
+  chapter: "Chương",
+  lesson: "Bài học",
+  content: "Nội dung câu hỏi",
+  type: "Loại câu hỏi",
+  difficulty: "Độ khó",
+  tags: "Thẻ (phân cách bằng dấu phẩy)",
+  option_a: "Đáp án A",
+  option_b: "Đáp án B",
+  option_c: "Đáp án C",
+  option_d: "Đáp án D",
+  correct_answer: "Đáp án đúng",
+  explanation: "Giải thích",
+};
+
+export const IMPORT_TEMPLATE_SAMPLE_ROWS: Record<(typeof IMPORT_TEMPLATE_HEADERS)[number], string>[] = [
+  {
+    subject: "Triết học Mác - Lênin",
+    chapter: "Khái lược về Triết Học Mác -lenin",
+    lesson: "Khái niệm nền tảng",
+    content: "Chủ nghĩa duy vật biện chứng nghiên cứu đối tượng nào?",
+    type: "Trắc nghiệm",
+    difficulty: "Cơ bản",
+    tags: "Triết học, MLN",
+    option_a: "Tự nhiên, xã hội và tư duy",
+    option_b: "Kinh tế và chính trị",
+    option_c: "Lịch sử và văn hóa",
+    option_d: "Triết học và tôn giáo",
+    correct_answer: "Tự nhiên, xã hội và tư duy",
+    explanation: "CNDVBC nghiên cứu quy luật chung nhất của thế giới khách quan và tư duy con người.",
+  },
+  {
+    subject: "Triết học Mác - Lênin",
+    chapter: "Khái lược về Triết Học Mác -lenin",
+    lesson: "Quy luật phép biện chứng",
+    content: "Vai trò của lực lượng sản xuất trong phát triển xã hội?",
+    type: "Tự luận",
+    difficulty: "Vận dụng",
+    tags: "Kinh tế chính trị",
+    option_a: "",
+    option_b: "",
+    option_c: "",
+    option_d: "",
+    correct_answer: "",
+    explanation: "Phân tích vai trò quyết định của sản xuất vật chất đối với sự tồn tại xã hội.",
+  },
+  {
+    subject: "",
+    chapter: "",
+    lesson: "",
+    content: "Quy luật lượng - chất chỉ áp dụng trong tự nhiên.",
+    type: "Đúng/Sai",
+    difficulty: "Nâng cao",
+    tags: "Phép biện chứng",
+    option_a: "Đúng",
+    option_b: "Sai",
+    option_c: "",
+    option_d: "",
+    correct_answer: "Sai",
+    explanation: "Quy luật lượng - chất vận dụng trong tự nhiên, xã hội và tư duy.",
+  },
+];
+
+export const IMPORT_TYPE_OPTIONS = [
+  "Trắc nghiệm",
+  "Nhiều đáp án",
+  "Đúng/Sai",
+  "Điền khuyết",
+  "Tự luận",
+] as const;
+
+export const IMPORT_DIFFICULTY_OPTIONS = ["Cơ bản", "Vận dụng", "Nâng cao"] as const;
+
+export const IMPORT_ANSWER_LETTER_OPTIONS = ["A", "B", "C", "D"] as const;
 
 export const importPreviewRows: ImportPreviewRow[] = [
   {
@@ -40,40 +137,6 @@ export const importPreviewRows: ImportPreviewRow[] = [
     typeLabel: "Tự luận",
     difficulty: "Nâng cao",
     tags: "CĐVHL, Phân tích",
-  },
-];
-
-export const defaultImportFieldMappings: ImportFieldMapping[] = [
-  {
-    id: "question",
-    systemLabel: "Nội dung câu hỏi",
-    selectedColumn: "content",
-    options: ["content", "text", "Nhập thủ công"],
-  },
-  {
-    id: "category",
-    systemLabel: "Phân loại / Môn",
-    selectedColumn: "subject",
-    options: ["tags", "labels", "subject"],
-  },
-  {
-    id: "level",
-    systemLabel: "Độ khó",
-    selectedColumn: "diff",
-    options: ["diff", "Mặc định: Vận dụng"],
-  },
-];
-
-export const importCollaborators = [
-  {
-    name: "Collaborator 1",
-    avatarUrl:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuDn0e2xFpCTRQipAxEqbalUCcb1COYkZDeHXu6co_2Nuf9P_Wh8Kk8HSZgJQBH97AFBFOKhGCF-FZlD47Bp__fhOpBjUzp3R4TB6QdK_k-jNj-T7msRKbHSvDP2mveczMLWafVdu5IuWrif4sxHWQ9FbaNAvw4aMD12Zj5386ZHs8WHPem8flQmQuzEQ7w80XbOV232DkZl9f-BwYRa_JdqrCEMLmN8PRXIBZBf0M3ozeUCnrcgb2lndlrAgj8YJUKjeRyGQQVutsc",
-  },
-  {
-    name: "Collaborator 2",
-    avatarUrl:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuAQb8ci-BpHumwCdn2Ze2X5j5L9_hYGgg5FzCNz7PkYhX65wJaUaML3-WHMT4eZgm38EkjD0YIfwcGvtpJqxaZDVxXk8MJlpxO_aTqdzR70eimsTTuPxt-AmSCUlvqBS1g8PH3eT0AuGlj3eM2pbQe4K3QgkDx5SFlEOtSHU6gAkSYoQLhXyLRCJ7rHdTxlWTuwxzKWWxiN_bNvSutHIGWU07nZcUBu98lqrumB-if613hTczSN3NWKnlVNwEgk4B7jnXTFnHo97w8",
   },
 ];
 

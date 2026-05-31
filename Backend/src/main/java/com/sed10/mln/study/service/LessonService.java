@@ -1,7 +1,6 @@
 package com.sed10.mln.study.service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.*;
@@ -14,14 +13,12 @@ import com.sed10.mln.study.entity.*;
 import com.sed10.mln.study.exception.AppException;
 import com.sed10.mln.study.exception.ErrorCode;
 import com.sed10.mln.study.mapper.LessonMapper;
-import com.sed10.mln.study.repository.ChapterRepository;
-import com.sed10.mln.study.repository.LessonRepository;
-import com.sed10.mln.study.repository.UserRepository;
+import com.sed10.mln.study.repository.*;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.experimental.FieldDefaults;
 import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +30,8 @@ public class LessonService {
     final LessonMapper lessonMap;
     final ChapterRepository chapterRepo;
     final UserRepository userRepo;
+    final MaterialRepository materialRepo;
+    final MaterialService materialSer;
 
 
     public LessonResponse createLesson(LessonRequest lessonRequest, Long chapterId, Long teacherId) {
@@ -46,6 +45,7 @@ public class LessonService {
     
     public void deleteLesson(Long lessonId) {
         Lesson lesson = lessonRepo.findById(lessonId).orElseThrow(() -> new AppException(ErrorCode.LESSON_NOT_FOUND));
+        materialRepo.findByLessonId(lessonId).forEach(material -> materialSer.deleteMaterial(material.getId()));
         lessonRepo.delete(lesson);
     }
      
@@ -59,7 +59,15 @@ public class LessonService {
     
     public List<LessonListResponse> listlessonAndMaterialByChapterId(Long chapterId) {
         List<Lesson> lessons = lessonRepo.listlessonAndMaterialByChapterId(chapterId);
-        return lessonMap.toLessonListResponse(lessons);
+        return lessons.stream().map(lesson -> {
+            LessonListResponse response = lessonMap.toLessonListResponse(lesson);
+            if (lesson.getMaterials() != null && !lesson.getMaterials().isEmpty()) {
+                response.setMaterials(lesson.getMaterials().stream()
+                        .map(materialSer::toMaterialResponseWithPreview)
+                        .toList());
+            }
+            return response;
+        }).toList();
     }
     
-} 
+}

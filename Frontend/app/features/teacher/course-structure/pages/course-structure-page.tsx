@@ -1,5 +1,5 @@
-import { CourseStructureManager } from "../components/course-structure-manager";
+import { TeacherSubjectList } from "../components/teacher-subject-list";
 
 export function CourseStructurePage() {
-  return <CourseStructureManager />;
+  return <TeacherSubjectList />;
 }

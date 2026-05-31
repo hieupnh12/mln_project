@@ -15,4 +15,6 @@ public class MaterialResponse {
     private String contentType;
     private String resourceUrl;
     private Integer slideCount;
+    /** Ảnh demo: slide đầu hoặc thumbnail YouTube */
+    private String previewImageUrl;
 }

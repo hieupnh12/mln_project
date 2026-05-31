@@ -12,7 +12,18 @@ export default defineConfig({
       "/api": {
         target: "http://localhost:8080/mlnStudy",
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ""),
+      },
+      "/chapters": {
+        target: "http://localhost:8080/mlnStudy",
+        changeOrigin: true,
+      },
+      "/lessons": {
+        target: "http://localhost:8080/mlnStudy",
+        changeOrigin: true,
+      },
+      "/materials": {
+        target: "http://localhost:8080/mlnStudy",
+        changeOrigin: true,
       },
     },
   },

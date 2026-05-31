@@ -5,12 +5,14 @@ import { MaterialIcon } from "../../../../components/teacher-icons";
 type ImportUploadZoneProps = {
   fileName: string | null;
   compact?: boolean;
+  disabled?: boolean;
   onFileSelect: (file: File) => void;
 };
 
 export function ImportUploadZone({
   fileName,
   compact = false,
+  disabled = false,
   onFileSelect,
 }: ImportUploadZoneProps) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -18,11 +20,17 @@ export function ImportUploadZone({
   const hasFile = Boolean(fileName);
 
   function openPicker() {
+    if (disabled) {
+      return;
+    }
     inputRef.current?.click();
   }
 
   function handleDrop(event: DragEvent) {
     event.preventDefault();
+    if (disabled) {
+      return;
+    }
     setIsDragging(false);
     const file = event.dataTransfer.files[0];
     if (file) onFileSelect(file);
@@ -43,7 +51,8 @@ export function ImportUploadZone({
           </div>
         </div>
         <button
-          className="flex items-center justify-center gap-2 rounded-lg border border-outline-variant px-4 py-2 text-label-md font-medium text-secondary transition hover:bg-surface-container"
+          className="flex items-center justify-center gap-2 rounded-lg border border-outline-variant px-4 py-2 text-label-md font-medium text-secondary transition hover:bg-surface-container disabled:opacity-50"
+          disabled={disabled}
           onClick={openPicker}
           type="button"
         >
@@ -53,6 +62,7 @@ export function ImportUploadZone({
         <input
           accept=".xlsx,.csv,.xls"
           className="hidden"
+          disabled={disabled}
           onChange={(e) => {
             const file = e.target.files?.[0];
             if (file) onFileSelect(file);
@@ -74,9 +84,9 @@ export function ImportUploadZone({
             ? "relative flex flex-col items-center justify-center space-y-4 rounded-xl border-2 border-dashed border-secondary bg-surface-container-low p-lg text-center"
             : hasFile
               ? "relative flex flex-col items-center justify-center space-y-4 rounded-xl border-2 border-dashed border-secondary bg-secondary-container/10 p-lg text-center"
-              : "relative flex cursor-pointer flex-col items-center justify-center space-y-4 rounded-xl border-2 border-dashed border-secondary-container bg-surface-container-low p-lg text-center transition-colors hover:border-secondary"
+              : "relative flex cursor-pointer flex-col items-center justify-center space-y-4 rounded-xl border-2 border-dashed border-secondary-container bg-surface-container-low p-lg text-center transition-colors hover:border-secondary disabled:cursor-not-allowed disabled:opacity-60"
         }
-        onClick={hasFile ? undefined : openPicker}
+        onClick={hasFile || disabled ? undefined : openPicker}
         onDragLeave={() => setIsDragging(false)}
         onDragOver={(e) => {
           e.preventDefault();
@@ -111,7 +121,8 @@ export function ImportUploadZone({
                 Kéo thả file vào đây
               </p>
               <p className="mt-1 text-on-surface-variant">
-                hoặc nhấn để chọn từ máy tính
+                hoặc nhấn để chọn từ máy tính ·{" "}
+                <span className="text-label-sm">Dùng file Excel theo mẫu chuẩn</span>
               </p>
             </>
           )}
@@ -139,6 +150,7 @@ export function ImportUploadZone({
         <input
           accept=".xlsx,.csv,.xls"
           className="hidden"
+          disabled={disabled}
           onChange={(e) => {
             const file = e.target.files?.[0];
             if (file) onFileSelect(file);

@@ -28,7 +28,9 @@ export function StudentCurriculumSection() {
   const { data: subjects, isLoading, isError, error, refetch, isFetching } =
     useSubjects();
 
-  const courses = (subjects ?? []).map(mapSubjectToCourseCard);
+  const courses = (subjects ?? []).map((subject, index) =>
+    mapSubjectToCourseCard(subject, index),
+  );
 
   return (
     <section className="space-y-md" id="curriculum">

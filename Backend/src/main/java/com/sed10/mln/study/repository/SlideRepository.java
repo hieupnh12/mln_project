@@ -14,6 +14,8 @@ public interface SlideRepository extends JpaRepository<Slide, Long> {
 
     List<Slide> findByMaterialIdOrderBySlideIndexAsc(Long materialId);
 
+    Optional<Slide> findFirstByMaterialIdOrderBySlideIndexAsc(Long materialId);
+
     void deleteByMaterialId(Long materialId);
 
     @Query("""

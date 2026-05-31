@@ -27,6 +27,8 @@ server:
     context-path: /mlnStudy
 
 spring:
+  config:
+    import: optional:file:../.env[.properties]
   application:
     name: web-sales-backend
 
@@ -51,6 +53,9 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none
+      naming:
+        # Giữ đúng tên bảng trong @Table (vd. questionTag), không đổi thành question_tag
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     show-sql: true
     properties:
       hibernate:
@@ -67,3 +72,12 @@ jwt:
   expiration: 
   refreshable-duration: 
   temp-expiration: 
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+    try-it-out-enabled: true

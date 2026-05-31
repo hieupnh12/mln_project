@@ -15,7 +15,7 @@ import com.sed10.mln.study.exception.ErrorCode;
 import com.sed10.mln.study.service.SubjectService;
 
 @RestController
-@RequestMapping("/subjects")
+@RequestMapping("/api/subjects")
 @RequiredArgsConstructor
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE)
