@@ -6,7 +6,10 @@ export function AsyncActivityBar() {
   const remove = useAsyncActivityStore((state) => state.remove);
 
   const visible = activities.filter(
-    (item) => item.status === "running" || item.status === "error",
+    (item) =>
+      item.status === "running" ||
+      item.status === "success" ||
+      item.status === "error",
   );
 
   if (visible.length === 0) {
@@ -17,7 +20,7 @@ export function AsyncActivityBar() {
     <div
       aria-label="Tiến trình hoạt động"
       aria-live="polite"
-      className="pointer-events-none fixed inset-x-0 bottom-0 z-[100] flex flex-col gap-2 p-3 sm:p-4"
+      className="pointer-events-none fixed right-3 bottom-3 left-3 z-[100] grid gap-2 sm:right-4 sm:bottom-4 sm:left-auto sm:w-[28rem]"
       role="region"
     >
       {visible.map((activity) => (
@@ -39,7 +42,7 @@ function ActivityCard({
   const showPercent = isRunning && !activity.indeterminate;
 
   return (
-    <div className="pointer-events-auto mx-auto w-full max-w-xl rounded-xl border border-outline-variant/20 bg-surface-container-lowest px-4 py-3 shadow-lg">
+    <div className="pointer-events-auto w-full rounded-xl border border-outline-variant/20 bg-surface-container-lowest px-4 py-3 shadow-lg">
       <div className="flex items-start gap-3">
         <div
           className={
@@ -54,9 +57,9 @@ function ActivityCard({
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
-              <p className="truncate text-label-md font-medium text-on-surface">{activity.label}</p>
+              <p className="break-words text-label-md font-medium text-on-surface">{activity.label}</p>
               {activity.detail ? (
-                <p className="mt-0.5 truncate text-label-sm text-on-surface-variant">
+                <p className="mt-0.5 break-words text-label-sm text-on-surface-variant">
                   {activity.detail}
                 </p>
               ) : null}

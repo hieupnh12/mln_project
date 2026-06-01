@@ -86,10 +86,8 @@ export function ImportBatchModal({
     setIsSubmitting(true);
     try {
       await onImportComplete(previewRows, fallbackLessonId);
-      reset();
-      onClose();
     } catch {
-      // Toast + activity bar handled in manager
+      // The global activity bar keeps the API error visible after the modal closes.
     } finally {
       setIsSubmitting(false);
     }

@@ -4,6 +4,7 @@ import {
   createQuestionApi,
   deleteQuestionApi,
   deleteQuestionsApi,
+  fetchQuestion,
   fetchQuestionMetadata,
   fetchQuestions,
   fetchQuestionStats,
@@ -12,31 +13,18 @@ import type {
   BatchImportPayload,
   CheckDuplicatePayload,
   CreateQuestionPayload,
+  QuestionDto,
+  QuestionListItemDto,
 } from "../types/question-library-api.types";
-import type { QuestionFilters, QuestionItem } from "../types/question-library.types";
+import type {
+  QuestionFilters,
+  QuestionItem,
+  QuestionListItem,
+} from "../types/question-library.types";
 
-function mapQuestionDto(item: {
-  id: string;
-  lessonId: number | null;
-  title: string;
-  question: string;
-  type: string;
-  difficulty: string;
-  status: string;
-  course: string;
-  chapter: string;
-  lesson: string;
-  answer: string;
-  score: number;
-  estimatedTime: number;
-  tags: string[];
-  options: string[];
-  explanation?: string;
-  updatedBy: string;
-}): QuestionItem {
+function mapQuestionListItemDto(item: QuestionListItemDto): QuestionListItem {
   return {
     id: item.id,
-    lessonId: item.lessonId ?? undefined,
     title: item.title,
     question: item.question,
     type: item.type as QuestionItem["type"],
@@ -45,6 +33,13 @@ function mapQuestionDto(item: {
     course: item.course,
     chapter: item.chapter,
     lesson: item.lesson,
+  };
+}
+
+function mapQuestionDto(item: QuestionDto): QuestionItem {
+  return {
+    ...mapQuestionListItemDto(item),
+    lessonId: item.lessonId ?? undefined,
     answer: item.answer,
     score: Number(item.score),
     estimatedTime: item.estimatedTime,
@@ -59,12 +54,18 @@ export function getQuestionMetadata() {
   return fetchQuestionMetadata();
 }
 
-export async function getQuestions(filters: QuestionFilters) {
-  const response = await fetchQuestions(filters);
+export async function getQuestions(filters: QuestionFilters, page: number, size: number) {
+  const response = await fetchQuestions(filters, page, size);
   return {
-    items: response.items.map(mapQuestionDto),
+    items: response.items.map(mapQuestionListItemDto),
     total: response.total,
+    page: response.page,
+    size: response.size,
   };
+}
+
+export function getQuestion(id: string) {
+  return fetchQuestion(id).then(mapQuestionDto);
 }
 
 export function getQuestionStats() {
