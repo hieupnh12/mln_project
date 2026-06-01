@@ -1,5 +1,5 @@
 import type { LessonOptionDto } from "../../types/question-library-api.types";
-import type { QuestionDraft } from "../../types/question-library.types";
+import type { QuestionDraft, QuestionStatus } from "../../types/question-library.types";
 import { CreateQuestionEditor } from "./create-question/create-question-editor";
 import { CreateQuestionFooter } from "./create-question/create-question-footer";
 import { CreateQuestionHeader } from "./create-question/create-question-header";
@@ -9,6 +9,8 @@ import { ModalOverlay } from "./modal-overlay";
 
 type AddQuestionModalProps = {
   open: boolean;
+  mode?: "create" | "edit";
+  editingStatus?: QuestionStatus;
   draft: QuestionDraft;
   lessonOptions: LessonOptionDto[];
   lessonsLoading?: boolean;
@@ -24,6 +26,8 @@ type AddQuestionModalProps = {
 
 export function AddQuestionModal({
   open,
+  mode = "create",
+  editingStatus,
   draft,
   lessonOptions,
   lessonsLoading = false,
@@ -39,7 +43,7 @@ export function AddQuestionModal({
   return (
     <ModalOverlay glass labelledBy="add-question-title" onClose={onClose} open={open}>
       <div className="mx-auto flex max-h-[calc(100dvh-32px)] w-full max-w-5xl flex-col overflow-hidden rounded-xl border border-outline-variant/20 bg-surface-container-lowest shadow-2xl">
-        <CreateQuestionHeader onClose={onClose} />
+        <CreateQuestionHeader mode={mode} onClose={onClose} />
 
         <div className="custom-scrollbar flex-1 overflow-y-auto p-4 sm:p-md lg:p-lg">
           <section className="grid grid-cols-1 gap-md lg:grid-cols-12 lg:gap-lg">
@@ -61,6 +65,8 @@ export function AddQuestionModal({
         </div>
 
         <CreateQuestionFooter
+          editingStatus={editingStatus}
+          mode={mode}
           onDiscard={onDiscard}
           onPublish={onPublish}
           onSaveDraft={onSaveDraft}

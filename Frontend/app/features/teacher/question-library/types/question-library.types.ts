@@ -28,6 +28,7 @@ export type QuestionItem = QuestionListItem & {
   estimatedTime: number;
   tags: string[];
   options: string[];
+  correctOptionIndices?: number[];
   explanation?: string;
   updatedBy: string;
 };

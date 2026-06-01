@@ -1,5 +1,7 @@
 import {
+  approveQuestionApi,
   batchImportQuestionsApi,
+  bulkApproveQuestionsApi,
   checkDuplicateApi,
   createQuestionApi,
   deleteQuestionApi,
@@ -8,9 +10,11 @@ import {
   fetchQuestionMetadata,
   fetchQuestions,
   fetchQuestionStats,
+  updateQuestionApi,
 } from "../api/question-library.api";
 import type {
   BatchImportPayload,
+  BulkApproveQuestionsPayload,
   CheckDuplicatePayload,
   CreateQuestionPayload,
   QuestionDto,
@@ -45,6 +49,7 @@ function mapQuestionDto(item: QuestionDto): QuestionItem {
     estimatedTime: item.estimatedTime,
     tags: item.tags ?? [],
     options: item.options ?? [],
+    correctOptionIndices: item.correctOptionIndices ?? [],
     explanation: item.explanation ?? "",
     updatedBy: item.updatedBy,
   };
@@ -76,6 +81,10 @@ export function createQuestion(payload: CreateQuestionPayload) {
   return createQuestionApi(payload).then(mapQuestionDto);
 }
 
+export function updateQuestion(id: string, payload: CreateQuestionPayload) {
+  return updateQuestionApi(id, payload).then(mapQuestionDto);
+}
+
 export async function checkQuestionDuplicate(payload: CheckDuplicatePayload) {
   const result = await checkDuplicateApi(payload);
   return {
@@ -88,6 +97,17 @@ export async function checkQuestionDuplicate(payload: CheckDuplicatePayload) {
 
 export function batchImportQuestions(payload: BatchImportPayload) {
   return batchImportQuestionsApi(payload);
+}
+
+export function approveQuestion(id: string) {
+  return approveQuestionApi(id).then(mapQuestionDto);
+}
+
+export function bulkApproveQuestions(ids: string[]) {
+  const payload: BulkApproveQuestionsPayload = {
+    ids: ids.map((id) => Number(id.startsWith("Q-") ? id.slice(2) : id)),
+  };
+  return bulkApproveQuestionsApi(payload);
 }
 
 export function deleteQuestion(id: string) {

@@ -1,0 +1,51 @@
+﻿TABLES: (('quiz',), ('quizQuestion',), ('quiz_attempt',), ('quiz_attempt_detail',))
+
+=== Quiz missing === (1146, "Table 'mln_database.Quiz' doesn't exist")
+
+=== quiz ===
+('id', 'bigint', 'NO', 'PRI', None, 'auto_increment')
+('time_limit', 'int', 'YES', '', None, '')
+('title', 'varchar(255)', 'YES', '', None, '')
+('lesson_id', 'bigint', 'YES', 'MUL', None, '')
+
+=== quizQuestion ===
+('quiz_id', 'bigint', 'NO', 'PRI', None, '')
+('question_id', 'bigint', 'NO', 'PRI', None, '')
+('sort_order', 'int', 'NO', '', '0', '')
+('points', 'decimal(5,2)', 'YES', '', None, '')
+
+CHAPTERS: ((1, 'Kh├íi l╞░ß╗úc vß╗ü Triß║┐t Hß╗ìc M├íc -lenin', 1), (2, 'Bao Qu├ít vß╗ü kh├íi niß╗çm cß╗ºa triß║┐t hß╗ìc', 1), (4, 'test 1', 2), (5, 'ch╞░╞íng 3', 1), (6, 'ch╞░╞íng 4', 1))
+LESSONS: ((1, 'Triß║┐t Hß╗ìc V├á Vß║Ñn ─Éß╗ü C╞í Bß║ún Cß╗ºa Triß║┐t Hß╗ìc', 'Kh├íi l╞░ß╗úc vß╗ü Triß║┐t Hß╗ìc M├íc -lenin', 'Triß║┐t hß╗ìc M├íc - L├¬nin'), (2, 'Triß║┐t Hß╗ìc M├íc-leenin V├á Vai Tr├▓ Cß╗ºa Triß║┐t Hß╗ìc M├íc-l├¬nin Trong ─Éß╗¥i Sß╗æng X├ú Hß╗Öi', 'Kh├íi l╞░ß╗úc vß╗ü Triß║┐t Hß╗ìc M├íc -lenin', 'Triß║┐t hß╗ìc M├íc - L├¬nin'), (7, 'test 1 - 1', 'test 1', 'Kinh tß║┐ ch├¡nh trß╗ï M├íc-L├¬nin'), (8, 'test 2', 'Bao Qu├ít vß╗ü kh├íi niß╗çm cß╗ºa triß║┐t hß╗ìc', 'Triß║┐t hß╗ìc M├íc - L├¬nin'), (9, 'test 11', 'ch╞░╞íng 3', 'Triß║┐t hß╗ìc M├íc - L├¬nin'), (10, 'test 3', 'ch╞░╞íng 4', 'Triß║┐t hß╗ìc M├íc - L├¬nin'))
+QUESTION STATUS: (('PUBLISHED', 7), ('PENDING', 22))
+
+=== quiz_attempt ===
+('id', 'bigint', 'NO', 'PRI', None, 'auto_increment')
+('attempted_at', 'datetime(6)', 'YES', '', None, '')
+('score', 'float', 'YES', '', None, '')
+('quiz_id', 'bigint', 'YES', 'MUL', None, '')
+('student_id', 'bigint', 'YES', 'MUL', None, '')
+COUNT: 0
+
+=== quiz_attempt_detail ===
+('id', 'bigint', 'NO', 'PRI', None, 'auto_increment')
+('attempt_id', 'bigint', 'YES', 'MUL', None, '')
+('question_id', 'bigint', 'YES', 'MUL', None, '')
+('selected_answer_id', 'bigint', 'YES', 'MUL', None, '')
+COUNT: 0
+
+QUIZ COUNT: 0
+QUIZ ROWS: ()
+python : Traceback (most recent call last):
+At C:\Users\hieup\AppData\Local\Temp\ps-script-23b9dc00-7749-4b8f-88b2-2a328e6d4b4d.ps1:89 char:32
++ ... NG='utf-8'; python Backend/scripts/inspect_quiz_schema.py 2>&1 | Out- ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Traceback (most recent call last)::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  File "E:\Project\mln_project\Backend\scripts\inspect_quiz_schema.py", line 82, in <module>
+    main()
+    ~~~~^^
+  File "E:\Project\mln_project\Backend\scripts\inspect_quiz_schema.py", line 73, in main
+    print("QUESTIONS WITH quiz_id:", cur.fetchone()[0])
+                                     ~~~~~~~~~~~~~~^^^
+TypeError: 'NoneType' object is not subscriptable

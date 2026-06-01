@@ -5,6 +5,8 @@ import type {
   BackendApiResponse,
   BatchImportPayload,
   BatchImportReportDto,
+  BulkApproveQuestionsPayload,
+  BulkApproveQuestionsReportDto,
   CheckDuplicatePayload,
   CreateQuestionPayload,
   DuplicateCheckDto,
@@ -77,9 +79,34 @@ export async function createQuestionApi(payload: CreateQuestionPayload) {
   return unwrap(response);
 }
 
+export async function updateQuestionApi(id: string, payload: CreateQuestionPayload) {
+  const numericId = id.startsWith("Q-") ? id.slice(2) : id;
+  const response = await apiClient.put<BackendApiResponse<QuestionDto>>(
+    QUESTION_LIBRARY_ENDPOINTS.questionById(numericId),
+    payload,
+  );
+  return unwrap(response);
+}
+
 export async function batchImportQuestionsApi(payload: BatchImportPayload) {
   const response = await apiClient.post<BackendApiResponse<BatchImportReportDto>>(
     QUESTION_LIBRARY_ENDPOINTS.batchImport,
+    payload,
+  );
+  return unwrap(response);
+}
+
+export async function approveQuestionApi(id: string) {
+  const numericId = id.startsWith("Q-") ? id.slice(2) : id;
+  const response = await apiClient.post<BackendApiResponse<QuestionDto>>(
+    QUESTION_LIBRARY_ENDPOINTS.approveQuestion(numericId),
+  );
+  return unwrap(response);
+}
+
+export async function bulkApproveQuestionsApi(payload: BulkApproveQuestionsPayload) {
+  const response = await apiClient.post<BackendApiResponse<BulkApproveQuestionsReportDto>>(
+    QUESTION_LIBRARY_ENDPOINTS.bulkApprove,
     payload,
   );
   return unwrap(response);
