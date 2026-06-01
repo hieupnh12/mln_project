@@ -47,17 +47,17 @@ public class GoogleOAuthService {
     public GoogleUserInfo exchangeCodeForToken(String code) {
         try {
             // Exchange authorization code for token
-            String tokenRequestBody = "code=" + code +
-                    "&client_id=" + clientId +
-                    "&client_secret=" + clientSecret +
-                    "&redirect_uri=" + redirectUri +
-                    "&grant_type=authorization_code";
+            org.springframework.util.MultiValueMap<String, String> map = new org.springframework.util.LinkedMultiValueMap<>();
+            map.add("code", code);
+            map.add("client_id", clientId);
+            map.add("client_secret", clientSecret);
+            map.add("redirect_uri", redirectUri);
+            map.add("grant_type", "authorization_code");
             
             org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
             headers.setContentType(org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED);
             
-            org.springframework.http.HttpEntity<String> request = new org.springframework.http.HttpEntity<>(
-                    tokenRequestBody, headers);
+            org.springframework.http.HttpEntity<org.springframework.util.MultiValueMap<String, String>> request = new org.springframework.http.HttpEntity<>(map, headers);
             
             org.springframework.http.ResponseEntity<String> response = restTemplate.postForEntity(
                     GOOGLE_TOKEN_URL, request, String.class);
@@ -86,6 +86,10 @@ public class GoogleOAuthService {
                     .picture(userInfo.has("picture") ? userInfo.get("picture").getAsString() : null)
                     .build();
             
+        } catch (org.springframework.web.client.HttpClientErrorException e) {
+            log.error("Google Token API Error. Status: {}, Body: {}", e.getStatusCode(), e.getResponseBodyAsString());
+            log.error("Client ID length: {}, Client Secret length: {}", clientId != null ? clientId.length() : 0, clientSecret != null ? clientSecret.length() : 0);
+            throw new RuntimeException("Failed to exchange Google OAuth code: " + e.getResponseBodyAsString(), e);
         } catch (Exception e) {
             log.error("Error exchanging code for token: {}", e.getMessage());
             throw new RuntimeException("Failed to exchange Google OAuth code", e);
