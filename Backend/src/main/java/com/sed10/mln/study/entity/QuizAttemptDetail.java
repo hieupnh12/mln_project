@@ -3,7 +3,6 @@ package com.sed10.mln.study.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -12,10 +11,22 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "QuizAttemptDetail")
+@Table(name = "quiz_attempt_detail")
 public class QuizAttemptDetail {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) @EqualsAndHashCode.Include Long id;
-    @ManyToOne @JoinColumn(name = "attempt_id") QuizAttempt attempt;
-    @ManyToOne @JoinColumn(name = "question_id") Question question;
-    @ManyToOne @JoinColumn(name = "selected_answer_id") Answer selectedAnswer;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
+    Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "attempt_id")
+    QuizAttempt attempt;
+
+    @ManyToOne
+    @JoinColumn(name = "question_id")
+    Question question;
+
+    @ManyToOne
+    @JoinColumn(name = "selected_answer_id")
+    Answer selectedAnswer;
 }

@@ -2,10 +2,12 @@ package com.sed10.mln.study.controller;
 
 import com.sed10.mln.study.dto.response.ApiResponse;
 import com.sed10.mln.study.dto.request.BatchImportRequest;
+import com.sed10.mln.study.dto.request.BulkApproveQuestionsRequest;
 import com.sed10.mln.study.dto.request.CheckDuplicateRequest;
 import com.sed10.mln.study.dto.request.CreateQuestionRequest;
 import com.sed10.mln.study.dto.response.DuplicateCheckResponse;
 import com.sed10.mln.study.dto.response.BatchImportReportResponse;
+import com.sed10.mln.study.dto.response.BulkApproveQuestionsResponse;
 import com.sed10.mln.study.dto.response.QuestionListResponse;
 import com.sed10.mln.study.dto.response.QuestionMetadataResponse;
 import com.sed10.mln.study.dto.response.QuestionResponse;
@@ -62,6 +64,15 @@ public class QuestionLibraryController {
                 .build();
     }
 
+    @PostMapping("/questions/bulk-approve")
+    public ApiResponse<BulkApproveQuestionsResponse> bulkApproveQuestions(
+            @RequestBody BulkApproveQuestionsRequest request) {
+        return ApiResponse.<BulkApproveQuestionsResponse>builder()
+                .message("Đã xử lý duyệt hàng loạt")
+                .result(questionLibraryService.bulkApproveQuestions(request))
+                .build();
+    }
+
     @GetMapping("/stats")
     public ApiResponse<QuestionStatsResponse> stats() {
         return ApiResponse.<QuestionStatsResponse>builder()
@@ -80,6 +91,15 @@ public class QuestionLibraryController {
     public ApiResponse<QuestionResponse> createQuestion(@RequestBody CreateQuestionRequest request) {
         return ApiResponse.<QuestionResponse>builder()
                 .result(questionLibraryService.createQuestion(request))
+                .build();
+    }
+
+    @PutMapping("/questions/{id}")
+    public ApiResponse<QuestionResponse> updateQuestion(
+            @PathVariable Long id, @RequestBody CreateQuestionRequest request) {
+        return ApiResponse.<QuestionResponse>builder()
+                .message("Đã cập nhật câu hỏi")
+                .result(questionLibraryService.updateQuestion(id, request))
                 .build();
     }
 

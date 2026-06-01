@@ -6,10 +6,12 @@ import com.sed10.mln.study.exception.ErrorCode;
 import com.sed10.mln.study.dto.request.AnswerOptionRequest;
 import com.sed10.mln.study.dto.request.BatchImportRequest;
 import com.sed10.mln.study.dto.request.BatchImportRowRequest;
+import com.sed10.mln.study.dto.request.BulkApproveQuestionsRequest;
 import com.sed10.mln.study.dto.request.CheckDuplicateRequest;
 import com.sed10.mln.study.dto.request.CreateQuestionRequest;
 import com.sed10.mln.study.dto.response.BatchImportReportResponse;
 import com.sed10.mln.study.dto.response.BatchImportRowResult;
+import com.sed10.mln.study.dto.response.BulkApproveQuestionsResponse;
 import com.sed10.mln.study.dto.response.DuplicateCheckResult;
 import com.sed10.mln.study.dto.response.DuplicateCheckResponse;
 import com.sed10.mln.study.dto.response.LessonOptionResponse;
@@ -136,6 +138,42 @@ public class QuestionLibraryService {
         return mapper.toResponse(questionRepository.save(question));
     }
 
+    @Transactional
+    public BulkApproveQuestionsResponse bulkApproveQuestions(BulkApproveQuestionsRequest request) {
+        List<Long> requestedIds = request.getIds() == null
+                ? List.of()
+                : request.getIds().stream().filter(Objects::nonNull).distinct().toList();
+        List<Question> questions = questionRepository.findAllById(requestedIds);
+        List<Question> approvedQuestions = new ArrayList<>();
+        LocalDateTime now = LocalDateTime.now();
+        int skippedNotPending = 0;
+        int skippedWarning = 0;
+
+        for (Question question : questions) {
+            if (!QuestionConstant.PENDING.equals(question.getStatus())) {
+                skippedNotPending++;
+                continue;
+            }
+            if (question.getDuplicateWarning() != null && !question.getDuplicateWarning().isBlank()) {
+                skippedWarning++;
+                continue;
+            }
+            question.setStatus(QuestionConstant.PUBLISHED);
+            question.setPublishedAt(now);
+            question.setUpdatedAt(now);
+            approvedQuestions.add(question);
+        }
+
+        questionRepository.saveAll(approvedQuestions);
+        return BulkApproveQuestionsResponse.builder()
+                .requestedCount(requestedIds.size())
+                .approvedCount(approvedQuestions.size())
+                .skippedNotPending(skippedNotPending)
+                .skippedWarning(skippedWarning)
+                .notFound(requestedIds.size() - questions.size())
+                .build();
+    }
+
     @Transactional(readOnly = true)
     public QuestionStatsResponse getStats() {
         Map<String, Long> byDifficulty = new LinkedHashMap<>();
@@ -251,8 +289,7 @@ public class QuestionLibraryService {
                 .findById(request.getLessonId())
                 .orElseThrow(() -> new AppException(ErrorCode.LESSON_NOT_FOUND));
 
-        String statusCode = QuestionConstant.fromLabel(
-                request.getDefaultStatus() != null ? request.getDefaultStatus() : "Cần duyệt");
+        String statusCode = QuestionConstant.PENDING;
 
         Map<String, String> internalHashes = new HashMap<>();
         List<BatchImportRowResult> rowResults = new ArrayList<>();
@@ -399,8 +436,61 @@ public class QuestionLibraryService {
     }
 
     private String resolveNewQuestionStatus(String requestedStatus) {
-        String statusCode = QuestionConstant.fromLabel(requestedStatus);
-        return QuestionConstant.PUBLISHED.equals(statusCode) ? QuestionConstant.PENDING : statusCode;
+        return QuestionConstant.fromLabel(requestedStatus);
+    }
+
+    @Transactional
+    public QuestionResponse updateQuestion(Long id, CreateQuestionRequest request) {
+        Question question = questionRepository
+                .findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.QUESTION_NOT_FOUND));
+        if (QuestionConstant.PUBLISHED.equals(question.getStatus())) {
+            throw new AppException(ErrorCode.QUESTION_PUBLISHED_NOT_EDITABLE);
+        }
+
+        validateCreateRequest(request);
+        Lesson lesson = lessonRepository
+                .findById(request.getLessonId())
+                .orElseThrow(() -> new AppException(ErrorCode.LESSON_NOT_FOUND));
+
+        String content = resolveContent(request);
+        DuplicateCheckResult duplicate = duplicateService.check(
+                lesson.getId(), request.getType(), content, id);
+
+        if (duplicate.isExactDuplicate()) {
+            throw new AppException(ErrorCode.QUESTION_DUPLICATE_EXACT);
+        }
+        if (duplicate.isSimilarDuplicate() && !Boolean.TRUE.equals(request.getAllowSimilarSave())) {
+            throw new AppException(ErrorCode.QUESTION_DUPLICATE_EXACT);
+        }
+
+        User teacher = userRepository.findById(DEFAULT_TEACHER_ID).orElse(null);
+        LocalDateTime now = LocalDateTime.now();
+        String statusCode = QuestionConstant.fromLabel(request.getStatus());
+        if (QuestionConstant.PUBLISHED.equals(statusCode) && question.getPublishedAt() == null) {
+            question.setPublishedAt(now);
+        }
+
+        question.setLesson(lesson);
+        question.setTitle(resolveTitle(request, content));
+        question.setContent(content);
+        question.setContentHash(duplicate.getContentHash());
+        question.setDuplicateWarning(duplicate.getWarningMessage());
+        question.setType(request.getType());
+        question.setDifficulty(request.getDifficulty());
+        question.setStatus(statusCode);
+        question.setBloomLevel(request.getBloomLevel());
+        question.setExplanation(request.getExplanation());
+        question.setScore(request.getScore() != null ? request.getScore() : BigDecimal.ONE);
+        question.setEstimatedTimeSeconds(
+                request.getEstimatedTime() != null ? request.getEstimatedTime() : 60);
+        question.setUpdatedBy(teacher);
+        question.setUpdatedAt(now);
+
+        question = questionRepository.save(question);
+        saveAnswers(question, request);
+        saveTags(question, request.getTags());
+        return mapper.toResponse(question);
     }
 
     private String resolveContent(CreateQuestionRequest request) {

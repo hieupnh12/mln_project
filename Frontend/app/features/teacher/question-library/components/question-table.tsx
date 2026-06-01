@@ -4,15 +4,18 @@ import { MaterialIcon } from "../../components/teacher-icons";
 import { statusDisplayLabels } from "../constants/question-library.constants";
 import type { Difficulty, QuestionListItem, QuestionStatus } from "../types/question-library.types";
 import { truncateText } from "../utils/truncate-text";
+import { QuestionTableSkeleton } from "./question-table-skeleton";
 
 type QuestionTableProps = {
   questions: QuestionListItem[];
   allSelected: boolean;
-  isLoading?: boolean;
+  isInitialLoading?: boolean;
+  isPageLoading?: boolean;
   isSelected: (id: string) => boolean;
   onToggleAll: () => void;
   onToggleOne: (id: string) => void;
   onDelete: (id: string) => void;
+  onEdit: (id: string) => void;
   onViewDetail: (id: string) => void;
   footer?: ReactNode;
 };
@@ -20,17 +23,28 @@ type QuestionTableProps = {
 export function QuestionTable({
   questions,
   allSelected,
-  isLoading = false,
+  isInitialLoading = false,
+  isPageLoading = false,
   isSelected,
   onToggleAll,
   onToggleOne,
   onDelete,
+  onEdit,
   onViewDetail,
   footer,
 }: QuestionTableProps) {
+  const showSkeleton = isInitialLoading || isPageLoading;
+  const showEmpty = !showSkeleton && questions.length === 0;
+
   return (
     <section className="overflow-hidden rounded-lg border border-outline-variant/20 bg-white shadow-sm">
-      <div className="overflow-x-auto">
+      <div className="relative overflow-x-auto">
+        {isPageLoading && !isInitialLoading ? (
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-x-0 top-0 z-10 h-1 bg-gradient-to-r from-transparent via-primary/40 to-transparent"
+          />
+        ) : null}
         <table className="w-full table-fixed border-collapse text-left">
           <colgroup>
             <col className="w-12" />
@@ -40,14 +54,15 @@ export function QuestionTable({
             <col className="w-[96px]" />
             <col className="w-[108px] hidden sm:table-column" />
             <col className="w-[108px]" />
-            <col className="w-[88px]" />
+            <col className="w-[112px]" />
           </colgroup>
           <thead className="border-b border-outline-variant/10 bg-surface-container-lowest">
             <tr>
               <th className="px-4 py-4 text-center">
                 <input
-                  checked={allSelected && questions.length > 0}
+                  checked={allSelected && questions.length > 0 && !showSkeleton}
                   className="rounded border-outline-variant/50 text-primary focus:ring-primary/20"
+                  disabled={showSkeleton || questions.length === 0}
                   onChange={onToggleAll}
                   type="checkbox"
                 />
@@ -75,14 +90,13 @@ export function QuestionTable({
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-outline-variant/10 text-body-md">
-            {isLoading ? (
-              <tr>
-                <td className="px-6 py-12 text-center text-on-surface-variant" colSpan={8}>
-                  Đang tải danh sách câu hỏi...
-                </td>
-              </tr>
-            ) : questions.length === 0 ? (
+          <tbody
+            aria-busy={showSkeleton}
+            className={`divide-y divide-outline-variant/10 text-body-md ${showSkeleton ? "opacity-70" : ""}`}
+          >
+            {showSkeleton ? (
+              <QuestionTableSkeleton />
+            ) : showEmpty ? (
               <tr>
                 <td className="px-6 py-12 text-center text-on-surface-variant" colSpan={8}>
                   Không có câu hỏi phù hợp với bộ lọc hiện tại.
@@ -94,6 +108,7 @@ export function QuestionTable({
                   isSelected={isSelected(question.id)}
                   key={question.id}
                   onDelete={() => onDelete(question.id)}
+                  onEdit={() => onEdit(question.id)}
                   onToggle={() => onToggleOne(question.id)}
                   onViewDetail={() => onViewDetail(question.id)}
                   question={question}
@@ -113,14 +128,18 @@ function QuestionRow({
   isSelected,
   onToggle,
   onDelete,
+  onEdit,
   onViewDetail,
 }: {
   question: QuestionListItem;
   isSelected: boolean;
   onToggle: () => void;
   onDelete: () => void;
+  onEdit: () => void;
   onViewDetail: () => void;
 }) {
+  const canEdit = question.status !== "Đã xuất bản";
+
   function handleRowClick() {
     onViewDetail();
   }
@@ -185,6 +204,21 @@ function QuestionRow({
             icon="visibility"
             onClick={onViewDetail}
           />
+          {canEdit ? (
+            <RowIconButton
+              ariaLabel="Chỉnh sửa"
+              className="text-secondary hover:bg-secondary-container/40"
+              icon="edit"
+              onClick={onEdit}
+            />
+          ) : (
+            <RowIconButton
+              ariaLabel="Câu hỏi đã duyệt, không thể chỉnh sửa"
+              className="cursor-not-allowed text-on-surface-variant/30"
+              disabled
+              icon="edit_off"
+            />
+          )}
           <RowIconButton
             ariaLabel="Xóa"
             className="text-error hover:bg-error-container"
@@ -237,11 +271,13 @@ function StatusBadge({ status }: { status: QuestionStatus }) {
 function RowIconButton({
   ariaLabel,
   className,
+  disabled = false,
   icon,
   onClick,
 }: {
   ariaLabel: string;
   className: string;
+  disabled?: boolean;
   icon: string;
   onClick?: () => void;
 }) {
@@ -249,6 +285,7 @@ function RowIconButton({
     <button
       aria-label={ariaLabel}
       className={`rounded-lg p-1.5 transition-colors ${className}`}
+      disabled={disabled}
       onClick={onClick}
       type="button"
     >

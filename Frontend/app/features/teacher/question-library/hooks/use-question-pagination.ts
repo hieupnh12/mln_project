@@ -14,10 +14,6 @@ export function useQuestionPagination(filters: QuestionFilters) {
   const safePage = Math.min(page, totalPages);
 
   useEffect(() => {
-    setPage(1);
-  }, [filters]);
-
-  useEffect(() => {
     if (page !== safePage) {
       setPage(safePage);
     }
@@ -27,12 +23,19 @@ export function useQuestionPagination(filters: QuestionFilters) {
   const rangeEnd = Math.min(safePage * QUESTION_PAGE_SIZE, totalItems);
 
   const goToPage = useCallback((next: number) => {
-    setPage(Math.min(Math.max(1, next), totalPages));
-  }, [totalPages]);
+    setPage(() => {
+      const maxPages = Math.max(1, Math.ceil(totalItems / QUESTION_PAGE_SIZE));
+      return Math.min(Math.max(1, next), maxPages);
+    });
+  }, [totalItems]);
 
   const resetPage = useCallback(() => {
     setPage(1);
   }, []);
+
+  const isInitialLoading = questionsQuery.isLoading && !questionsQuery.data;
+  const isPageLoading =
+    questionsQuery.isFetching && (questionsQuery.isPlaceholderData || isInitialLoading);
 
   return {
     questionsQuery,
@@ -44,5 +47,8 @@ export function useQuestionPagination(filters: QuestionFilters) {
     rangeEnd,
     goToPage,
     resetPage,
+    isInitialLoading,
+    isPageLoading,
+    isFetching: questionsQuery.isFetching,
   };
 }

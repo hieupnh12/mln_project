@@ -48,6 +48,11 @@ export function ImportReviewSection({
         </p>
       ) : null}
 
+      <p className="rounded-lg bg-secondary-container/30 px-4 py-3 text-body-md text-on-secondary-fixed-variant">
+        Các câu hợp lệ sẽ được thêm ở trạng thái Cần duyệt. Sau khi import, chọn các câu trong
+        ngân hàng và dùng Duyệt đã chọn để xuất bản hàng loạt.
+      </p>
+
       <div className="grid grid-cols-1 items-start gap-gutter lg:grid-cols-3">
         <ImportDataPreview rowCount={rowCount} rows={previewRows} />
         <ImportColumnMappingPanel matchedCount={matchedColumnCount} mappings={fieldMappings} />

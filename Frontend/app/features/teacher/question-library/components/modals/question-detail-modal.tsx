@@ -13,6 +13,7 @@ type QuestionDetailModalProps = {
   isError: boolean;
   approving: boolean;
   onApprove: (id: string) => void;
+  onEdit: (question: QuestionItem) => void;
   onRetry: () => void;
   onClose: () => void;
 };
@@ -25,6 +26,7 @@ export function QuestionDetailModal({
   isError,
   approving,
   onApprove,
+  onEdit,
   onRetry,
   onClose,
 }: QuestionDetailModalProps) {
@@ -143,22 +145,44 @@ export function QuestionDetailModal({
             </DetailSection>
           )}
         </div>
-        {question.status === "Cần duyệt" ? (
-          <footer className="flex flex-col gap-3 border-t border-outline-variant/10 bg-surface-container-lowest px-md py-4 sm:flex-row sm:items-center sm:justify-between lg:px-lg">
+        {question.status === "Đã xuất bản" ? (
+          <footer className="border-t border-outline-variant/10 bg-surface-container-lowest px-md py-4 lg:px-lg">
             <p className="text-label-md text-on-surface-variant">
-              Câu hỏi đang chờ duyệt. Hãy kiểm tra nội dung và đáp án trước khi xuất bản.
+              Câu hỏi đã duyệt. Chỉ có thể xem, không thể chỉnh sửa nội dung.
             </p>
-            <button
-              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-label-md font-medium text-on-primary transition hover:bg-primary-container disabled:cursor-not-allowed disabled:opacity-60"
-              disabled={approving}
-              onClick={() => onApprove(question.id)}
-              type="button"
-            >
-              <MaterialIcon className="text-[20px]">check_circle</MaterialIcon>
-              {approving ? "Đang duyệt..." : "Duyệt và xuất bản"}
-            </button>
           </footer>
-        ) : null}
+        ) : (
+          <footer className="flex flex-col gap-3 border-t border-outline-variant/10 bg-surface-container-lowest px-md py-4 sm:flex-row sm:items-center sm:justify-between lg:px-lg">
+            {question.status === "Cần duyệt" ? (
+              <p className="text-label-md text-on-surface-variant">
+                Câu hỏi đang chờ duyệt. Bạn có thể chỉnh sửa trước khi duyệt.
+              </p>
+            ) : (
+              <span />
+            )}
+            <div className="flex flex-wrap items-center justify-end gap-3">
+              <button
+                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-secondary px-4 py-2.5 text-label-md font-medium text-secondary transition hover:bg-secondary-container/20"
+                onClick={() => onEdit(question)}
+                type="button"
+              >
+                <MaterialIcon className="text-[20px]">edit</MaterialIcon>
+                Chỉnh sửa
+              </button>
+              {question.status === "Cần duyệt" ? (
+                <button
+                  className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-label-md font-medium text-on-primary transition hover:bg-primary-container disabled:cursor-not-allowed disabled:opacity-60"
+                  disabled={approving}
+                  onClick={() => onApprove(question.id)}
+                  type="button"
+                >
+                  <MaterialIcon className="text-[20px]">check_circle</MaterialIcon>
+                  {approving ? "Đang duyệt..." : "Duyệt và xuất bản"}
+                </button>
+              ) : null}
+            </div>
+          </footer>
+        )}
       </div>
     </ModalOverlay>
   );

@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 
+import { useDebouncedValue } from "~/shared/hooks/use-debounced-value";
 import { showErrorToast, showInfoToast, showSuccessToast } from "~/shared/utils/toast";
 import { runWithAsyncActivity } from "~/shared/utils/run-with-async-activity";
 import { ApiRequestError } from "~/shared/services/api-client";
 
 import { emptyQuestionDraft } from "../constants/question-library.constants";
-import { useApproveQuestionMutation, useBatchImportMutation, useCreateQuestionMutation, useDeleteQuestionMutation, useDeleteQuestionsMutation } from "../hooks/use-question-library-mutations";
+import { useApproveQuestionMutation, useBatchImportMutation, useCreateQuestionMutation, useDeleteQuestionMutation, useDeleteQuestionsMutation, useUpdateQuestionMutation } from "../hooks/use-question-library-mutations";
+import { useBulkApproveSelected } from "../hooks/use-bulk-approve-selected";
 import {
   useQuestionMetadataQuery,
   useQuestionQuery,
@@ -13,19 +15,19 @@ import {
 } from "../hooks/use-question-library-queries";
 import { useQuestionPagination } from "../hooks/use-question-pagination";
 import { useQuestionSelection } from "../hooks/use-question-selection";
-import { checkQuestionDuplicate } from "../services/question-library.service";
+import { checkQuestionDuplicate, getQuestion } from "../services/question-library.service";
 import type { CreateQuestionPayload } from "../types/question-library-api.types";
 import type { QuestionDraft, QuestionFilters, QuestionItem, QuestionModalId, QuestionStatus } from "../types/question-library.types";
 import type { ImportPreviewRow } from "../types/import-batch.types";
 import { mapImportPreviewRowToPayload } from "../utils/map-import-batch-payload";
 import { mapDraftToCreatePayload } from "../utils/map-question-draft";
+import { mapQuestionToDraft } from "../utils/map-question-to-draft";
 import { createQuestionDraftFromLesson } from "../utils/lesson-options";
 import { AddQuestionModal } from "./modals/add-question-modal";
 import { DuplicateCompareModal } from "./modals/duplicate-compare-modal";
 import { ExportExamModal } from "./modals/export-exam-modal";
 import { ImportBatchModal } from "./modals/import-batch-modal";
 import { QuestionDetailModal } from "./modals/question-detail-modal";
-import type { ExportConfig, RandomExamConfig } from "../types/export-exam.types";
 import {
   createDefaultFilters,
   QuestionFiltersBar,
@@ -48,6 +50,8 @@ export function QuestionLibraryManager() {
   const [filters, setFilters] = useState<QuestionFilters>(createDefaultFilters);
   const [activeModal, setActiveModal] = useState<QuestionModalId | null>(null);
   const [draft, setDraft] = useState<QuestionDraft>(emptyQuestionDraft);
+  const [editingQuestionId, setEditingQuestionId] = useState<string | null>(null);
+  const [editingQuestionStatus, setEditingQuestionStatus] = useState<QuestionStatus | null>(null);
   const [detailQuestionId, setDetailQuestionId] = useState<string | null>(null);
   const [duplicateCompare, setDuplicateCompare] = useState<DuplicateCompareState | null>(null);
   const [checkingDuplicate, setCheckingDuplicate] = useState(false);
@@ -55,6 +59,7 @@ export function QuestionLibraryManager() {
   const metadataQuery = useQuestionMetadataQuery();
   const statsQuery = useQuestionStatsQuery();
   const createMutation = useCreateQuestionMutation();
+  const updateMutation = useUpdateQuestionMutation();
   const batchImportMutation = useBatchImportMutation();
   const approveMutation = useApproveQuestionMutation();
   const deleteMutation = useDeleteQuestionMutation();
@@ -82,6 +87,13 @@ export function QuestionLibraryManager() {
     };
   }, [statsQuery.data]);
 
+  const debouncedSearch = useDebouncedValue(filters.search, 300);
+  const listFilters = useMemo(
+    () => ({ ...filters, search: debouncedSearch }),
+    [filters, debouncedSearch],
+  );
+  const isSearchPending = filters.search !== debouncedSearch;
+
   const {
     questionsQuery,
     pageItems,
@@ -92,7 +104,9 @@ export function QuestionLibraryManager() {
     rangeEnd,
     goToPage,
     resetPage,
-  } = useQuestionPagination(filters);
+    isInitialLoading,
+    isPageLoading,
+  } = useQuestionPagination(listFilters);
   const detailQuestionQuery = useQuestionQuery(detailQuestionId);
 
   const pageIds = useMemo(() => pageItems.map((q) => q.id), [pageItems]);
@@ -107,6 +121,10 @@ export function QuestionLibraryManager() {
     isSelected,
     pruneSelection,
   } = useQuestionSelection(pageIds);
+  const { approveSelected, isApprovingSelected } = useBulkApproveSelected({
+    selectedIds,
+    clearSelection,
+  });
 
   useEffect(() => {
     pruneSelection(pageItems.map((q) => q.id));
@@ -123,6 +141,8 @@ export function QuestionLibraryManager() {
 
   function handleOpenModal(modal: QuestionModalId) {
     if (modal === "add") {
+      setEditingQuestionId(null);
+      setEditingQuestionStatus(null);
       setDraft(createQuestionDraftFromLesson(lessonOptions[0]));
     }
     setActiveModal(modal);
@@ -130,6 +150,36 @@ export function QuestionLibraryManager() {
 
   function closeModal() {
     setActiveModal(null);
+    setEditingQuestionId(null);
+    setEditingQuestionStatus(null);
+  }
+
+  function openEditQuestion(question: QuestionItem) {
+    if (question.status === "Đã xuất bản") {
+      showInfoToast("Câu hỏi đã duyệt không thể chỉnh sửa.");
+      return;
+    }
+
+    setDetailQuestionId(null);
+    setEditingQuestionId(question.id);
+    setEditingQuestionStatus(question.status);
+    setDraft(mapQuestionToDraft(question));
+    setActiveModal("add");
+  }
+
+  async function handleEditQuestion(id: string) {
+    const listItem = pageItems.find((item) => item.id === id);
+    if (listItem?.status === "Đã xuất bản") {
+      showInfoToast("Câu hỏi đã duyệt không thể chỉnh sửa.");
+      return;
+    }
+
+    try {
+      const question = await getQuestion(id);
+      openEditQuestion(question);
+    } catch (error) {
+      showErrorToast(error instanceof Error ? error.message : "Không thể mở chỉnh sửa câu hỏi.");
+    }
   }
 
   function handleFiltersChange(nextFilters: QuestionFilters) {
@@ -137,9 +187,20 @@ export function QuestionLibraryManager() {
     setFilters(nextFilters);
   }
 
-  function getSuccessMessage(status: QuestionStatus) {
+  function handleSearchChange(search: string) {
+    setFilters((current) => ({ ...current, search }));
+  }
+
+  useEffect(() => {
+    resetPage();
+  }, [debouncedSearch, resetPage]);
+
+  function getSuccessMessage(status: QuestionStatus, isEditing: boolean) {
+    if (isEditing) {
+      return "Đã cập nhật câu hỏi.";
+    }
     if (status === "Đã xuất bản") {
-      return "Đã xuất bản câu hỏi thành công.";
+      return "Đã tạo câu hỏi thành công.";
     }
     if (status === "Cần duyệt") {
       return "Đã gửi câu hỏi để duyệt.";
@@ -148,16 +209,27 @@ export function QuestionLibraryManager() {
   }
 
   function submitQuestion(payload: CreateQuestionPayload, status: QuestionStatus) {
+    const isEditing = editingQuestionId !== null;
     runWithAsyncActivity({
-      id: "question-library-create",
-      label: status === "Đã xuất bản" ? "Đang xuất bản câu hỏi" : "Đang lưu câu hỏi",
+      id: isEditing ? "question-library-update" : "question-library-create",
+      label: isEditing
+        ? "Đang cập nhật câu hỏi"
+        : status === "Đã xuất bản"
+          ? "Đang tạo câu hỏi"
+          : "Đang lưu câu hỏi",
       simulateProgress: true,
       task: async () => {
-        await createMutation.mutateAsync(payload);
+        if (isEditing && editingQuestionId) {
+          await updateMutation.mutateAsync({ id: editingQuestionId, payload });
+        } else {
+          await createMutation.mutateAsync(payload);
+        }
         setDraft(emptyQuestionDraft);
+        setEditingQuestionId(null);
+        setEditingQuestionStatus(null);
         setDuplicateCompare(null);
         closeModal();
-        showSuccessToast(getSuccessMessage(status));
+        showSuccessToast(getSuccessMessage(status, isEditing));
       },
     }).catch((error) => {
       if (
@@ -190,6 +262,9 @@ export function QuestionLibraryManager() {
           lessonId: payload.lessonId,
           type: payload.type,
           content: payload.question,
+          excludeQuestionId: editingQuestionId
+            ? Number(editingQuestionId.replace(/^Q-/i, ""))
+            : undefined,
         });
 
         if (
@@ -239,7 +314,6 @@ export function QuestionLibraryManager() {
         updateProgress(25, "Đang gửi dữ liệu lên server...");
         const result = await batchImportMutation.mutateAsync({
           lessonId: defaultLessonId,
-          defaultStatus: "Cần duyệt",
           rows: rows.map(mapImportPreviewRowToPayload),
         });
         updateProgress(95, `Đã xử lý ${result.savedCount}/${rows.length} dòng`);
@@ -248,13 +322,25 @@ export function QuestionLibraryManager() {
     });
 
     showSuccessToast(
-      `Import xong: ${report.savedCount} đã lưu, ${report.skippedExactDuplicate} trùng, ${report.markedSimilar} tương tự.`,
+      `Import xong: ${report.savedCount} câu đang chờ duyệt, ${report.skippedExactDuplicate} trùng, ${report.markedSimilar} tương tự.`,
     );
   }
 
   function handleDiscardDraft() {
     setDraft(createQuestionDraftFromLesson(lessonOptions[0]));
+    setEditingQuestionId(null);
+    setEditingQuestionStatus(null);
     closeModal();
+  }
+
+  function resolveSaveStatus(publish: boolean): QuestionStatus {
+    if (editingQuestionId && editingQuestionStatus) {
+      if (publish) {
+        return editingQuestionStatus === "Bản nháp" ? "Đã xuất bản" : editingQuestionStatus;
+      }
+      return "Bản nháp";
+    }
+    return publish ? "Đã xuất bản" : "Bản nháp";
   }
 
   function deleteQuestion(id: string) {
@@ -299,25 +385,15 @@ export function QuestionLibraryManager() {
     });
   }
 
-  function handleExport(config: ExportConfig) {
-    showInfoToast(
-      `Đang xuất ${config.format.toUpperCase()} — trạng thái: ${config.statusFilter} (demo).`,
-    );
-    closeModal();
-  }
-
-  function handleRandomGenerate(config: RandomExamConfig) {
-    const pickedCount = Math.min(config.totalCount, totalItems);
-    showInfoToast(`Đã chọn ${pickedCount} câu hỏi cho đề thi (demo).`);
-  }
-
   const filterOptions = {
     courses: metadataQuery.data?.courses ?? [],
     chapters: metadataQuery.data?.chapters ?? [],
     lessons: metadataQuery.data?.lessons ?? [],
   };
 
-  const isSaving = createMutation.isPending || checkingDuplicate;
+  const isSaving =
+    createMutation.isPending || updateMutation.isPending || checkingDuplicate;
+  const tableLoading = isPageLoading || isSearchPending;
 
   return (
     <div className="space-y-gutter">
@@ -341,15 +417,18 @@ export function QuestionLibraryManager() {
         />
       )}
       <QuestionFiltersBar
+        approvingSelected={isApprovingSelected}
+        canApprove={selectedCount > 0}
         canDelete={selectedCount > 0}
         chapterOptions={filterOptions.chapters}
         courseOptions={filterOptions.courses}
         filters={filters}
         lessonOptions={filterOptions.lessons}
         onChange={handleFiltersChange}
+        onSearchChange={handleSearchChange}
+        onApproveSelected={approveSelected}
         onDeleteSelected={handleDeleteSelected}
         onOpenExport={() => setActiveModal("export")}
-        onOpenRandom={() => setActiveModal("export")}
         onReset={() => {
           handleFiltersChange(createDefaultFilters());
           clearSelection();
@@ -368,9 +447,11 @@ export function QuestionLibraryManager() {
             totalPages={totalPages}
           />
         }
-        isLoading={questionsQuery.isLoading}
+        isInitialLoading={isInitialLoading}
+        isPageLoading={tableLoading}
         isSelected={isSelected}
         onDelete={deleteQuestion}
+        onEdit={handleEditQuestion}
         onToggleAll={toggleAll}
         onToggleOne={toggleOne}
         onViewDetail={setDetailQuestionId}
@@ -379,15 +460,17 @@ export function QuestionLibraryManager() {
 
       <AddQuestionModal
         draft={draft}
+        editingStatus={editingQuestionStatus ?? undefined}
         lessonOptions={lessonOptions}
         lessonsError={metadataQuery.isError}
         lessonsLoading={metadataQuery.isLoading}
+        mode={editingQuestionId ? "edit" : "create"}
         onRetryLessons={() => metadataQuery.refetch()}
         onClose={closeModal}
         onDiscard={handleDiscardDraft}
         onDraftChange={setDraft}
-        onSaveDraft={() => saveQuestion("Bản nháp")}
-        onSubmitForReview={() => saveQuestion("Cần duyệt")}
+        onPublish={() => saveQuestion(resolveSaveStatus(true))}
+        onSaveDraft={() => saveQuestion(resolveSaveStatus(false))}
         open={activeModal === "add"}
         saving={isSaving}
       />
@@ -399,11 +482,9 @@ export function QuestionLibraryManager() {
         open={activeModal === "import"}
       />
       <ExportExamModal
+        lessonOptions={lessonOptions}
         onClose={closeModal}
-        onExport={handleExport}
-        onGenerate={handleRandomGenerate}
         open={activeModal === "export"}
-        poolSize={totalItems}
       />
       <QuestionDetailModal
         approving={approveMutation.isPending}
@@ -411,6 +492,7 @@ export function QuestionLibraryManager() {
         isLoading={detailQuestionQuery.isLoading}
         onApprove={approveQuestion}
         onClose={() => setDetailQuestionId(null)}
+        onEdit={openEditQuestion}
         onRetry={() => detailQuestionQuery.refetch()}
         open={detailQuestionId !== null}
         question={detailQuestionQuery.data ?? null}

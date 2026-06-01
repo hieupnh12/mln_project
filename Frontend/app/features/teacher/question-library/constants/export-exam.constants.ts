@@ -1,98 +1,55 @@
-import type {
-  ChapterTarget,
-  ExportColumnId,
-  ExportConfig,
-  RandomExamConfig,
-} from "../types/export-exam.types";
+import type { ExportConfig, RandomExamConfig } from "../types/export-exam.types";
+import type { LessonOptionDto } from "../types/question-library-api.types";
 
-export const exportFormatOptions = [
-  { id: "pdf" as const, icon: "picture_as_pdf", label: "PDF" },
-  { id: "excel" as const, icon: "table_chart", label: "Excel" },
-  { id: "word" as const, icon: "description", label: "Word" },
-];
+export const DEFAULT_TIME_PER_QUESTION_SECONDS = 30;
 
-export const exportStatusOptions = [
-  { id: "approved" as const, label: "Đã duyệt" },
-  { id: "draft" as const, label: "Bản nháp" },
-  { id: "archived" as const, label: "Lưu trữ" },
-];
+export const exportFormatOptions = [{ id: "excel" as const, icon: "table_chart", label: "Excel" }];
+
+export const exportStatusOptions = [{ id: "approved" as const, label: "Đã duyệt" }];
 
 export const exportColumnOptions: {
-  id: ExportColumnId;
+  id: keyof ExportConfig["columns"];
   label: string;
   defaultChecked: boolean;
+  locked?: boolean;
+  hint?: string;
 }[] = [
-  { id: "questionText", label: "Nội dung câu hỏi", defaultChecked: true },
-  { id: "answerKey", label: "Đáp án", defaultChecked: true },
-  { id: "difficulty", label: "Độ khó", defaultChecked: false },
-  { id: "lastModified", label: "Cập nhật lần cuối", defaultChecked: false },
-];
-
-export const chapterTargetOptions: ChapterTarget[] = [
+  { id: "questionText", label: "Nội dung câu hỏi", defaultChecked: true, locked: true },
+  { id: "answerKey", label: "Đáp án", defaultChecked: true, locked: true },
   {
-    id: "Chương 1",
-    shortLabel: "CH. 01",
-    title: "Vấn đề cơ bản của triết học",
+    id: "difficulty",
+    label: "Độ khó",
+    defaultChecked: false,
+    hint: "Không có trong file Wayground",
   },
-  {
-    id: "Chương 2",
-    shortLabel: "CH. 02",
-    title: "Chủ nghĩa duy vật biện chứng",
-  },
-  {
-    id: "Chương 3",
-    shortLabel: "CH. 03",
-    title: "Chủ nghĩa duy vật lịch sử",
-  },
-  {
-    id: "Chương 4",
-    shortLabel: "CH. 04",
-    title: "Phương pháp luận và nhận thức",
-  },
+  { id: "explanation", label: "Giải thích", defaultChecked: true },
 ];
 
 export const defaultExportConfig: ExportConfig = {
-  format: "pdf",
-  statusFilter: "approved",
+  timePerQuestionSeconds: DEFAULT_TIME_PER_QUESTION_SECONDS,
   columns: Object.fromEntries(
-    exportColumnOptions.map((col) => [col.id, col.defaultChecked]),
+    exportColumnOptions.map((column) => [column.id, column.defaultChecked]),
   ) as ExportConfig["columns"],
 };
 
+export function createDefaultRandomExamScope(
+  lessonOptions: LessonOptionDto[],
+): RandomExamConfig["scope"] {
+  return {
+    subjectTitle: lessonOptions[0]?.subjectTitle ?? "",
+    chapterTitles: [],
+    lessonIds: [],
+  };
+}
+
 export const defaultRandomExamConfig: RandomExamConfig = {
-  totalCount: 50,
+  totalCount: 20,
   easyPercent: 50,
   mediumPercent: 30,
   hardPercent: 20,
-  selectedChapterIds: ["Chương 1", "Chương 3"],
+  scope: {
+    subjectTitle: "",
+    chapterTitles: [],
+    lessonIds: [],
+  },
 };
-
-export const examPreviewSamples = [
-  {
-    id: "Q.01",
-    difficulty: "Cơ bản",
-    chapter: "CH. 01",
-    points: 2,
-    text: "Vấn đề cơ bản của triết học gồm những mặt nào?",
-    accent: "border-secondary",
-    labelClass: "text-secondary",
-  },
-  {
-    id: "Q.02",
-    difficulty: "Nâng cao",
-    chapter: "CH. 03",
-    points: 5,
-    text: "Phân tích mối quan hệ giữa lực lượng sản xuất và quan hệ sản xuất.",
-    accent: "border-primary-container",
-    labelClass: "text-primary-container",
-  },
-  {
-    id: "Q.03",
-    difficulty: "Vận dụng",
-    chapter: "CH. 01",
-    points: 3,
-    text: "Vai trò của thực tiễn đối với nhận thức là gì?",
-    accent: "border-secondary-fixed-dim",
-    labelClass: "text-secondary",
-  },
-] as const;

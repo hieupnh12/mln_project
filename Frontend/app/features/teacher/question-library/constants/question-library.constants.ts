@@ -13,6 +13,7 @@ export const QUESTION_LIBRARY_ENDPOINTS = {
   questions: "/teacher/question-library/questions",
   stats: "/teacher/question-library/stats",
   batchImport: "/teacher/question-library/questions/batch-import",
+  bulkApprove: "/teacher/question-library/questions/bulk-approve",
   checkDuplicate: "/teacher/question-library/questions/check-duplicate",
   questionById: (id: string) => `/teacher/question-library/questions/${id}`,
   approveQuestion: (id: string) => `/teacher/question-library/questions/${id}/approve`,

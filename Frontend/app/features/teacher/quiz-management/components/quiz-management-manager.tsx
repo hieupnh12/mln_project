@@ -1,120 +1,83 @@
-import { useMemo, useState } from "react";
-
-import { questionItems } from "../../question-library/constants/question-library.constants";
-import type { QuestionItem } from "../../question-library/types/question-library.types";
-import {
-  defaultQuizSettings,
-  quizItems,
-} from "../constants/quiz-management.constants";
-import type { QuizSettings } from "../types/quiz-management.types";
-import { QuestionPicker } from "./question-picker";
-import { Metric } from "./quiz-metric";
-import { QuizPreview } from "./quiz-preview";
-import { QuizSettingsPanel } from "./quiz-settings-panel";
+import { defaultQuizFilters, QUIZ_CANDIDATE_PAGE_SIZE } from "../constants/quiz-management.constants";
+import { useQuizManagementController } from "../hooks/use-quiz-management-controller";
+import { QuizEditorView } from "./quiz-editor-view";
+import { QuizListView } from "./quiz-list-view";
+import { QuizManagementHeader } from "./quiz-management-header";
 
 export function QuizManagementManager() {
-  const [settings, setSettings] = useState<QuizSettings>(defaultQuizSettings);
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [published, setPublished] = useState(false);
+  const controller = useQuizManagementController();
 
-  const candidateQuestions = useMemo(
-    () =>
-      questionItems.filter(
-        (question) =>
-          question.course === settings.course &&
-          question.chapter === settings.chapter &&
-          (settings.lesson === "all" || question.lesson === settings.lesson),
-      ),
-    [settings],
-  );
-
-  const selectedQuestions = selectedIds
-    .map((id) => questionItems.find((question) => question.id === id))
-    .filter((question): question is QuestionItem => Boolean(question));
-
-  function addQuestion(questionId: string) {
-    setSelectedIds((current) =>
-      current.includes(questionId) ? current : [...current, questionId],
+  if (controller.view === "list") {
+    return (
+      <div className="mx-auto max-w-7xl space-y-md">
+        <QuizManagementHeader
+          draftCount={controller.summary.draftCount}
+          onCreateQuiz={controller.openCreateQuiz}
+          publishedCount={controller.summary.publishedCount}
+          total={controller.summary.total}
+        />
+        <QuizListView
+          courseOptions={controller.courseOptions}
+          filters={controller.filters}
+          isError={controller.listQuery.isError}
+          isLoading={controller.listQuery.isLoading}
+          items={controller.listItems}
+          onCreateQuiz={controller.openCreateQuiz}
+          onDuplicate={controller.duplicateQuizById}
+          onEdit={controller.openEditQuiz}
+          onFiltersChange={controller.setFilters}
+          onFiltersReset={() => controller.setFilters(defaultQuizFilters)}
+          onRetry={() => controller.listQuery.refetch()}
+          summary={controller.summary}
+          totalCount={controller.listQuery.data?.total ?? controller.listItems.length}
+        />
+      </div>
     );
-    setPublished(false);
-  }
-
-  function generateRandomQuiz() {
-    const nextIds = [...candidateQuestions]
-      .sort(() => Math.random() - 0.5)
-      .slice(0, settings.randomCount)
-      .map((question) => question.id);
-
-    setSelectedIds(nextIds);
-    setPublished(false);
   }
 
   return (
     <div className="mx-auto max-w-7xl space-y-md">
-      <Header
-        draftCount={quizItems.filter((quiz) => quiz.status === "Bản nháp").length}
-        published={published}
-        total={quizItems.length}
+      <QuizEditorView
+        activeTab={controller.editorTab}
+        candidateCount={controller.candidateQuery.data?.total ?? 0}
+        candidateLoading={controller.candidateQuery.isLoading}
+        candidatePage={controller.candidatePage}
+        candidateQuestions={controller.candidateQuery.data?.items ?? []}
+        candidateTotal={controller.candidateQuery.data?.total ?? 0}
+        chapterOptions={controller.chapterOptions}
+        courseOptions={controller.courseOptions}
+        difficultyFilter={controller.candidateDifficulty}
+        isLoadingDetail={controller.isLoadingDetail}
+        isNew={controller.editorQuizId == null}
+        isPublished={controller.isPublished}
+        isSaving={controller.isSaving}
+        lessonOptions={controller.lessonOptions}
+        onAddQuestion={controller.addQuestion}
+        onBack={controller.backToList}
+        onCandidatePageChange={controller.setCandidatePage}
+        onClearQuestions={controller.clearQuestions}
+        onDifficultyFilterChange={(value) => {
+          controller.setCandidateDifficulty(value);
+          controller.setCandidatePage(0);
+        }}
+        onGenerateRandom={controller.generateRandomQuiz}
+        onMoveQuestion={controller.moveQuestion}
+        onPublish={controller.handlePublish}
+        onRemoveQuestion={controller.removeQuestion}
+        onSaveDraft={controller.saveDraft}
+        onSearchChange={(value) => {
+          controller.setCandidateSearch(value);
+          controller.setCandidatePage(0);
+        }}
+        onSettingsChange={controller.setSettings}
+        onTabChange={controller.setEditorTab}
+        pageSize={QUIZ_CANDIDATE_PAGE_SIZE}
+        quiz={controller.activeQuiz}
+        search={controller.candidateSearch}
+        selectedIds={controller.selectedIds}
+        selectedQuestions={controller.selectedQuestions}
+        settings={controller.settings}
       />
-      <section className="grid grid-cols-1 gap-md xl:grid-cols-[360px_minmax(0,1fr)]">
-        <QuizSettingsPanel
-          candidateCount={candidateQuestions.length}
-          onGenerateRandom={generateRandomQuiz}
-          onSettingsChange={(nextSettings) => {
-            setSettings(nextSettings);
-            setPublished(false);
-          }}
-          selectedCount={selectedQuestions.length}
-          settings={settings}
-        />
-        <div className="space-y-md">
-          <QuestionPicker
-            onAdd={addQuestion}
-            questions={candidateQuestions}
-            selectedIds={selectedIds}
-          />
-          <QuizPreview
-            onPublish={() => setPublished(true)}
-            onRemove={(id) => {
-              setSelectedIds((current) => current.filter((item) => item !== id));
-              setPublished(false);
-            }}
-            questions={selectedQuestions}
-            settings={settings}
-          />
-        </div>
-      </section>
     </div>
-  );
-}
-
-function Header({
-  draftCount,
-  published,
-  total,
-}: {
-  draftCount: number;
-  published: boolean;
-  total: number;
-}) {
-  return (
-    <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-      <div className="space-y-xs">
-        <h3 className="text-headline-lg font-semibold text-primary">
-          Quản lý Quiz
-        </h3>
-        <p className="max-w-2xl text-body-md text-on-surface-variant">
-          Tạo quiz từ ngân hàng câu hỏi, random câu, trộn đáp án và publish.
-        </p>
-      </div>
-      <div className="grid grid-cols-3 gap-sm rounded-2xl border border-outline-variant/20 bg-white p-sm text-center shadow-[0_4px_20px_rgba(35,39,51,0.04)]">
-        <Metric label="Quiz" value={total} />
-        <Metric label="Bản nháp" value={draftCount} />
-        <Metric
-          label={published ? "Đã publish" : "Đang soạn"}
-          value={published ? 1 : 0}
-        />
-      </div>
-    </header>
   );
 }
