@@ -1,4 +1,4 @@
-const DEFAULT_API_BASE_URL = "";
+const DEFAULT_API_BASE_URL = "/api";
 
 function readEnvString(value: string | undefined, fallback: string) {
   const normalizedValue = value?.trim();
@@ -20,26 +20,10 @@ function readEnvBoolean(value: string | undefined, fallback: boolean) {
   return fallback;
 }
 
-function normalizeApiBaseUrl(value: string) {
-  const trimmedValue = value.replace(/\/+$/, "");
-
-  if (trimmedValue === "/api") {
-    return "";
-  }
-
-  if (trimmedValue.toLowerCase().endsWith("/api")) {
-    return trimmedValue.slice(0, -4);
-  }
-
-  return trimmedValue;
-}
-
 export const frontendEnv = {
-  apiBaseUrl: normalizeApiBaseUrl(
-    readEnvString(
-      import.meta.env.VITE_API_BASE_URL ?? import.meta.env.VITE_API_URL,
-      DEFAULT_API_BASE_URL,
-    ),
+  apiBaseUrl: readEnvString(
+    import.meta.env.VITE_API_BASE_URL ?? import.meta.env.VITE_API_URL,
+    DEFAULT_API_BASE_URL,
   ),
   apiWithCredentials: readEnvBoolean(
     import.meta.env.VITE_API_WITH_CREDENTIALS,

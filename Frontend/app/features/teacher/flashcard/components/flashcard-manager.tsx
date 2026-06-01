@@ -1,5 +1,5 @@
-import { flashcardSets } from "../constants/teacher-dashboard.constants";
-import { MaterialIcon } from "./teacher-icons";
+import { flashcardSets } from "../constants/flashcard.constants";
+import { MaterialIcon } from "../../components/teacher-icons";
 
 export function FlashcardManager() {
   return (
