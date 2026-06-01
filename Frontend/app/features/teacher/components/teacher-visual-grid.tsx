@@ -1,4 +1,4 @@
-import { teacherVisualCards } from "../course-structure/constants/course-structure.constants";
+import { teacherVisualCards } from "../constants/teacher-dashboard.constants";
 
 export function TeacherVisualGrid() {
   return (

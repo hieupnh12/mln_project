@@ -21,4 +21,5 @@ public class User {
     @Column(name = "full_name", length = 100) String fullName;
     @Column(length = 20) String role;
     @Column(name = "is_active") Boolean isActive;
+    @Column(name = "google_id", length = 255) String googleId;
 }

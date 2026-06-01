@@ -1,8 +1,7 @@
 # Server Configuration
 server:
   port: 8080
-  servlet:
-    context-path: /mlnStudy
+
 
 spring:
   application:
@@ -13,30 +12,36 @@ spring:
       client:
         registration:
           google:
-            client-id: ""
-            client-secret: ""
-            redirect-uri: ""
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            redirect-uri: http://localhost:8080/api/auth/google/callback
             scope:
               - email
               - profile
               
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:mln_study}?sslMode=${MYSQL_SSL_MODE:DISABLED}&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:mln_database}?sslMode=${MYSQL_SSL_MODE:DISABLED}&allowPublicKeyRetrieval=true&serverTimezone=UTC}
     username: ${SPRING_DATASOURCE_USERNAME:${MYSQL_USER:root}}
     password: ${SPRING_DATASOURCE_PASSWORD:${MYSQL_PASSWORD:}}
 
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
 
+frontend:
+  base-url: "http://localhost:5173"
+
 jwt:
-  signerKey: ""
-  expiration: 
-  refreshable-duration: 
-  temp-expiration: 
+  signerKey: "jwtSecretKey12345678901234567890123456789012345678901234567890"
+  expiration: 86400000
+  refreshable-duration: 604800000
+  temp-expiration: 3600000
+
+admin:
+  email: "nguynhuphannguyen2004@gmail.com" 
