@@ -22,9 +22,17 @@ export default function TeacherMindmapPage() {
   return (
     <div className="flex flex-col h-screen bg-[var(--color-background)] overflow-hidden p-6">
       <div className="mb-4 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-[var(--color-on-background)]">Quản lý Sơ đồ tư duy (Giáo viên)</h1>
-          <p className="text-sm text-[var(--color-on-surface-variant)] mt-1">Kéo thả để sắp xếp, nối các điểm để tạo quan hệ.</p>
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={() => window.history.back()}
+            className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-black/5 transition"
+          >
+            <span className="material-symbols-rounded text-on-surface-variant">arrow_back</span>
+          </button>
+          <div>
+            <h1 className="text-2xl font-bold text-[var(--color-on-background)]">Quản lý Sơ đồ tư duy (Giáo viên)</h1>
+            <p className="text-sm text-[var(--color-on-surface-variant)] mt-1">Kéo thả để sắp xếp, nối các điểm để tạo quan hệ.</p>
+          </div>
         </div>
       </div>
       

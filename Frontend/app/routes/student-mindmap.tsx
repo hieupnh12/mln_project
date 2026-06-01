@@ -12,9 +12,17 @@ export default function StudentMindmapPage() {
   return (
     <div className="flex flex-col h-screen bg-[var(--color-background)] overflow-hidden p-6">
       <div className="mb-4 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-[var(--color-on-background)]">Học tập qua Sơ đồ tư duy</h1>
-          <p className="text-sm text-[var(--color-on-surface-variant)] mt-1">Khám phá mối liên hệ giữa các bài học một cách trực quan.</p>
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={() => window.history.back()}
+            className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-black/5 transition"
+          >
+            <span className="material-symbols-rounded text-on-surface-variant">arrow_back</span>
+          </button>
+          <div>
+            <h1 className="text-2xl font-bold text-[var(--color-on-background)]">Học tập qua Sơ đồ tư duy</h1>
+            <p className="text-sm text-[var(--color-on-surface-variant)] mt-1">Khám phá mối liên hệ giữa các bài học một cách trực quan.</p>
+          </div>
         </div>
       </div>
       

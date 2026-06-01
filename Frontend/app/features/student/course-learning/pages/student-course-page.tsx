@@ -1,4 +1,4 @@
-﻿import { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Link, useParams } from "react-router";
 
 import { StudentMaterialIcon as MaterialIcon } from "../../components/student-material-icon";
@@ -127,6 +127,16 @@ export function StudentCoursePage() {
                 </>
               )}
             </div>
+            
+            {subject && (
+              <Link
+                to={`/student/mindmap-preview?courseId=${subjectId}`}
+                className="flex shrink-0 items-center justify-center gap-2 rounded-lg bg-secondary-container px-4 py-2.5 text-label-md font-semibold text-secondary transition-colors hover:bg-secondary/10"
+              >
+                <MaterialIcon>hub</MaterialIcon>
+                <span>Mindmap Học Phần</span>
+              </Link>
+            )}
           </div>
         </section>
 
