@@ -24,3 +24,10 @@ export type ApiListResponse<TItem> = {
   page: number;
   limit: number;
 };
+
+/** Envelope chuẩn của Spring backend ({ code, message, result }). */
+export type BackendApiResponse<TData> = {
+  code: number;
+  message?: string;
+  result: TData;
+};

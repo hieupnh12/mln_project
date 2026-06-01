@@ -16,6 +16,18 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
+      "/chapters": {
+        target: "http://localhost:8080",
+        changeOrigin: true,
+      },
+      "/lessons": {
+        target: "http://localhost:8080",
+        changeOrigin: true,
+      },
+      "/materials": {
+        target: "http://localhost:8080",
+        changeOrigin: true,
+      },
     },
   },
 });

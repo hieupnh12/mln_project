@@ -34,10 +34,11 @@ export class ApiRequestError extends Error {
 
 function toApiRequestError(error: AxiosError<ApiErrorPayload>) {
   const payload = error.response?.data;
+  const code = payload?.code != null ? String(payload.code) : undefined;
 
   return new ApiRequestError({
     message: payload?.message ?? error.message ?? DEFAULT_API_ERROR_MESSAGE,
-    code: payload?.code,
+    code,
     status: error.response?.status,
     details: payload?.errors,
   });
@@ -55,10 +56,18 @@ export function normalizeApiError(error: unknown) {
   return new ApiRequestError({ message: DEFAULT_API_ERROR_MESSAGE });
 }
 
+function shouldAttachAuthorization(token: string | undefined) {
+  if (!token) {
+    return false;
+  }
+  // Demo session token from frontend auth — backend has no JWT yet.
+  return !token.startsWith("frontend-");
+}
+
 apiClient.interceptors.request.use((config) => {
   const accessToken = getAccessToken();
 
-  if (accessToken) {
+  if (shouldAttachAuthorization(accessToken ?? undefined)) {
     config.headers.Authorization = `Bearer ${accessToken}`;
   }
 

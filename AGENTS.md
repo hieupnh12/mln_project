@@ -25,6 +25,20 @@ Core rules:
 - Run `npm.cmd run typecheck` in `Frontend` after TypeScript/UI changes.
 - Run `npm.cmd run build` in `Frontend` after route, layout, config, or shared style changes.
 
+## Notifications (React Toastify)
+
+- Dùng **React Toastify** cho mọi thông báo UI (success, error, info, warning).
+- `ToastContainer` đã cấu hình trong `Frontend/app/root.tsx`.
+- Dùng helpers từ `Frontend/app/shared/utils/toast.ts`: `showSuccessToast`, `showErrorToast`, `showInfoToast`.
+- Không dùng `window.alert` hoặc `console.log` để thông báo kết quả thao tác cho người dùng.
+- `window.confirm` chỉ dùng khi thật sự cần xác nhận hành động phá huỷ (ví dụ: xóa hàng loạt).
+
+## Async progress (thanh tiến trình)
+
+- Mọi thao tác bất đồng bộ dài (đọc file import, gọi API import, lưu câu hỏi, …) phải dùng `runWithAsyncActivity` từ `Frontend/app/shared/utils/run-with-async-activity.ts`.
+- `AsyncActivityBar` trong `Frontend/app/root.tsx` hiển thị tiến trình global ở cuối màn hình.
+- Cập nhật `progress` và `detail` theo từng bước xử lý; API không có progress thật thì dùng `simulateProgress: true`.
+
 Refactor React TypeScript project theo chuẩn enterprise.
 
 Yêu cầu kiến trúc:
