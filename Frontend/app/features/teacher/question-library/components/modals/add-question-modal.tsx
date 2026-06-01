@@ -19,7 +19,7 @@ type AddQuestionModalProps = {
   onDraftChange: (draft: QuestionDraft) => void;
   onDiscard: () => void;
   onSaveDraft: () => void;
-  onPublish: () => void;
+  onSubmitForReview: () => void;
 };
 
 export function AddQuestionModal({
@@ -34,7 +34,7 @@ export function AddQuestionModal({
   onDraftChange,
   onDiscard,
   onSaveDraft,
-  onPublish,
+  onSubmitForReview,
 }: AddQuestionModalProps) {
   return (
     <ModalOverlay glass labelledBy="add-question-title" onClose={onClose} open={open}>
@@ -62,8 +62,8 @@ export function AddQuestionModal({
 
         <CreateQuestionFooter
           onDiscard={onDiscard}
-          onPublish={onPublish}
           onSaveDraft={onSaveDraft}
+          onSubmitForReview={onSubmitForReview}
           saving={saving}
         />
       </div>

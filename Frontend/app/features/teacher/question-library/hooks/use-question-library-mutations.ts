@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { QUESTION_LIBRARY_QUERY_KEYS } from "../constants/question-library.constants";
 import {
+  approveQuestion,
   batchImportQuestions,
   createQuestion,
   deleteQuestion,
@@ -28,6 +29,17 @@ export function useBatchImportMutation() {
 
   return useMutation({
     mutationFn: (payload: BatchImportPayload) => batchImportQuestions(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUESTION_LIBRARY_QUERY_KEYS.root });
+    },
+  });
+}
+
+export function useApproveQuestionMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => approveQuestion(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUESTION_LIBRARY_QUERY_KEYS.root });
     },

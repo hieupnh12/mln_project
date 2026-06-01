@@ -3,14 +3,14 @@ import { MaterialIcon } from "../../../../components/teacher-icons";
 type CreateQuestionFooterProps = {
   onDiscard: () => void;
   onSaveDraft: () => void;
-  onPublish: () => void;
+  onSubmitForReview: () => void;
   saving?: boolean;
 };
 
 export function CreateQuestionFooter({
   onDiscard,
   onSaveDraft,
-  onPublish,
+  onSubmitForReview,
   saving = false,
 }: CreateQuestionFooterProps) {
   return (
@@ -35,11 +35,11 @@ export function CreateQuestionFooter({
         <button
           className="flex items-center justify-center gap-2 rounded-lg bg-primary px-3 py-2.5 text-label-md font-medium text-on-primary shadow-lg transition active:scale-95 hover:opacity-90 disabled:opacity-50 sm:px-8"
           disabled={saving}
-          onClick={onPublish}
+          onClick={onSubmitForReview}
           type="button"
         >
-          <MaterialIcon>publish</MaterialIcon>
-          Xuất bản câu hỏi
+          <MaterialIcon>send</MaterialIcon>
+          Gửi duyệt câu hỏi
         </button>
       </div>
     </footer>

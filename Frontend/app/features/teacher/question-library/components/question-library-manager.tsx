@@ -5,7 +5,7 @@ import { runWithAsyncActivity } from "~/shared/utils/run-with-async-activity";
 import { ApiRequestError } from "~/shared/services/api-client";
 
 import { emptyQuestionDraft } from "../constants/question-library.constants";
-import { useBatchImportMutation, useCreateQuestionMutation, useDeleteQuestionMutation, useDeleteQuestionsMutation } from "../hooks/use-question-library-mutations";
+import { useApproveQuestionMutation, useBatchImportMutation, useCreateQuestionMutation, useDeleteQuestionMutation, useDeleteQuestionsMutation } from "../hooks/use-question-library-mutations";
 import {
   useQuestionMetadataQuery,
   useQuestionQuery,
@@ -56,6 +56,7 @@ export function QuestionLibraryManager() {
   const statsQuery = useQuestionStatsQuery();
   const createMutation = useCreateQuestionMutation();
   const batchImportMutation = useBatchImportMutation();
+  const approveMutation = useApproveQuestionMutation();
   const deleteMutation = useDeleteQuestionMutation();
   const deleteManyMutation = useDeleteQuestionsMutation();
 
@@ -265,6 +266,21 @@ export function QuestionLibraryManager() {
     });
   }
 
+  function approveQuestion(id: string) {
+    runWithAsyncActivity({
+      id: "question-library-approve",
+      label: "Đang duyệt câu hỏi",
+      simulateProgress: true,
+      task: async () => {
+        await approveMutation.mutateAsync(id);
+        setDetailQuestionId(null);
+        showSuccessToast("Đã duyệt và xuất bản câu hỏi.");
+      },
+    }).catch((error) => {
+      showErrorToast(error instanceof Error ? error.message : "Không thể duyệt câu hỏi.");
+    });
+  }
+
   function handleDeleteSelected() {
     if (selectedCount === 0) return;
     const confirmed = window.confirm(
@@ -370,8 +386,8 @@ export function QuestionLibraryManager() {
         onClose={closeModal}
         onDiscard={handleDiscardDraft}
         onDraftChange={setDraft}
-        onPublish={() => saveQuestion("Đã xuất bản")}
         onSaveDraft={() => saveQuestion("Bản nháp")}
+        onSubmitForReview={() => saveQuestion("Cần duyệt")}
         open={activeModal === "add"}
         saving={isSaving}
       />
@@ -390,8 +406,10 @@ export function QuestionLibraryManager() {
         poolSize={totalItems}
       />
       <QuestionDetailModal
+        approving={approveMutation.isPending}
         isError={detailQuestionQuery.isError}
         isLoading={detailQuestionQuery.isLoading}
+        onApprove={approveQuestion}
         onClose={() => setDetailQuestionId(null)}
         onRetry={() => detailQuestionQuery.refetch()}
         open={detailQuestionId !== null}

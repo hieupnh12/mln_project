@@ -15,6 +15,7 @@ export const QUESTION_LIBRARY_ENDPOINTS = {
   batchImport: "/teacher/question-library/questions/batch-import",
   checkDuplicate: "/teacher/question-library/questions/check-duplicate",
   questionById: (id: string) => `/teacher/question-library/questions/${id}`,
+  approveQuestion: (id: string) => `/teacher/question-library/questions/${id}/approve`,
 } as const;
 
 export const QUESTION_LIBRARY_QUERY_KEYS = {

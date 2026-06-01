@@ -85,6 +85,14 @@ export async function batchImportQuestionsApi(payload: BatchImportPayload) {
   return unwrap(response);
 }
 
+export async function approveQuestionApi(id: string) {
+  const numericId = id.startsWith("Q-") ? id.slice(2) : id;
+  const response = await apiClient.post<BackendApiResponse<QuestionDto>>(
+    QUESTION_LIBRARY_ENDPOINTS.approveQuestion(numericId),
+  );
+  return unwrap(response);
+}
+
 export async function deleteQuestionApi(id: string) {
   const numericId = id.startsWith("Q-") ? id.slice(2) : id;
   await apiClient.delete(QUESTION_LIBRARY_ENDPOINTS.questionById(numericId));

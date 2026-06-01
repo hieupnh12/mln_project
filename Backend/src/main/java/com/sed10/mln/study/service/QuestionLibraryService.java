@@ -120,6 +120,22 @@ public class QuestionLibraryService {
                 .orElseThrow(() -> new AppException(ErrorCode.QUESTION_NOT_FOUND));
     }
 
+    @Transactional
+    public QuestionResponse approveQuestion(Long id) {
+        Question question = questionRepository
+                .findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.QUESTION_NOT_FOUND));
+        if (!QuestionConstant.PENDING.equals(question.getStatus())) {
+            throw new AppException(ErrorCode.QUESTION_NOT_PENDING);
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        question.setStatus(QuestionConstant.PUBLISHED);
+        question.setPublishedAt(now);
+        question.setUpdatedAt(now);
+        return mapper.toResponse(questionRepository.save(question));
+    }
+
     @Transactional(readOnly = true)
     public QuestionStatsResponse getStats() {
         Map<String, Long> byDifficulty = new LinkedHashMap<>();
@@ -198,7 +214,7 @@ public class QuestionLibraryService {
 
         User teacher = userRepository.findById(DEFAULT_TEACHER_ID).orElse(null);
         LocalDateTime now = LocalDateTime.now();
-        String statusCode = QuestionConstant.fromLabel(request.getStatus());
+        String statusCode = resolveNewQuestionStatus(request.getStatus());
 
         Question question = Question.builder()
                 .lesson(lesson)
@@ -380,6 +396,11 @@ public class QuestionLibraryService {
         if (content.isBlank()) {
             throw new AppException(ErrorCode.QUESTION_CONTENT_REQUIRED);
         }
+    }
+
+    private String resolveNewQuestionStatus(String requestedStatus) {
+        String statusCode = QuestionConstant.fromLabel(requestedStatus);
+        return QuestionConstant.PUBLISHED.equals(statusCode) ? QuestionConstant.PENDING : statusCode;
     }
 
     private String resolveContent(CreateQuestionRequest request) {

@@ -54,6 +54,14 @@ public class QuestionLibraryController {
                 .build();
     }
 
+    @PostMapping("/questions/{id}/approve")
+    public ApiResponse<QuestionResponse> approveQuestion(@PathVariable Long id) {
+        return ApiResponse.<QuestionResponse>builder()
+                .message("Đã duyệt và xuất bản câu hỏi")
+                .result(questionLibraryService.approveQuestion(id))
+                .build();
+    }
+
     @GetMapping("/stats")
     public ApiResponse<QuestionStatsResponse> stats() {
         return ApiResponse.<QuestionStatsResponse>builder()

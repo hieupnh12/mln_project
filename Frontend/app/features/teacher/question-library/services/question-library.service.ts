@@ -1,4 +1,5 @@
 import {
+  approveQuestionApi,
   batchImportQuestionsApi,
   checkDuplicateApi,
   createQuestionApi,
@@ -88,6 +89,10 @@ export async function checkQuestionDuplicate(payload: CheckDuplicatePayload) {
 
 export function batchImportQuestions(payload: BatchImportPayload) {
   return batchImportQuestionsApi(payload);
+}
+
+export function approveQuestion(id: string) {
+  return approveQuestionApi(id).then(mapQuestionDto);
 }
 
 export function deleteQuestion(id: string) {

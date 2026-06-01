@@ -12,6 +12,7 @@ public enum ErrorCode {
     LESSON_NOT_FOUND(3002, "Không tìm thấy bài học", HttpStatus.NOT_FOUND),
     QUESTION_CONTENT_REQUIRED(3003, "Nội dung câu hỏi không được để trống", HttpStatus.BAD_REQUEST),
     QUESTION_DUPLICATE_EXACT(3004, "Câu hỏi đã tồn tại trong ngân hàng đề", HttpStatus.CONFLICT),
+    QUESTION_NOT_PENDING(3005, "Chỉ có thể duyệt câu hỏi đang ở trạng thái cần duyệt", HttpStatus.CONFLICT),
     SUBJECT_NOT_FOUND(1000, "Subject not found", HttpStatus.NOT_FOUND),
     CHAPTER_NOT_FOUND(1001, "Chapter not found", HttpStatus.NOT_FOUND),
     MATERIAL_NOT_FOUND(1002, "Material not found", HttpStatus.NOT_FOUND),
