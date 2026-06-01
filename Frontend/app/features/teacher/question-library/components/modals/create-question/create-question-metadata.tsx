@@ -184,7 +184,7 @@ export function CreateQuestionMetadata({
                 placeholder=""
                 value={activeSubject}
               />
-              <div className="mt-md grid grid-cols-2 gap-md">
+              <div className="mt-md grid grid-cols-1 gap-md sm:grid-cols-2">
                 <HierarchySelect
                   disabled={chapterOptions.length === 0}
                   label="Chương"
@@ -211,15 +211,15 @@ export function CreateQuestionMetadata({
 
         <div className="col-span-2 space-y-xs">
           <span className="text-label-md text-on-surface-variant">Độ khó</span>
-          <div className="flex gap-2">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
             {difficultyOptions.map((level) => {
               const selected = draft.difficulty === level;
               return (
                 <button
                   className={
                     selected
-                      ? "flex-1 rounded-lg border-2 border-secondary bg-secondary-container px-3 py-2 text-label-md font-bold text-on-secondary-container"
-                      : "flex-1 rounded-lg border border-outline-variant bg-white px-3 py-2 text-label-md transition hover:border-secondary"
+                      ? "rounded-lg border-2 border-secondary bg-secondary-container px-3 py-2 text-label-md font-bold text-on-secondary-container"
+                      : "rounded-lg border border-outline-variant bg-white px-3 py-2 text-label-md transition hover:border-secondary"
                   }
                   disabled={hierarchyDisabled}
                   key={level}

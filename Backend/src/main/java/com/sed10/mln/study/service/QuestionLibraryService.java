@@ -40,6 +40,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class QuestionLibraryService {
     private static final long DEFAULT_TEACHER_ID = 1L;
+    private static final int MAX_PAGE_SIZE = 100;
 
     private final QuestionRepository questionRepository;
     private final AnswerRepository answerRepository;
@@ -95,23 +96,32 @@ public class QuestionLibraryService {
             String status,
             int page,
             int size) {
+        int safePage = Math.max(0, page);
+        int safeSize = Math.min(Math.max(1, size), MAX_PAGE_SIZE);
         Specification<Question> specification = QuestionSpecification.withFilters(
                 search, course, chapter, lesson, difficulty, type, status);
         Page<Question> result = questionRepository.findAll(
                 specification,
-                PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "updatedAt")));
+                PageRequest.of(safePage, safeSize, Sort.by(Sort.Direction.DESC, "updatedAt")));
 
         return QuestionListResponse.builder()
-                .items(result.getContent().stream().map(mapper::toResponse).toList())
+                .items(result.getContent().stream().map(mapper::toListItemResponse).toList())
                 .total(result.getTotalElements())
-                .page(page)
-                .size(size)
+                .page(safePage)
+                .size(safeSize)
                 .build();
     }
 
     @Transactional(readOnly = true)
+    public QuestionResponse getQuestion(Long id) {
+        return questionRepository
+                .findById(id)
+                .map(mapper::toResponse)
+                .orElseThrow(() -> new AppException(ErrorCode.QUESTION_NOT_FOUND));
+    }
+
+    @Transactional(readOnly = true)
     public QuestionStatsResponse getStats() {
-        List<Question> questions = questionRepository.findAll();
         Map<String, Long> byDifficulty = new LinkedHashMap<>();
         byDifficulty.put("Cơ bản", 0L);
         byDifficulty.put("Vận dụng", 0L);
@@ -122,19 +132,16 @@ public class QuestionLibraryService {
         byStatus.put("Cần duyệt", 0L);
         byStatus.put("Đã xuất bản", 0L);
 
-        Set<String> courses = new HashSet<>();
-        for (Question question : questions) {
-            byDifficulty.merge(question.getDifficulty(), 1L, Long::sum);
-            byStatus.merge(QuestionConstant.toLabel(question.getStatus()), 1L, Long::sum);
-            Lesson lesson = question.getLesson();
-            if (lesson != null && lesson.getChapter() != null && lesson.getChapter().getSubject() != null) {
-                courses.add(lesson.getChapter().getSubject().getTitle());
-            }
+        for (QuestionRepository.QuestionCountProjection count : questionRepository.countGroupedByDifficulty()) {
+            byDifficulty.put(count.getValue(), count.getTotal());
+        }
+        for (QuestionRepository.QuestionCountProjection count : questionRepository.countGroupedByStatus()) {
+            byStatus.put(QuestionConstant.toLabel(count.getValue()), count.getTotal());
         }
 
         return QuestionStatsResponse.builder()
-                .totalQuestions(questions.size())
-                .totalCourses(courses.size())
+                .totalQuestions(questionRepository.count())
+                .totalCourses(questionRepository.countDistinctCourses())
                 .byDifficulty(byDifficulty)
                 .byStatus(byStatus)
                 .build();

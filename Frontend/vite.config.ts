@@ -5,24 +5,27 @@ import { defineConfig } from "vite";
 export default defineConfig({
   plugins: [tailwindcss(), reactRouter()],
   resolve: {
-    tsconfigPaths: true,
+    alias: {
+      "~": "/app",
+    },
   },
   server: {
     proxy: {
       "/api": {
-        target: "http://localhost:8080/mlnStudy",
+        target: "http://localhost:8080",
         changeOrigin: true,
+        secure: false,
       },
       "/chapters": {
-        target: "http://localhost:8080/mlnStudy",
+        target: "http://localhost:8080",
         changeOrigin: true,
       },
       "/lessons": {
-        target: "http://localhost:8080/mlnStudy",
+        target: "http://localhost:8080",
         changeOrigin: true,
       },
       "/materials": {
-        target: "http://localhost:8080/mlnStudy",
+        target: "http://localhost:8080",
         changeOrigin: true,
       },
     },

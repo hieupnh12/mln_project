@@ -2,18 +2,18 @@ import type { MouseEvent, ReactNode } from "react";
 
 import { MaterialIcon } from "../../components/teacher-icons";
 import { statusDisplayLabels } from "../constants/question-library.constants";
-import type { Difficulty, QuestionItem, QuestionStatus } from "../types/question-library.types";
+import type { Difficulty, QuestionListItem, QuestionStatus } from "../types/question-library.types";
 import { truncateText } from "../utils/truncate-text";
 
 type QuestionTableProps = {
-  questions: QuestionItem[];
+  questions: QuestionListItem[];
   allSelected: boolean;
   isLoading?: boolean;
   isSelected: (id: string) => boolean;
   onToggleAll: () => void;
   onToggleOne: (id: string) => void;
   onDelete: (id: string) => void;
-  onViewDetail: (question: QuestionItem) => void;
+  onViewDetail: (id: string) => void;
   footer?: ReactNode;
 };
 
@@ -95,7 +95,7 @@ export function QuestionTable({
                   key={question.id}
                   onDelete={() => onDelete(question.id)}
                   onToggle={() => onToggleOne(question.id)}
-                  onViewDetail={() => onViewDetail(question)}
+                  onViewDetail={() => onViewDetail(question.id)}
                   question={question}
                 />
               ))
@@ -115,7 +115,7 @@ function QuestionRow({
   onDelete,
   onViewDetail,
 }: {
-  question: QuestionItem;
+  question: QuestionListItem;
   isSelected: boolean;
   onToggle: () => void;
   onDelete: () => void;

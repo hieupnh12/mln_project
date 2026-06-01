@@ -26,7 +26,7 @@ export async function fetchQuestionMetadata() {
   return unwrap(response);
 }
 
-export async function fetchQuestions(filters: QuestionFilters, page = 0, size = 1000) {
+export async function fetchQuestions(filters: QuestionFilters, page: number, size: number) {
   const response = await apiClient.get<BackendApiResponse<QuestionListDto>>(
     QUESTION_LIBRARY_ENDPOINTS.questions,
     {
@@ -42,6 +42,14 @@ export async function fetchQuestions(filters: QuestionFilters, page = 0, size = 
         size,
       },
     },
+  );
+  return unwrap(response);
+}
+
+export async function fetchQuestion(id: string) {
+  const numericId = id.startsWith("Q-") ? id.slice(2) : id;
+  const response = await apiClient.get<BackendApiResponse<QuestionDto>>(
+    QUESTION_LIBRARY_ENDPOINTS.questionById(numericId),
   );
   return unwrap(response);
 }

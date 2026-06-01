@@ -11,7 +11,7 @@ import java.util.List;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class QuestionListResponse {
-    List<QuestionResponse> items;
+    List<QuestionListItemResponse> items;
     long total;
     int page;
     int size;

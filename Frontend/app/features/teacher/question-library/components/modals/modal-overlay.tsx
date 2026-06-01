@@ -42,14 +42,12 @@ export function ModalOverlay({
         glass
           ? "fixed inset-0 z-50 flex items-center justify-center bg-primary-container/40 backdrop-blur-sm"
           : "fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
-          // ❌ bỏ min-h-screen w-screen — fixed inset-0 đã đủ rồi
       }
       onClick={onClose}
       role="dialog"
     >
       <div
-        className="mx-auto w-full max-w-2xl max-h-[90vh] overflow-y-auto px-4"
-        // ✅ max-w-2xl + max-h-[90vh] — constrain rõ ràng, không phụ thuộc viewport
+        className="w-full px-4"
         onClick={(e) => e.stopPropagation()}
       >
         {children}

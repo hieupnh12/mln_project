@@ -13,7 +13,7 @@ export function CreateQuestionOptions({ draft, onChange }: CreateQuestionOptions
   return (
     <>
       <div className="space-y-sm">
-        <label className="flex items-center justify-between text-label-md font-medium text-on-surface">
+        <label className="flex flex-col items-start gap-1 text-label-md font-medium text-on-surface sm:flex-row sm:items-center sm:justify-between">
           <span className="flex items-center gap-2">
             <MaterialIcon className="text-sm">checklist</MaterialIcon>
             PHƯƠNG ÁN &amp; ĐÁP ÁN
@@ -49,7 +49,7 @@ export function CreateQuestionOptions({ draft, onChange }: CreateQuestionOptions
                 />
                 <span className="w-4 font-bold text-on-surface-variant">{label}</span>
                 <input
-                  className="flex-1 border-none bg-transparent p-0 font-body-md focus:ring-0"
+                  className="min-w-0 flex-1 border-none bg-transparent p-0 font-body-md focus:ring-0"
                   onChange={(e) => {
                     const options = [...draft.options];
                     options[index] = e.target.value;

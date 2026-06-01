@@ -40,10 +40,17 @@ public class QuestionLibraryController {
             @RequestParam(required = false, defaultValue = "all") String type,
             @RequestParam(required = false, defaultValue = "all") String status,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "1000") int size) {
+            @RequestParam(defaultValue = "10") int size) {
         return ApiResponse.<QuestionListResponse>builder()
                 .result(questionLibraryService.listQuestions(
                         search, course, chapter, lesson, difficulty, type, status, page, size))
+                .build();
+    }
+
+    @GetMapping("/questions/{id}")
+    public ApiResponse<QuestionResponse> getQuestion(@PathVariable Long id) {
+        return ApiResponse.<QuestionResponse>builder()
+                .result(questionLibraryService.getQuestion(id))
                 .build();
     }
 

@@ -8,7 +8,7 @@ import { emptyQuestionDraft } from "../constants/question-library.constants";
 import { useBatchImportMutation, useCreateQuestionMutation, useDeleteQuestionMutation, useDeleteQuestionsMutation } from "../hooks/use-question-library-mutations";
 import {
   useQuestionMetadataQuery,
-  useQuestionsQuery,
+  useQuestionQuery,
   useQuestionStatsQuery,
 } from "../hooks/use-question-library-queries";
 import { useQuestionPagination } from "../hooks/use-question-pagination";
@@ -48,19 +48,17 @@ export function QuestionLibraryManager() {
   const [filters, setFilters] = useState<QuestionFilters>(createDefaultFilters);
   const [activeModal, setActiveModal] = useState<QuestionModalId | null>(null);
   const [draft, setDraft] = useState<QuestionDraft>(emptyQuestionDraft);
-  const [detailQuestion, setDetailQuestion] = useState<QuestionItem | null>(null);
+  const [detailQuestionId, setDetailQuestionId] = useState<string | null>(null);
   const [duplicateCompare, setDuplicateCompare] = useState<DuplicateCompareState | null>(null);
   const [checkingDuplicate, setCheckingDuplicate] = useState(false);
 
   const metadataQuery = useQuestionMetadataQuery();
-  const questionsQuery = useQuestionsQuery(filters);
   const statsQuery = useQuestionStatsQuery();
   const createMutation = useCreateQuestionMutation();
   const batchImportMutation = useBatchImportMutation();
   const deleteMutation = useDeleteQuestionMutation();
   const deleteManyMutation = useDeleteQuestionsMutation();
 
-  const questions = questionsQuery.data?.items ?? [];
   const lessonOptions = metadataQuery.data?.lessonOptions ?? [];
 
   const stats = useMemo(() => {
@@ -84,19 +82,23 @@ export function QuestionLibraryManager() {
   }, [statsQuery.data]);
 
   const {
+    questionsQuery,
     pageItems,
     page,
     totalPages,
+    totalItems,
     rangeStart,
     rangeEnd,
     goToPage,
     resetPage,
-  } = useQuestionPagination(questions);
+  } = useQuestionPagination(filters);
+  const detailQuestionQuery = useQuestionQuery(detailQuestionId);
 
   const pageIds = useMemo(() => pageItems.map((q) => q.id), [pageItems]);
 
   const {
     allSelected,
+    selectedIds,
     selectedCount,
     toggleAll,
     toggleOne,
@@ -106,12 +108,8 @@ export function QuestionLibraryManager() {
   } = useQuestionSelection(pageIds);
 
   useEffect(() => {
-    resetPage();
-  }, [filters, resetPage]);
-
-  useEffect(() => {
-    pruneSelection(questions.map((q) => q.id));
-  }, [questions, pruneSelection]);
+    pruneSelection(pageItems.map((q) => q.id));
+  }, [pageItems, pruneSelection]);
 
   useEffect(() => {
     if (activeModal !== "add" || lessonOptions.length === 0) {
@@ -131,6 +129,11 @@ export function QuestionLibraryManager() {
 
   function closeModal() {
     setActiveModal(null);
+  }
+
+  function handleFiltersChange(nextFilters: QuestionFilters) {
+    resetPage();
+    setFilters(nextFilters);
   }
 
   function getSuccessMessage(status: QuestionStatus) {
@@ -224,6 +227,8 @@ export function QuestionLibraryManager() {
   }
 
   async function handleImportComplete(rows: ImportPreviewRow[], defaultLessonId: number) {
+    closeModal();
+
     const report = await runWithAsyncActivity({
       id: "question-library-batch-import",
       label: "Import câu hỏi hàng loạt",
@@ -266,7 +271,7 @@ export function QuestionLibraryManager() {
       `Bạn có chắc chắn muốn xóa ${selectedCount} câu hỏi đã chọn? Thao tác này không thể hoàn tác.`,
     );
     if (!confirmed) return;
-    const ids = questions.filter((q) => isSelected(q.id)).map((q) => q.id);
+    const ids = [...selectedIds];
     deleteManyMutation.mutate(ids, {
       onSuccess: () => {
         clearSelection();
@@ -286,14 +291,8 @@ export function QuestionLibraryManager() {
   }
 
   function handleRandomGenerate(config: RandomExamConfig) {
-    const pool = questions.filter((q) =>
-      config.selectedChapterIds.includes(q.chapter),
-    );
-    const source = pool.length > 0 ? pool : questions;
-    const picked = [...source]
-      .sort(() => Math.random() - 0.5)
-      .slice(0, config.totalCount);
-    showInfoToast(`Đã chọn ${picked.length} câu hỏi cho đề thi (demo).`);
+    const pickedCount = Math.min(config.totalCount, totalItems);
+    showInfoToast(`Đã chọn ${pickedCount} câu hỏi cho đề thi (demo).`);
   }
 
   const filterOptions = {
@@ -321,7 +320,7 @@ export function QuestionLibraryManager() {
       {stats && (
         <QuestionStatsCards
           activeStatus={filters.status}
-          onStatusFilter={(status) => setFilters({ ...filters, status })}
+          onStatusFilter={(status) => handleFiltersChange({ ...filters, status })}
           stats={stats}
         />
       )}
@@ -331,12 +330,12 @@ export function QuestionLibraryManager() {
         courseOptions={filterOptions.courses}
         filters={filters}
         lessonOptions={filterOptions.lessons}
-        onChange={setFilters}
+        onChange={handleFiltersChange}
         onDeleteSelected={handleDeleteSelected}
         onOpenExport={() => setActiveModal("export")}
         onOpenRandom={() => setActiveModal("export")}
         onReset={() => {
-          setFilters(createDefaultFilters());
+          handleFiltersChange(createDefaultFilters());
           clearSelection();
         }}
         selectedCount={selectedCount}
@@ -349,7 +348,7 @@ export function QuestionLibraryManager() {
             page={page}
             rangeEnd={rangeEnd}
             rangeStart={rangeStart}
-            totalItems={questions.length}
+            totalItems={totalItems}
             totalPages={totalPages}
           />
         }
@@ -358,7 +357,7 @@ export function QuestionLibraryManager() {
         onDelete={deleteQuestion}
         onToggleAll={toggleAll}
         onToggleOne={toggleOne}
-        onViewDetail={setDetailQuestion}
+        onViewDetail={setDetailQuestionId}
         questions={pageItems}
       />
 
@@ -388,12 +387,16 @@ export function QuestionLibraryManager() {
         onExport={handleExport}
         onGenerate={handleRandomGenerate}
         open={activeModal === "export"}
-        poolSize={questions.length}
+        poolSize={totalItems}
       />
       <QuestionDetailModal
-        onClose={() => setDetailQuestion(null)}
-        open={detailQuestion !== null}
-        question={detailQuestion}
+        isError={detailQuestionQuery.isError}
+        isLoading={detailQuestionQuery.isLoading}
+        onClose={() => setDetailQuestionId(null)}
+        onRetry={() => detailQuestionQuery.refetch()}
+        open={detailQuestionId !== null}
+        question={detailQuestionQuery.data ?? null}
+        questionId={detailQuestionId}
       />
       <DuplicateCompareModal
         existingQuestion={duplicateCompare?.existingQuestion ?? null}

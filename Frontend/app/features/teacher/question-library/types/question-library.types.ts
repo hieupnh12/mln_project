@@ -9,9 +9,8 @@ export type Difficulty = "Cơ bản" | "Vận dụng" | "Nâng cao";
 export type QuestionStatus = "Bản nháp" | "Cần duyệt" | "Đã xuất bản";
 export type QuestionMode = "single" | "batch";
 
-export type QuestionItem = {
+export type QuestionListItem = {
   id: string;
-  lessonId?: number;
   title: string;
   question: string;
   type: QuestionType;
@@ -20,6 +19,10 @@ export type QuestionItem = {
   course: string;
   chapter: string;
   lesson: string;
+};
+
+export type QuestionItem = QuestionListItem & {
+  lessonId?: number;
   answer: string;
   score: number;
   estimatedTime: number;

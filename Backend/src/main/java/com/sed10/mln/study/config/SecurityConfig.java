@@ -18,7 +18,6 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    /** Mọi đường dẫn API (sau context-path /mlnStudy) đều public khi dev. */
     private static final String[] PUBLIC_ENDPOINTS = { "/**" };
 
     @Bean
@@ -30,6 +29,7 @@ public class SecurityConfig {
 
         if (securityEnabled) {
             http.authorizeHttpRequests(requests -> requests
+                            .requestMatchers("/api/auth/**").permitAll()
                             .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                             .anyRequest().authenticated())
                     .httpBasic(Customizer.withDefaults());

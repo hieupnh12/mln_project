@@ -38,11 +38,11 @@ export function AddQuestionModal({
 }: AddQuestionModalProps) {
   return (
     <ModalOverlay glass labelledBy="add-question-title" onClose={onClose} open={open}>
-      <div className="mx-auto flex max-h-[min(921px,calc(100vh-32px))] w-full max-w-5xl flex-col overflow-hidden rounded-xl border border-outline-variant/20 bg-surface-container-lowest shadow-2xl">
+      <div className="mx-auto flex max-h-[calc(100dvh-32px)] w-full max-w-5xl flex-col overflow-hidden rounded-xl border border-outline-variant/20 bg-surface-container-lowest shadow-2xl">
         <CreateQuestionHeader onClose={onClose} />
 
-        <div className="custom-scrollbar flex-1 overflow-y-auto p-md lg:p-lg">
-          <section className="grid grid-cols-1 gap-lg lg:grid-cols-12">
+        <div className="custom-scrollbar flex-1 overflow-y-auto p-4 sm:p-md lg:p-lg">
+          <section className="grid grid-cols-1 gap-md lg:grid-cols-12 lg:gap-lg">
             <div className="space-y-md lg:col-span-7">
               <CreateQuestionEditor draft={draft} onChange={onDraftChange} />
               <CreateQuestionOptions draft={draft} onChange={onDraftChange} />
