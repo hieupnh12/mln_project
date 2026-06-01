@@ -35,14 +35,14 @@ export default function StudentMindmapPage() {
           <div className="flex-1 flex items-center justify-center text-[var(--color-error)]">
             Không thể tải dữ liệu sơ đồ. Vui lòng thử lại sau.
           </div>
-        ) : !mindmapData || mindmapData.nodes.length === 0 ? (
+        ) : !mindmapData || !mindmapData.nodes || mindmapData.nodes.length === 0 ? (
           <div className="flex-1 flex items-center justify-center text-[var(--color-on-surface-variant)]">
             Chưa có dữ liệu sơ đồ cho môn học này.
           </div>
         ) : (
           <MindmapCanvas 
             initialNodes={mindmapData.nodes} 
-            initialEdges={mindmapData.edges} 
+            initialEdges={mindmapData.edges || []} 
             isEditable={false} 
           />
         )}

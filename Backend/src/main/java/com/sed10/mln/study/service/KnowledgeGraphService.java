@@ -9,6 +9,8 @@ import com.sed10.mln.study.dto.response.MindmapResponse;
 import com.sed10.mln.study.entity.KnowledgeGraphEdge;
 import com.sed10.mln.study.entity.KnowledgeGraphNode;
 import com.sed10.mln.study.entity.Subject;
+import com.sed10.mln.study.exception.AppException;
+import com.sed10.mln.study.exception.ErrorCode;
 import com.sed10.mln.study.repository.KnowledgeGraphEdgeRepository;
 import com.sed10.mln.study.repository.KnowledgeGraphNodeRepository;
 import com.sed10.mln.study.repository.SubjectRepository;
@@ -33,7 +35,7 @@ public class KnowledgeGraphService {
     @Transactional(readOnly = true)
     public MindmapResponse getMindmap(Long subjectId) {
         Subject subject = subjectRepository.findById(subjectId)
-                .orElseThrow(() -> new RuntimeException("Subject not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.SUBJECT_NOT_FOUND));
 
         List<KnowledgeGraphNode> nodes = nodeRepository.findAllBySubjectId(subjectId);
         List<KnowledgeGraphEdge> edges = edgeRepository.findAllBySubjectId(subjectId);
@@ -77,7 +79,7 @@ public class KnowledgeGraphService {
     @Transactional
     public void saveMindmap(Long subjectId, SaveMindmapRequest request) {
         Subject subject = subjectRepository.findById(subjectId)
-                .orElseThrow(() -> new RuntimeException("Subject not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.SUBJECT_NOT_FOUND));
 
         // Delete old graph
         edgeRepository.deleteAllBySubjectId(subjectId);
