@@ -8,8 +8,9 @@ import org.springframework.http.HttpStatusCode;
 public enum ErrorCode {
     UNCATEGORIZED_EXCEPTION(9999, "Lỗi hệ thống không xác định", HttpStatus.INTERNAL_SERVER_ERROR),
     SMS_FAILED(2000, "Gửi SMS thất bại. Vui lòng thử lại sau", HttpStatus.BAD_REQUEST),
+    LESSON_NOT_FOUND(2001, "Không tìm thấy bài học", HttpStatus.NOT_FOUND),
+    FLASHCARD_NOT_FOUND(2002, "Không tìm thấy thẻ ghi nhớ", HttpStatus.NOT_FOUND),
     QUESTION_NOT_FOUND(3001, "Không tìm thấy câu hỏi", HttpStatus.NOT_FOUND),
-    LESSON_NOT_FOUND(3002, "Không tìm thấy bài học", HttpStatus.NOT_FOUND),
     QUESTION_CONTENT_REQUIRED(3003, "Nội dung câu hỏi không được để trống", HttpStatus.BAD_REQUEST),
     QUESTION_DUPLICATE_EXACT(3004, "Câu hỏi đã tồn tại trong ngân hàng đề", HttpStatus.CONFLICT),
     SUBJECT_NOT_FOUND(1000, "Subject not found", HttpStatus.NOT_FOUND),

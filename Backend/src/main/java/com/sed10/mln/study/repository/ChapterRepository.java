@@ -1,5 +1,6 @@
 package com.sed10.mln.study.repository;
 
+
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;

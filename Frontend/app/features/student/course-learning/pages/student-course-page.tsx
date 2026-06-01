@@ -1,4 +1,5 @@
-﻿import { useMemo, useState } from "react";
+
+import { useMemo, useState } from "react";
 import { Link, useParams } from "react-router";
 
 import { StudentMaterialIcon as MaterialIcon } from "../../components/student-material-icon";

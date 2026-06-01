@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "Knowledge_Graph_Edge")
+@Table(name = "knowledge_graph_edge")
 public class KnowledgeGraphEdge {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) @EqualsAndHashCode.Include Long id;
     @ManyToOne @JoinColumn(name = "source_node_id") KnowledgeGraphNode sourceNode;

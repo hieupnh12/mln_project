@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "StudentProgress")
+@Table(name = "student_progress")
 public class StudentProgress {
     @EmbeddedId StudentProgressId id;
     @ManyToOne @MapsId("studentId") @JoinColumn(name = "student_id") User student;
