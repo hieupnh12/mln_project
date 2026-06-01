@@ -1,6 +1,15 @@
 package com.sed10.mln.study.repository;
 
-import com.sed10.mln.study.entity.Subject;
-import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.List;
 
-public interface SubjectRepository extends JpaRepository<Subject, Long> {}
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import com.sed10.mln.study.entity.Subject;
+
+@Repository
+public interface SubjectRepository extends JpaRepository<Subject, Long> {
+
+
+    List<Subject> findBySubjectCode(String subjectCode);
+    
+}

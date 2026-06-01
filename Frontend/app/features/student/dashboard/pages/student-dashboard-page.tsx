@@ -1,18 +1,21 @@
 ﻿import { Link } from "react-router";
 
+import { useSubjects } from "../hooks/dashboard.hooks";
+
 import { StudentMaterialIcon as MaterialIcon } from "../../components/student-material-icon";
 import { getStudentCoursePath, STUDENT_ROUTES } from "../../constants/student-routes.constants";
+import { StudentCurriculumSection } from "../components/student-curriculum-section";
 import {
-  courseToneClass,
-  featuredStudentCoursePath,
   studentDashboardBottomNavItems,
-  studentDashboardCourses,
   studentDashboardNavItems,
   studentDashboardProfile,
-  studentDashboardResources,
 } from "../constants/student-dashboard.constants";
 
 export function StudentDashboardPage() {
+  const { data: subjects } = useSubjects();
+  const featuredCoursePath = subjects?.[0]
+    ? getStudentCoursePath(String(subjects[0].id))
+    : "#curriculum";
   return (
     <div className="min-h-svh bg-background pb-24 font-body-md text-on-surface md:pb-0">
       <header className="sticky top-0 z-50 border-b border-outline-variant/50 bg-surface/95 shadow-[0_4px_20px_rgba(35,39,51,0.04)] backdrop-blur">
@@ -84,7 +87,7 @@ export function StudentDashboardPage() {
             <div className="grid gap-3 pt-2 sm:flex sm:flex-wrap sm:gap-4">
               <Link
                 className="w-full rounded-lg bg-primary-container px-6 py-3 text-center text-label-md font-medium text-white transition hover:opacity-90 active:scale-95 sm:w-auto sm:px-8"
-                to={featuredStudentCoursePath}
+                to={featuredCoursePath}
               >
                 Học tiếp ngay
               </Link>
@@ -115,73 +118,17 @@ export function StudentDashboardPage() {
           </div>
         </section>
 
-        <section className="space-y-md" id="curriculum">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div className="space-y-xs">
-              <h2 className="text-headline-lg font-semibold text-primary">
-                Chương trình học tập
-              </h2>
-              <p className="text-body-md text-on-surface-variant">
-                Các khóa học lý luận chính trị trọng tâm cho học kỳ này.
-              </p>
-            </div>
-            <a
-              className="flex w-fit items-center gap-1 text-label-md font-medium text-secondary transition hover:underline"
-              href="#"
-            >
-              Xem tất cả
-              <MaterialIcon className="h-[18px] w-[18px] text-[18px]">
-                arrow_forward
-              </MaterialIcon>
-            </a>
-          </div>
 
-          <div className="grid grid-cols-1 gap-gutter md:grid-cols-2 lg:grid-cols-3">
-            {studentDashboardCourses.map((course) => {
-              const tone =
-                courseToneClass[course.tone as keyof typeof courseToneClass];
 
-              return (
-                <Link
-                  className={`group flex min-h-64 cursor-pointer flex-col justify-between rounded-xl border p-gutter shadow-[0_4px_20px_rgba(35,39,51,0.04)] transition duration-300 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(35,39,51,0.08)] ${tone.card} ${tone.border}`}
-                  key={course.title}
-                  to={getStudentCoursePath(course.slug)}
-                >
-                  <div>
-                    <div className="mb-4 flex items-start justify-between gap-4">
-                      <span
-                        className={`rounded-full bg-white/50 px-3 py-1 text-label-sm font-semibold ${tone.text}`}
-                      >
-                        {course.status}
-                      </span>
-                      <MaterialIcon className={tone.text}>
-                        {course.icon}
-                      </MaterialIcon>
-                    </div>
-                    <h3 className="text-headline-md font-semibold leading-snug text-primary">
-                      {course.title}
-                    </h3>
-                  </div>
 
-                  <div className="space-y-4">
-                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/40">
-                      <div
-                        className="h-full rounded-full bg-primary"
-                        style={{ width: `${course.progress}%` }}
-                      />
-                    </div>
-                    <div
-                      className={`flex justify-between gap-4 text-label-sm font-semibold ${tone.text}`}
-                    >
-                      <span>{course.progress}% Hoàn thành</span>
-                      <span>{course.lessons}</span>
-                    </div>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        </section>
+
+        <StudentCurriculumSection />
+
+
+
+
+{/* 
+
 
         <section className="space-y-md" id="resources">
           <div className="space-y-xs">
@@ -213,7 +160,7 @@ export function StudentDashboardPage() {
               </article>
             ))}
           </div>
-        </section>
+        </section> */}
 
         <section className="grid grid-cols-1 gap-gutter md:grid-cols-4" id="analytics">
           <article className="flex items-center gap-6 rounded-xl border border-outline-variant bg-white p-gutter shadow-[0_4px_20px_rgba(35,39,51,0.04)] md:col-span-2">

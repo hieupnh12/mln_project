@@ -1,6 +1,10 @@
 package com.sed10.mln.study.repository;
 
-import com.sed10.mln.study.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public interface UserRepository extends JpaRepository<User, Long> {}
+import com.sed10.mln.study.entity.User;
+@Repository
+public interface UserRepository extends JpaRepository<User, Long> {
+    
+}

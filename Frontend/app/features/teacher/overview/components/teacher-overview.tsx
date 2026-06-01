@@ -1,4 +1,3 @@
-import { chapters } from "../../course-structure/constants/course-structure.constants";
 import { flashcardSets } from "../../flashcard/constants/flashcard.constants";
 import { pdfDocuments } from "../../pdf-document/constants/pdf-document.constants";
 import { questionItems } from "../../question-library/constants/question-library.constants";
@@ -18,7 +17,7 @@ export function TeacherOverview() {
       </div>
 
       <section className="grid grid-cols-1 gap-gutter md:grid-cols-2 xl:grid-cols-4">
-        <MetricCard icon="account_tree" label="Chương học" value={chapters.length} />
+        <MetricCard icon="account_tree" label="Chương học" value={0} />
         <MetricCard icon="picture_as_pdf" label="Tài liệu PDF" value={pdfDocuments.length} />
         <MetricCard icon="style" label="Bộ flashcard" value={flashcardSets.length} />
         <MetricCard icon="task" label="Quiz" value={quizItems.length} />

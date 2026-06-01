@@ -13,6 +13,18 @@ export default defineConfig({
         target: "http://localhost:8080/mlnStudy",
         changeOrigin: true,
       },
+      "/chapters": {
+        target: "http://localhost:8080/mlnStudy",
+        changeOrigin: true,
+      },
+      "/lessons": {
+        target: "http://localhost:8080/mlnStudy",
+        changeOrigin: true,
+      },
+      "/materials": {
+        target: "http://localhost:8080/mlnStudy",
+        changeOrigin: true,
+      },
     },
   },
 });
