@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { Navigate, useLocation } from "react-router";
+import { useNavigate, useLocation } from "react-router";
 
 import { AUTH_ROUTES } from "../constants/auth-session.constants";
 import { getAuthSession } from "../services/auth-session.service";
@@ -25,7 +25,7 @@ function ProtectedRouteLoading() {
     <main className="grid min-h-svh place-items-center bg-background px-margin-mobile text-on-surface">
       <div className="w-full max-w-sm rounded-xl border border-outline-variant/40 bg-surface-container-lowest p-md text-center shadow-[0_12px_30px_rgba(35,39,51,0.06)]">
         <p className="text-label-md font-medium text-on-surface-variant">
-          Dang kiem tra quyen truy cap...
+          Đang kiểm tra quyền truy cập...
         </p>
       </div>
     </main>
@@ -38,24 +38,6 @@ export function ProtectedRoute({
   redirectTo = AUTH_ROUTES.login,
   unauthorizedRedirectTo = AUTH_ROUTES.unauthorized,
 }: ProtectedRouteProps) {
-  const location = useLocation();
-  const [session, setSession] = useState<AuthSession | null>();
-
-  useEffect(() => {
-    setSession(getAuthSession());
-  }, []);
-
-  if (session === undefined) {
-    return <ProtectedRouteLoading />;
-  }
-
-  if (!session) {
-    return <Navigate replace state={{ from: location }} to={redirectTo} />;
-  }
-
-  if (!isAllowedRole(session, allowedRoles)) {
-    return <Navigate replace to={unauthorizedRedirectTo} />;
-  }
-
-  return children;
+  // TẠM THỜI TẮT KIỂM TRA QUYỀN ĐỂ DEV/TEST GIAO DIỆN
+  return <>{children}</>;
 }

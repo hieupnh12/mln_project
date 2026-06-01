@@ -20,6 +20,7 @@ export default [
     route("mindmaps", "routes/teacher-mindmaps.tsx"),
     route("mindmap-preview", "routes/teacher-mindmap.tsx"),
     route("flashcards", "routes/teacher-flashcards.tsx"),
+    route("flashcards/new", "routes/teacher-create-flashcard.tsx"),
     route("questions", "routes/teacher-questions.tsx"),
     route("quizzes", "routes/teacher-quizzes.tsx"),
   ]),

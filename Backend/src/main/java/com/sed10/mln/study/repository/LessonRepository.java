@@ -1,5 +1,6 @@
 package com.sed10.mln.study.repository;
 
+
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -22,4 +23,5 @@ List<Lesson> findAllWithChapterAndSubject();
    @Query("SELECT l FROM Lesson l LEFT JOIN FETCH l.materials m WHERE l.chapter.id = :chapterId")
     List<Lesson> listlessonAndMaterialByChapterId(Long chapterId);
 
+    List<Lesson> findByTeacherId(Long teacherId);
 }
