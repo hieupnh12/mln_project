@@ -1,6 +1,7 @@
 package com.sed10.mln.study.mapper;
 
 import com.sed10.mln.study.constant.QuestionConstant;
+import com.sed10.mln.study.dto.response.QuestionListItemResponse;
 import com.sed10.mln.study.dto.response.QuestionResponse;
 import com.sed10.mln.study.entity.*;
 import com.sed10.mln.study.repository.AnswerRepository;
@@ -15,6 +16,24 @@ import java.util.List;
 public class QuestionMapper {
     private final AnswerRepository answerRepository;
     private final QuestionTagRepository questionTagRepository;
+
+    public QuestionListItemResponse toListItemResponse(Question question) {
+        Lesson lesson = question.getLesson();
+        Chapter chapter = lesson != null ? lesson.getChapter() : null;
+        Subject subject = chapter != null ? chapter.getSubject() : null;
+
+        return QuestionListItemResponse.builder()
+                .id("Q-" + question.getId())
+                .title(question.getTitle())
+                .question(question.getContent())
+                .type(question.getType())
+                .difficulty(question.getDifficulty())
+                .status(QuestionConstant.toLabel(question.getStatus()))
+                .course(subject != null ? subject.getTitle() : "")
+                .chapter(chapter != null ? chapter.getTitle() : "")
+                .lesson(lesson != null ? lesson.getTitle() : "")
+                .build();
+    }
 
     public QuestionResponse toResponse(Question question) {
         Lesson lesson = question.getLesson();

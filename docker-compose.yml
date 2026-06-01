@@ -4,6 +4,8 @@ services:
       context: ./Backend
     restart: unless-stopped
     environment:
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:?GOOGLE_CLIENT_ID is required}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:?GOOGLE_CLIENT_SECRET is required}
       SPRING_DATASOURCE_URL: jdbc:mysql://${MYSQL_HOST:?MYSQL_HOST is required}:${MYSQL_PORT:-3306}/${MYSQL_DATABASE:?MYSQL_DATABASE is required}?sslMode=${MYSQL_SSL_MODE:-REQUIRED}&serverTimezone=UTC
       SPRING_DATASOURCE_USERNAME: ${MYSQL_USER:?MYSQL_USER is required}
       SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:?MYSQL_PASSWORD is required}

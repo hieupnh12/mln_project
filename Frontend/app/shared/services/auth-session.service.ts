@@ -6,7 +6,7 @@ import type { AppUserRole, AuthSession } from "../types/auth-session.types";
 import { clearAccessToken, getAccessToken, setAccessToken } from "./auth-token.service";
 import { deleteCookie, getCookie, setCookie } from "./cookie.service";
 
-const allowedRoles: readonly AppUserRole[] = ["student", "teacher"];
+const allowedRoles: readonly AppUserRole[] = ["student", "teacher", "admin"];
 
 function isAppUserRole(value: string | null): value is AppUserRole {
   return allowedRoles.some((role) => role === value);
