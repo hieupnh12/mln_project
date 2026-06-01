@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { StudentMaterialIcon as MaterialIcon } from "../../components/student-material-icon";
 import type { CourseMaterialDetail } from "../types/course-learning.types";
@@ -8,8 +8,13 @@ type CourseSlideViewerProps = {
 };
 
 export function CourseSlideViewer({ material }: CourseSlideViewerProps) {
+  const containerRef = useRef<HTMLElement>(null);
   const slides = material.slides;
   const [activeIndex, setActiveIndex] = useState(0);
+
+  function handleFullscreen() {
+    containerRef.current?.requestFullscreen?.();
+  }
 
   if (slides.length === 0) {
     return (
@@ -25,19 +30,36 @@ export function CourseSlideViewer({ material }: CourseSlideViewerProps) {
   const totalSlides = slides.length;
 
   return (
-    <section className="group relative flex aspect-video items-center justify-center overflow-hidden rounded-xl border border-outline-variant/30 bg-white shadow-[0_4px_20px_rgba(35,39,51,0.04)]">
+    <section
+      className="group relative flex aspect-video items-center justify-center overflow-hidden rounded-xl border border-outline-variant/30 bg-white shadow-[0_4px_20px_rgba(35,39,51,0.04)] transition-transform active:scale-[0.995]"
+      ref={containerRef}
+    >
       <img
         alt={`${material.title} - slide ${activeIndex + 1}`}
-        className="h-full w-full object-contain bg-surface-container-lowest"
+        className="h-full w-full object-cover"
         src={currentSlide.imageUrl}
       />
 
-      <div className="absolute bottom-0 left-0 right-0 flex flex-col gap-3 bg-linear-to-t from-primary/25 to-transparent p-md opacity-100 transition-opacity sm:flex-row sm:items-center sm:justify-between lg:opacity-0 lg:group-hover:opacity-100">
-        <p className="truncate text-label-md font-medium text-primary sm:max-w-[50%]">
-          {material.title}
-        </p>
+      <div className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-linear-to-t from-primary/20 to-transparent p-md opacity-100 transition-opacity duration-300 lg:opacity-0 lg:group-hover:opacity-100">
+        <div className="flex gap-2">
+          <button
+            aria-label="Toàn màn hình"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-white/90 shadow-sm transition-colors hover:bg-secondary-container"
+            onClick={handleFullscreen}
+            type="button"
+          >
+            <MaterialIcon className="text-primary">fullscreen</MaterialIcon>
+          </button>
+          <button
+            aria-label="Cài đặt hiển thị"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-white/90 shadow-sm transition-colors hover:bg-secondary-container"
+            type="button"
+          >
+            <MaterialIcon className="text-primary">settings</MaterialIcon>
+          </button>
+        </div>
 
-        <div className="flex flex-wrap items-center justify-center gap-3 rounded-full bg-white/90 px-4 py-2 shadow-sm">
+        <div className="flex items-center gap-4 rounded-full bg-white/90 px-4 py-2 shadow-sm">
           <button
             aria-label="Slide trước"
             className="flex items-center gap-1 text-label-md font-medium text-primary transition hover:text-secondary disabled:opacity-40"

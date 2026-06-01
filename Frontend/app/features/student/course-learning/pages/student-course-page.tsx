@@ -6,6 +6,7 @@ import { STUDENT_ROUTES } from "../../constants/student-routes.constants";
 import type { LearningTab } from "../../types/student.types";
 import { CourseCurriculumSidebar } from "../components/course-curriculum-sidebar";
 import { CourseMaterialViewer } from "../components/course-material-viewer";
+import { CourseProgressBar } from "../components/course-progress-bar";
 import {
   studentCourseBottomNavItems,
   studentCourseFlashcards,
@@ -13,8 +14,13 @@ import {
   studentCourseTabs,
   studentCourseTests,
 } from "../constants/student-course.constants";
-import { useCourseSubjectQuery } from "../hooks/use-course-learning-queries";
+import {
+  useChapterLessonsQuery,
+  useCourseChaptersQuery,
+  useCourseSubjectQuery,
+} from "../hooks/use-course-learning-queries";
 import type { CourseMaterialSummary } from "../types/course-learning.types";
+import { computeCourseProgress } from "../utils/get-chapter-visual-state";
 
 function parseSubjectId(courseId: string | undefined) {
   if (!courseId) {
@@ -34,7 +40,18 @@ export function StudentCoursePage() {
   const [selectedMaterialId, setSelectedMaterialId] = useState<number | null>(null);
 
   const subjectQuery = useCourseSubjectQuery(subjectId);
+  const chaptersQuery = useCourseChaptersQuery(subjectId);
   const subject = subjectQuery.data;
+  const chapters = chaptersQuery.data ?? [];
+
+  const firstChapterId = chapters[0]?.id ?? null;
+  const firstChapterLessonsQuery = useChapterLessonsQuery(firstChapterId);
+  const instructorName = firstChapterLessonsQuery.data?.[0]?.teacherName;
+
+  const courseProgress = useMemo(
+    () => computeCourseProgress(expandedChapterId, chapters),
+    [chapters, expandedChapterId],
+  );
 
   function handleToggleChapter(chapterId: number) {
     setExpandedChapterId((current) => (current === chapterId ? null : chapterId));
@@ -63,7 +80,7 @@ export function StudentCoursePage() {
 
   return (
     <div className="min-h-svh bg-background pb-24 font-body-md text-on-surface md:pb-0">
-      <header className="sticky top-0 z-50 border-b border-outline-variant bg-surface/95 shadow-[0_4px_20px_rgba(35,39,51,0.04)] backdrop-blur">
+      <header className="sticky top-0 z-50 border-b border-outline-variant bg-surface shadow-sm">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-margin-mobile py-4 md:px-margin-desktop">
           <Link
             className="flex min-w-0 items-center gap-2 text-primary-container transition hover:opacity-70"
@@ -85,16 +102,18 @@ export function StudentCoursePage() {
             >
               <MaterialIcon>notifications</MaterialIcon>
             </button>
-            <img
-              alt="Ảnh đại diện học sinh"
-              className="h-8 w-8 rounded-full bg-secondary-container object-cover"
-              src={studentCourseProfile.avatarUrl}
-            />
+            <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-secondary-container">
+              <img
+                alt="Ảnh đại diện học sinh"
+                className="h-full w-full object-cover"
+                src={studentCourseProfile.avatarUrl}
+              />
+            </div>
           </div>
         </div>
       </header>
 
-      <main className="mx-auto w-full px-margin-mobile py-md md:px-margin-desktop">
+      <main className="mx-auto w-full px-margin-mobile py-base md:px-margin-desktop md:py-md">
         <section className="mb-lg">
           <div className="flex flex-col justify-between gap-md md:flex-row md:items-end">
             <div className="min-w-0">
@@ -123,10 +142,16 @@ export function StudentCoursePage() {
                   </h2>
                   <p className="text-body-md text-on-surface-variant">
                     Mã môn: {subject?.code}
+                    <br/>
+                    {instructorName ? `Giảng viên: ${instructorName}` : ""}
                   </p>
                 </>
               )}
             </div>
+
+            {!chaptersQuery.isLoading && chapters.length > 0 ? (
+              <CourseProgressBar progress={courseProgress} />
+            ) : null}
           </div>
         </section>
 
@@ -192,7 +217,7 @@ export function StudentCoursePage() {
                       {test.questions} câu hỏi - {test.duration}
                     </p>
                     <button
-                      className="mt-6 w-full rounded-lg bg-primary px-5 py-3 text-label-md font-medium text-white transition hover:bg-primary-container"
+                      className="mt-6 w-full rounded-lg bg-primary px-5 py-3 text-label-md font-medium text-on-primary transition hover:bg-primary-container"
                       type="button"
                     >
                       Bắt đầu
