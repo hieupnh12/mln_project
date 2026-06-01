@@ -20,7 +20,6 @@ Core rules:
 - Do not introduce new hex colors unless `DESIGN.md` and `app.css` are updated together.
 - Keep pages visually consistent with the Serene Academic / Calm UI direction.
 - For API work, use a shared api client and service functions instead of scattered `fetch` calls inside components.
-- API fetching, caching, refetching, mutation, loading, and error state must be managed with React Query through custom hooks.
 - Every API-backed UI needs loading, success, empty, and error behavior when applicable.
 - Check responsive behavior for mobile, tablet, and desktop before finishing.
 - Run `npm.cmd run typecheck` in `Frontend` after TypeScript/UI changes.
@@ -86,24 +85,6 @@ Quy tắc:
 - Component lớn phải tách nhỏ
 - Reusable component đặt trong shared/components
 - Không hardcode string hoặc API URL
-
-API + React Query rules:
-
-- Do not call API directly from `page` or UI components.
-- Use shared axios/api client for base URL, auth headers, and shared error handling.
-- Put endpoint calls in feature `services/` or `api/`.
-- Put React Query logic in feature `hooks/`.
-- Components consume only hook results such as `data`, `isLoading`, `isError`, `error`, `mutate`, and `isPending`.
-- Use stable query keys from feature `constants/`; do not hardcode query keys inline across components.
-- Mutations must invalidate or update related queries after success.
-- API-backed UI must handle loading, success, empty, and error states.
-- Keep request/response types in feature `types/`; do not use `any`.
-
-Suggested flow:
-
-```text
-route/page -> feature component -> custom React Query hook -> service/api function -> shared api client
-```
 
 Route rules:
 

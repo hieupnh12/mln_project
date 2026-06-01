@@ -1,20 +1,11 @@
 import { Link, useNavigate } from "react-router";
 import { useState } from "react";
 
-import type { Route } from "./+types/login";
-import { signInWithGoogleAsRole } from "../features/auth/services/auth.service";
-import type { UserRole } from "../features/auth/types/auth.types";
-
-const illustrationImage =
-  "https://lh3.googleusercontent.com/aida/ADBb0ugB0FACo-DQhvO9TlsJrBsMf2pPsHgaWKXPSFTnTcAu0vYx5W9D8Ls4d_hDmreTjrLaOq40w8aCyXmx0Jfd4eQw6Xtt2DL6-o58WrxPEUpngW_xVMJJmqK2_C--tblBkscXrI6HJBvbnanKYI_VrnjUdluRW-UBiGMIyP8wyM1BsfvNrSADEK3130Ra32PybJoKaX3YpZguitPNd1Ir0Bsnhj--KLYaHPEIyzDpLUMINL_RZeUeJ6xSDrI";
+import { getGoogleLoginUrl } from "../features/auth/services/auth.service";
 
 const supportLinks = ["Trợ giúp", "Điều khoản dịch vụ", "Bảo mật"];
-const roleOptions: Array<{ label: string; value: UserRole }> = [
-  { label: "Học sinh", value: "student" },
-  { label: "Giáo viên", value: "teacher" },
-];
 
-export function meta({}: Route.MetaArgs) {
+export function meta() {
   return [
     { title: "Đăng nhập | M-L Master" },
     {
@@ -25,57 +16,104 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Login() {
-  const navigate = useNavigate();
-  const [selectedRole, setSelectedRole] = useState<UserRole>("student");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleGoogleLogin = () => {
-    const result = signInWithGoogleAsRole(selectedRole);
-    navigate(result.redirectTo);
+  const handleGoogleLogin = async () => {
+    setIsLoading(true);
+    try {
+      const response = await getGoogleLoginUrl();
+      if (response.redirectUrl) {
+        window.location.href = response.redirectUrl;
+      }
+    } catch (error) {
+      console.error("Failed to get Google login URL:", error);
+      setIsLoading(false);
+    }
   };
 
   return (
     <main className="min-h-svh overflow-x-hidden bg-background font-body-md text-on-surface selection:bg-secondary-container">
       <div className="grid min-h-svh lg:grid-cols-[minmax(0,1.05fr)_minmax(400px,0.95fr)]">
-        <section className="fluid-bg relative flex min-w-0 flex-col px-margin-mobile py-8 sm:px-10 sm:py-10 lg:min-h-svh lg:px-margin-desktop lg:py-14">
+        <section className="login-hero relative flex min-w-0 flex-col overflow-hidden px-margin-mobile py-8 sm:px-10 sm:py-10 lg:min-h-svh lg:px-margin-desktop lg:py-14">
+          <div className="login-hero-sheen pointer-events-none absolute inset-0" />
+          <div className="login-hero-glow-left pointer-events-none absolute -left-20 top-14 h-72 w-72 rounded-full blur-3xl" />
+          <div className="login-hero-glow-right pointer-events-none absolute -right-20 bottom-6 h-80 w-80 rounded-full blur-3xl" />
+          <div className="login-hero-orb pointer-events-none absolute right-[18%] top-[18%] h-36 w-36 rounded-full" />
+          <div className="login-hero-line pointer-events-none absolute left-[12%] top-[20%] h-[1px] w-[32%]" />
+          <div className="login-hero-line-alt pointer-events-none absolute bottom-[22%] right-[10%] h-[1px] w-[28%]" />
+          <div className="login-hero-vignette pointer-events-none absolute inset-0" />
+          <div className="login-hero-accent-line pointer-events-none absolute inset-x-0 top-0 h-px" />
+
           <Link
-            className="relative z-10 w-fit font-serif text-[28px] font-bold leading-none text-primary outline-none transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-secondary sm:text-[34px]"
+            className="login-hero-brand relative z-10 w-fit font-serif text-[28px] font-bold leading-none outline-none transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-white/70 sm:text-[34px]"
             to="/"
           >
             M-L Master
           </Link>
 
-          <div className="relative z-10 mx-auto mt-10 w-full max-w-3xl lg:mx-0 lg:mt-20">
-            <h1 className="font-serif text-[38px] font-bold leading-[1.02] text-primary sm:text-[52px] lg:text-[64px]">
-              Đơn giản hoá Triết lý.
-              <br />
-              <span className="italic text-secondary">
-                Tối ưu hoá Điểm số.
-              </span>
-            </h1>
-            <p className="mt-6 max-w-[58ch] text-base leading-8 text-on-surface-variant sm:text-body-lg lg:text-[20px]">
-              Tiếp tục hành trình chinh phục trí tuệ của bạn với các phương
-              pháp học tập hiện đại nhất.
+          <div className="relative z-10 mx-auto mt-10 w-full max-w-2xl lg:mx-0 lg:mt-16">
+            <p className="login-hero-kicker text-label-sm uppercase tracking-[0.28em] sm:text-label-md">
+              Hệ thống học tập lý luận chính trị
             </p>
+            <h1 className="login-hero-title mt-4 max-w-[13ch] font-serif text-[40px] font-bold leading-[0.98] sm:text-[54px] lg:text-[72px]">
+              Triết học
+              <br />
+              <span className="login-hero-emphasis italic">Mác - Lênin</span>
+            </h1>
+            <p className="login-hero-copy mt-5 max-w-[48ch] text-base leading-8 sm:text-body-lg lg:text-[20px]">
+              Không gian đăng nhập được thiết kế theo tinh thần trang trọng, rõ
+              nhịp và có chiều sâu, để nội dung học tập trở nên tập trung hơn.
+            </p>
+
+            <div className="login-hero-tags mt-8 flex flex-wrap gap-3 text-label-md font-medium">
+              <span className="login-hero-tag rounded-full border px-4 py-2 backdrop-blur-sm">
+                Trang trọng
+              </span>
+              <span className="login-hero-tag rounded-full border px-4 py-2 backdrop-blur-sm">
+                Tư duy hệ thống
+              </span>
+              <span className="login-hero-tag rounded-full border px-4 py-2 backdrop-blur-sm">
+                Kỷ luật
+              </span>
+            </div>
           </div>
 
-          <figure className="relative z-10 mx-auto mt-10 w-full max-w-[720px] lg:mx-0 lg:mt-auto lg:pt-10">
-            <div className="overflow-hidden rounded-xl border border-outline-variant/20 bg-surface-container-lowest shadow-[0_18px_42px_rgba(35,39,51,0.08)]">
-              <img
-                alt="Minh họa Marx và Lenin"
-                className="aspect-[4/3] w-full object-cover object-top mix-blend-multiply sm:aspect-[16/10] lg:aspect-[1.25/1]"
-                src={illustrationImage}
-              />
-            </div>
-            <figcaption className="mt-4 border-l-4 border-secondary bg-primary-container px-5 py-4 shadow-[0_14px_34px_rgba(35,39,51,0.16)] sm:px-6 sm:py-5 lg:-mt-20 lg:ml-0 lg:w-[min(520px,88%)]">
-              <p className="text-sm italic leading-7 text-on-primary sm:text-base">
-                "Cái quý nhất của con người ta là sự sống. Đời người chỉ sống
-                có một lần. Phải sống sao cho khỏi xót xa, ân hận..."
+          <div className="relative z-10 mt-10 flex w-full flex-1 items-end lg:mt-auto lg:pt-10">
+            <div className="login-hero-panel w-full max-w-[720px] rounded-[28px] border p-5 shadow-[0_24px_60px_rgba(35,39,51,0.18)] backdrop-blur-md sm:p-6 lg:w-[min(640px,92%)]">
+              <div className="flex items-center gap-4">
+                <div className="login-hero-mark flex h-14 w-14 items-center justify-center rounded-2xl text-[26px] shadow-inner shadow-black/10">
+                  ✦
+                </div>
+                <div>
+                  <p className="login-hero-card-kicker text-label-sm uppercase tracking-[0.22em]">
+                    Tinh thần học tập
+                  </p>
+                  <p className="login-hero-card-title mt-1 text-lg font-semibold sm:text-xl">
+                    Nghiêm túc, tối giản, có trọng tâm
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-6 grid gap-4 sm:grid-cols-3">
+                {[
+                  "Bố cục rõ ràng",
+                  "Màu đỏ chủ đạo",
+                  "Nhấn mạnh chiều sâu học thuật",
+                ].map((item) => (
+                  <div
+                    className="login-hero-card rounded-2xl border px-4 py-4 text-sm leading-6 backdrop-blur-sm"
+                    key={item}
+                  >
+                    {item}
+                  </div>
+                ))}
+              </div>
+
+              <p className="login-hero-note mt-6 max-w-[52ch] text-sm italic leading-7 sm:text-base">
+                “Học, học nữa, học mãi.”
               </p>
-              <span className="mt-3 block text-label-sm font-semibold uppercase tracking-[0.18em] text-secondary-fixed sm:text-label-md">
-                - Thép đã tôi thế đấy
-              </span>
-            </figcaption>
-          </figure>
+            </div>
+          </div>
         </section>
 
         <section className="flex min-w-0 flex-col bg-surface-container-low px-margin-mobile py-8 sm:px-10 sm:py-10 lg:min-h-svh lg:px-10 lg:py-14">
@@ -90,26 +128,12 @@ export default function Login() {
                 </p>
               </header>
 
-              <div className="mt-7 grid grid-cols-2 rounded-xl bg-surface-container-low p-1">
-                {roleOptions.map((role) => (
-                  <button
-                    className={
-                      selectedRole === role.value
-                        ? "rounded-lg bg-surface-container-lowest px-3 py-2 text-label-md font-semibold text-primary shadow-sm"
-                        : "rounded-lg px-3 py-2 text-label-md font-medium text-on-surface-variant transition hover:text-primary"
-                    }
-                    key={role.value}
-                    onClick={() => setSelectedRole(role.value)}
-                    type="button"
-                  >
-                    {role.label}
-                  </button>
-                ))}
-              </div>
+
 
               <button
                 className="mt-8 grid min-h-12 w-full grid-cols-[24px_minmax(0,1fr)_24px] items-center gap-3 rounded-xl border border-outline-variant/40 bg-surface-container-lowest px-4 py-3 text-sm font-medium text-primary shadow-[0_4px_14px_rgba(35,39,51,0.06)] transition hover:-translate-y-0.5 hover:border-secondary/50 hover:shadow-[0_12px_26px_rgba(35,39,51,0.08)] active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 sm:mt-10 sm:min-h-14 sm:grid-cols-[28px_minmax(0,1fr)_28px] sm:text-base"
                 onClick={handleGoogleLogin}
+                disabled={isLoading}
                 type="button"
               >
                 <svg
@@ -137,7 +161,7 @@ export default function Login() {
                   />
                 </svg>
                 <span className="min-w-0 truncate text-center">
-                  Tiếp tục với Google
+                  {isLoading ? "Đang chuyển hướng..." : "Tiếp tục với Google"}
                 </span>
                 <span aria-hidden="true" />
               </button>

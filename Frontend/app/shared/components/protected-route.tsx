@@ -1,5 +1,4 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { Navigate, useLocation } from "react-router";
 
 import { AUTH_ROUTES } from "../constants/auth-session.constants";
 import { getAuthSession } from "../services/auth-session.service";
@@ -38,23 +37,30 @@ export function ProtectedRoute({
   redirectTo = AUTH_ROUTES.login,
   unauthorizedRedirectTo = AUTH_ROUTES.unauthorized,
 }: ProtectedRouteProps) {
-  const location = useLocation();
   const [session, setSession] = useState<AuthSession | null>();
 
   useEffect(() => {
-    setSession(getAuthSession());
-  }, []);
+    const nextSession = getAuthSession();
+
+    if (!nextSession) {
+      window.location.replace(redirectTo);
+      return;
+    }
+
+    if (!isAllowedRole(nextSession, allowedRoles)) {
+      window.location.replace(unauthorizedRedirectTo);
+      return;
+    }
+
+    setSession(nextSession);
+  }, [allowedRoles, redirectTo, unauthorizedRedirectTo]);
 
   if (session === undefined) {
     return <ProtectedRouteLoading />;
   }
 
   if (!session) {
-    return <Navigate replace state={{ from: location }} to={redirectTo} />;
-  }
-
-  if (!isAllowedRole(session, allowedRoles)) {
-    return <Navigate replace to={unauthorizedRedirectTo} />;
+    return <ProtectedRouteLoading />;
   }
 
   return children;
