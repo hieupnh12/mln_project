@@ -3,7 +3,6 @@ package com.sed10.mln.study.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -12,10 +11,11 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "Answer")
+@Table(name = "answer")
 public class Answer {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) @EqualsAndHashCode.Include Long id;
     @ManyToOne @JoinColumn(name = "question_id") Question question;
-    @Column(length = 255) String content;
+    @Column(columnDefinition = "LONGTEXT", nullable = false) String content;
     @Column(name = "is_correct") Boolean isCorrect;
+    @Column(name = "sort_order", nullable = false) Integer sortOrder;
 }

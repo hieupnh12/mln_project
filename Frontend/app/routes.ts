@@ -12,6 +12,7 @@ export default [
     index("routes/teacher-dashboard.tsx"),
     route("dashboard", "routes/teacher-dashboard-redirect.tsx"),
     route("courses", "routes/teacher-courses.tsx"),
+    route("courses/:subjectId", "routes/teacher-course-detail.tsx"),
     route("pdfs", "routes/teacher-pdfs.tsx"),
     route("mindmaps", "routes/teacher-mindmaps.tsx"),
     route("flashcards", "routes/teacher-flashcards.tsx"),

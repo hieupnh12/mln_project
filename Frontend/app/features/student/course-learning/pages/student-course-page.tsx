@@ -1,21 +1,66 @@
-import { useState } from "react";
-import { Link } from "react-router";
+
+import { useMemo, useState } from "react";
+import { Link, useParams } from "react-router";
 
 import { StudentMaterialIcon as MaterialIcon } from "../../components/student-material-icon";
 import { STUDENT_ROUTES } from "../../constants/student-routes.constants";
 import type { LearningTab } from "../../types/student.types";
+import { CourseCurriculumSidebar } from "../components/course-curriculum-sidebar";
+import { CourseMaterialViewer } from "../components/course-material-viewer";
 import {
   studentCourseBottomNavItems,
-  studentCourseChapters,
-  studentCourseDetail,
   studentCourseFlashcards,
   studentCourseProfile,
   studentCourseTabs,
   studentCourseTests,
 } from "../constants/student-course.constants";
+import { useCourseSubjectQuery } from "../hooks/use-course-learning-queries";
+import type { CourseMaterialSummary } from "../types/course-learning.types";
+
+function parseSubjectId(courseId: string | undefined) {
+  if (!courseId) {
+    return null;
+  }
+
+  const parsed = Number(courseId);
+  return Number.isNaN(parsed) ? null : parsed;
+}
 
 export function StudentCoursePage() {
+  const { courseId } = useParams();
+  const subjectId = useMemo(() => parseSubjectId(courseId), [courseId]);
+
   const [activeTab, setActiveTab] = useState<LearningTab>("lectures");
+  const [expandedChapterId, setExpandedChapterId] = useState<number | null>(null);
+  const [selectedMaterialId, setSelectedMaterialId] = useState<number | null>(null);
+
+  const subjectQuery = useCourseSubjectQuery(subjectId);
+  const subject = subjectQuery.data;
+
+  function handleToggleChapter(chapterId: number) {
+    setExpandedChapterId((current) => (current === chapterId ? null : chapterId));
+    setSelectedMaterialId(null);
+  }
+
+  function handleSelectMaterial(material: CourseMaterialSummary) {
+    setSelectedMaterialId(material.id);
+  }
+
+  if (subjectId == null) {
+    return (
+      <div className="flex min-h-svh items-center justify-center bg-background p-gutter">
+        <div className="max-w-md rounded-xl border border-error/30 bg-error-container/30 p-gutter text-center">
+          <p className="text-body-md font-medium text-error">Khóa học không hợp lệ.</p>
+          <Link
+            className="mt-4 inline-flex rounded-lg bg-primary px-5 py-2 text-label-md font-medium text-on-primary"
+            to={STUDENT_ROUTES.dashboard}
+          >
+            Về trang chủ
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-svh bg-background pb-24 font-body-md text-on-surface md:pb-0">
@@ -26,9 +71,7 @@ export function StudentCoursePage() {
             to={STUDENT_ROUTES.dashboard}
           >
             <MaterialIcon>arrow_back</MaterialIcon>
-            <span className="truncate text-label-md font-medium">
-              Trở về Trang chủ
-            </span>
+            <span className="truncate text-label-md font-medium">Trở về Trang chủ</span>
           </Link>
 
           <h1 className="hidden text-headline-md font-bold text-primary md:block">
@@ -39,6 +82,7 @@ export function StudentCoursePage() {
             <button
               aria-label="Thông báo"
               className="rounded-full p-2 text-on-surface-variant transition hover:bg-surface-variant/50"
+              type="button"
             >
               <MaterialIcon>notifications</MaterialIcon>
             </button>
@@ -51,33 +95,38 @@ export function StudentCoursePage() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-7xl px-margin-mobile py-md md:px-margin-desktop">
+      <main className="mx-auto w-full px-margin-mobile py-md md:px-margin-desktop">
         <section className="mb-lg">
           <div className="flex flex-col justify-between gap-md md:flex-row md:items-end">
             <div className="min-w-0">
-              <h2 className="mb-xs text-headline-lg font-semibold text-primary">
-                {studentCourseDetail.title}
-              </h2>
-              <p className="text-body-md text-on-surface-variant">
-                Giảng viên: {studentCourseDetail.lecturer}
-              </p>
-            </div>
-
-            <div className="w-full rounded-full border border-outline-variant bg-surface-container-high p-1 md:w-72">
-              <div className="mb-1 flex justify-between px-4">
-                <span className="text-label-sm font-semibold text-on-surface-variant">
-                  Tiến độ
-                </span>
-                <span className="text-label-sm font-semibold text-primary">
-                  {studentCourseDetail.progress}%
-                </span>
-              </div>
-              <div className="h-2 w-full overflow-hidden rounded-full bg-surface-variant">
-                <div
-                  className="h-full rounded-full bg-secondary transition-all duration-1000"
-                  style={{ width: `${studentCourseDetail.progress}%` }}
-                />
-              </div>
+              {subjectQuery.isLoading ? (
+                <div className="space-y-2">
+                  <div className="h-8 w-64 animate-pulse rounded-lg bg-surface-container" />
+                  <div className="h-5 w-40 animate-pulse rounded-lg bg-surface-container-low" />
+                </div>
+              ) : subjectQuery.isError ? (
+                <div>
+                  <h2 className="mb-xs text-headline-lg font-semibold text-primary">
+                    Không tải được thông tin môn học
+                  </h2>
+                  <button
+                    className="text-label-md font-medium text-secondary underline"
+                    onClick={() => subjectQuery.refetch()}
+                    type="button"
+                  >
+                    Thử lại
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <h2 className="mb-xs text-headline-lg font-semibold text-primary">
+                    {subject?.title}
+                  </h2>
+                  <p className="text-body-md text-on-surface-variant">
+                    Mã môn: {subject?.code}
+                  </p>
+                </>
+              )}
             </div>
           </div>
         </section>
@@ -103,59 +152,14 @@ export function StudentCoursePage() {
 
         <div className="grid grid-cols-1 gap-gutter lg:grid-cols-12">
           <div className="min-w-0 space-y-md lg:col-span-9">
-            {activeTab === "lectures" && (
-              <>
-                <section className="group relative flex aspect-video items-center justify-center overflow-hidden rounded-xl border border-outline-variant/30 bg-white shadow-[0_4px_20px_rgba(35,39,51,0.04)]">
-                  <img
-                    alt="Slide bài giảng triết học tối giản"
-                    className="h-full w-full object-cover"
-                    src={studentCourseDetail.slideImage}
-                  />
-                  <div className="absolute bottom-0 left-0 right-0 flex flex-col gap-3 bg-linear-to-t from-primary/25 to-transparent p-md opacity-100 transition-opacity sm:flex-row sm:items-center sm:justify-between lg:opacity-0 lg:group-hover:opacity-100">
-                    <div className="flex gap-2">
-                      {["fullscreen", "settings"].map((icon) => (
-                        <button
-                          aria-label={icon}
-                          className="flex h-10 w-10 items-center justify-center rounded-full bg-white/90 shadow-sm transition hover:bg-secondary-container"
-                          key={icon}
-                          type="button"
-                        >
-                          <MaterialIcon className="text-primary">
-                            {icon}
-                          </MaterialIcon>
-                        </button>
-                      ))}
-                    </div>
+            {activeTab === "lectures" ? (
+              <CourseMaterialViewer
+                selectedMaterialId={selectedMaterialId}
+                subject={subject}
+              />
+            ) : null}
 
-                    <div className="flex flex-wrap items-center justify-center gap-3 rounded-full bg-white/90 px-4 py-2 shadow-sm">
-                      <button className="flex items-center gap-1 text-label-md font-medium text-primary transition hover:text-secondary">
-                        <MaterialIcon>chevron_left</MaterialIcon>
-                        Trước
-                      </button>
-                      <span className="border-x border-outline-variant px-4 text-label-sm font-semibold">
-                        {studentCourseDetail.slide} / {studentCourseDetail.totalSlides}
-                      </span>
-                      <button className="flex items-center gap-1 text-label-md font-medium text-primary transition hover:text-secondary">
-                        Tiếp
-                        <MaterialIcon>chevron_right</MaterialIcon>
-                      </button>
-                    </div>
-                  </div>
-                </section>
-
-                <aside className="rounded-lg border-l-4 border-secondary-container bg-primary-container p-md text-white shadow-lg">
-                  <p className="mb-xs text-headline-md italic">
-                    "Triết học không treo lơ lửng ngoài thế giới, cũng như bộ
-                    óc không treo lơ lửng ngoài cơ thể con người..."
-                  </p>
-                  <p className="text-label-md text-secondary-container/80">
-                    - Các Mác
-                  </p>
-                </aside>
-              </>
-            )}
-
-            {activeTab === "flashcards" && (
+            {activeTab === "flashcards" ? (
               <section className="grid grid-cols-1 gap-gutter md:grid-cols-3">
                 {studentCourseFlashcards.map((card, index) => (
                   <article
@@ -168,15 +172,13 @@ export function StudentCoursePage() {
                     <h3 className="mt-6 text-headline-md font-semibold text-primary">
                       {card.front}
                     </h3>
-                    <p className="mt-4 text-body-md text-on-surface-variant">
-                      {card.back}
-                    </p>
+                    <p className="mt-4 text-body-md text-on-surface-variant">{card.back}</p>
                   </article>
                 ))}
               </section>
-            )}
+            ) : null}
 
-            {activeTab === "tests" && (
+            {activeTab === "tests" ? (
               <section className="grid grid-cols-1 gap-gutter md:grid-cols-3">
                 {studentCourseTests.map((test) => (
                   <article
@@ -186,90 +188,33 @@ export function StudentCoursePage() {
                     <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-secondary-container text-primary">
                       <MaterialIcon>quiz</MaterialIcon>
                     </div>
-                    <h3 className="text-headline-md font-semibold text-primary">
-                      {test.title}
-                    </h3>
+                    <h3 className="text-headline-md font-semibold text-primary">{test.title}</h3>
                     <p className="mt-3 text-body-md text-on-surface-variant">
                       {test.questions} câu hỏi - {test.duration}
                     </p>
-                    <button className="mt-6 w-full rounded-lg bg-primary px-5 py-3 text-label-md font-medium text-white transition hover:bg-primary-container">
+                    <button
+                      className="mt-6 w-full rounded-lg bg-primary px-5 py-3 text-label-md font-medium text-white transition hover:bg-primary-container"
+                      type="button"
+                    >
                       Bắt đầu
                     </button>
                   </article>
                 ))}
               </section>
-            )}
+            ) : null}
           </div>
 
-          <aside className="min-w-0 lg:col-span-3">
-            <div className="flex h-full max-h-150 flex-col rounded-xl border border-outline-variant/30 bg-white p-md shadow-[0_4px_20px_rgba(35,39,51,0.04)]">
-              <h3 className="mb-md flex items-center gap-2 text-label-md font-medium uppercase tracking-wider text-primary-container">
-                <MaterialIcon className="text-secondary">list_alt</MaterialIcon>
-                Nội dung chương trình
-              </h3>
-
-              <div className="flex-1 space-y-xs overflow-y-auto pr-1">
-                {studentCourseChapters.map((chapter) => (
-                  <button
-                    className={
-                      chapter.state === "done"
-                        ? "w-full rounded-lg border border-secondary-container bg-secondary-container/30 p-3 text-left"
-                        : chapter.state === "active"
-                          ? "w-full rounded-lg border border-outline-variant/50 bg-surface-container-low p-3 text-left transition hover:bg-secondary-container/10"
-                          : "w-full rounded-lg border border-transparent p-3 text-left transition hover:border-outline-variant"
-                    }
-                    key={chapter.number}
-                    type="button"
-                  >
-                    <div className="mb-2 flex items-center justify-between gap-2">
-                      <span
-                        className={
-                          chapter.state === "open" ||
-                            chapter.state === "locked"
-                            ? "text-label-md font-medium text-on-surface-variant"
-                            : "text-label-md font-medium text-primary"
-                        }
-                      >
-                        {chapter.number}
-                      </span>
-                      {chapter.state === "done" && (
-                        <MaterialIcon
-                          className="h-4 w-4 text-sm text-secondary"
-                          filled
-                        >
-                          check_circle
-                        </MaterialIcon>
-                      )}
-                      {chapter.state === "active" && (
-                        <span className="rounded-full bg-secondary-container px-2 py-0.5 text-[10px] font-semibold uppercase text-secondary">
-                          Đang học
-                        </span>
-                      )}
-                      {chapter.state === "locked" && (
-                        <MaterialIcon className="h-4 w-4 text-sm text-outline">
-                          lock
-                        </MaterialIcon>
-                      )}
-                    </div>
-                    <p
-                      className={
-                        chapter.state === "locked" || chapter.state === "open"
-                          ? "text-sm leading-tight text-outline"
-                          : "text-sm leading-tight text-on-surface-variant"
-                      }
-                    >
-                      {chapter.title}
-                    </p>
-                  </button>
-                ))}
-              </div>
-
-              <button className="mt-md flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-3 text-label-md font-medium text-white transition hover:bg-primary-container active:scale-95">
-                <MaterialIcon>download</MaterialIcon>
-                Tải tài liệu (PDF)
-              </button>
+          {activeTab === "lectures" ? (
+            <div className="min-w-0 lg:col-span-3">
+              <CourseCurriculumSidebar
+                expandedChapterId={expandedChapterId}
+                onSelectMaterial={handleSelectMaterial}
+                onToggleChapter={handleToggleChapter}
+                selectedMaterialId={selectedMaterialId}
+                subjectId={subjectId}
+              />
             </div>
-          </aside>
+          ) : null}
         </div>
       </main>
 

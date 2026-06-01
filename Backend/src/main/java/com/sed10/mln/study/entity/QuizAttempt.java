@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "QuizAttempt")
+@Table(name = "quiz_attempt")
 public class QuizAttempt {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) @EqualsAndHashCode.Include Long id;
     @ManyToOne @JoinColumn(name = "student_id") User student;

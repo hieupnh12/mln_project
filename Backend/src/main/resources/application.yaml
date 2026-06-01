@@ -1,3 +1,25 @@
+# .env ở thư mục gốc repo (MLNProject/.env), không phải Backend/
+springdotenv:
+  directory: ..
+  filename: .env
+  ignore-if-missing: true
+
+# false = tắt Basic Auth khi dev/test API (Postman). Production: đặt true hoặc APP_SECURITY_ENABLED=true
+app:
+  security:
+    enabled: false
+  libreoffice:
+    enabled: true
+    path: ${LIBREOFFICE_PATH:C:/Program Files/LibreOffice/program/soffice.exe}
+    convert-timeout-seconds: 120
+
+cloudinary:
+  cloud:
+    name: ${CLOUDINARY_CLOUD_NAME:}
+  api:
+    key: ${CLOUDINARY_API_KEY:}
+    secret: ${CLOUDINARY_API_SECRET:}
+
 # Server Configuration
 server:
   port: 8080
@@ -5,6 +27,8 @@ server:
     context-path: /mlnStudy
 
 spring:
+  config:
+    import: optional:file:../.env[.properties]
   application:
     name: web-sales-backend
 
@@ -24,19 +48,36 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: ${SPRING_DATASOURCE_URL:jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:mln_study}?sslMode=${MYSQL_SSL_MODE:DISABLED}&allowPublicKeyRetrieval=true&serverTimezone=UTC}
     username: ${SPRING_DATASOURCE_USERNAME:${MYSQL_USER:root}}
-    password: ${SPRING_DATASOURCE_PASSWORD:${MYSQL_PASSWORD:}}
+    password:  ${SPRING_DATASOURCE_PASSWORD:${MYSQL_PASSWORD:}}
 
   jpa:
     hibernate:
       ddl-auto: none
+      naming:
+        # Giữ đúng tên bảng trong @Table (vd. questionTag), không đổi thành question_tag
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     show-sql: true
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
 
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 100MB
+
 jwt:
   signerKey: ""
   expiration: 
   refreshable-duration: 
   temp-expiration: 
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+    try-it-out-enabled: true
