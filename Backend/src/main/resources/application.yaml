@@ -15,10 +15,10 @@ app:
 
 cloudinary:
   cloud:
-    name: ${CLOUDINARY_CLOUD_NAME:dpf4ph1qu}
+    name: ${CLOUDINARY_CLOUD_NAME}
   api:
-    key: ${CLOUDINARY_API_KEY:756234473817482}
-    secret: ${CLOUDINARY_API_SECRET:T5qQXodnthydHuSyQYrF-xk98Eo}
+    key: ${CLOUDINARY_API_KEY}
+    secret: ${CLOUDINARY_API_SECRET}
 
 # Server Configuration
 server:
