@@ -5,14 +5,17 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
-import java.util.List;
-
 @Data
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class QuestionListResponse {
-    List<QuestionListItemResponse> items;
-    long total;
-    int page;
-    int size;
+public class QuestionListItemResponse {
+    String id;
+    String title;
+    String question;
+    String type;
+    String difficulty;
+    String status;
+    String course;
+    String chapter;
+    String lesson;
 }

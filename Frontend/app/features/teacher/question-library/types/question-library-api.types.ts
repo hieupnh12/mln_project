@@ -41,6 +41,18 @@ export type QuestionDto = {
   duplicateWarning?: string | null;
 };
 
+export type QuestionListItemDto = {
+  id: string;
+  title: string;
+  question: string;
+  type: string;
+  difficulty: string;
+  status: string;
+  course: string;
+  chapter: string;
+  lesson: string;
+};
+
 export type DuplicateCheckDto = {
   exactDuplicate: boolean;
   similarDuplicate: boolean;
@@ -56,7 +68,7 @@ export type CheckDuplicatePayload = {
 };
 
 export type QuestionListDto = {
-  items: QuestionDto[];
+  items: QuestionListItemDto[];
   total: number;
   page: number;
   size: number;

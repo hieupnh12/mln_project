@@ -7,13 +7,57 @@ import { ModalOverlay } from "./modal-overlay";
 
 type QuestionDetailModalProps = {
   open: boolean;
+  questionId: string | null;
   question: QuestionItem | null;
+  isLoading: boolean;
+  isError: boolean;
+  onRetry: () => void;
   onClose: () => void;
 };
 
-export function QuestionDetailModal({ open, question, onClose }: QuestionDetailModalProps) {
-  if (!question) {
+export function QuestionDetailModal({
+  open,
+  questionId,
+  question,
+  isLoading,
+  isError,
+  onRetry,
+  onClose,
+}: QuestionDetailModalProps) {
+  if (!open) {
     return null;
+  }
+
+  if (isLoading) {
+    return (
+      <QuestionDetailStateModal
+        message="Đang tải chi tiết câu hỏi..."
+        onClose={onClose}
+        questionId={questionId}
+      />
+    );
+  }
+
+  if (isError) {
+    return (
+      <QuestionDetailStateModal
+        actionLabel="Thử lại"
+        message="Không thể tải chi tiết câu hỏi."
+        onAction={onRetry}
+        onClose={onClose}
+        questionId={questionId}
+      />
+    );
+  }
+
+  if (!question) {
+    return (
+      <QuestionDetailStateModal
+        message="Không tìm thấy chi tiết câu hỏi."
+        onClose={onClose}
+        questionId={questionId}
+      />
+    );
   }
 
   return (
@@ -94,6 +138,55 @@ export function QuestionDetailModal({ open, question, onClose }: QuestionDetailM
               </div>
             </DetailSection>
           )}
+        </div>
+      </div>
+    </ModalOverlay>
+  );
+}
+
+function QuestionDetailStateModal({
+  questionId,
+  message,
+  actionLabel,
+  onAction,
+  onClose,
+}: {
+  questionId: string | null;
+  message: string;
+  actionLabel?: string;
+  onAction?: () => void;
+  onClose: () => void;
+}) {
+  return (
+    <ModalOverlay labelledBy="question-detail-title" onClose={onClose} open>
+      <div className="mx-auto flex max-h-[min(800px,calc(100vh-32px))] w-full max-w-3xl flex-col overflow-hidden rounded-xl border border-outline-variant/20 bg-surface-container-lowest shadow-2xl">
+        <header className="flex items-start justify-between gap-4 border-b border-outline-variant/10 px-md py-4 lg:px-lg">
+          <div className="min-w-0 flex-1">
+            <p className="font-mono text-label-sm text-on-surface-variant">{questionId}</p>
+            <h2 className="mt-1 text-headline-md font-semibold text-on-surface" id="question-detail-title">
+              Chi tiết câu hỏi
+            </h2>
+          </div>
+          <button
+            aria-label="Đóng"
+            className="rounded-lg p-2 text-on-surface-variant transition hover:bg-surface-container-high"
+            onClick={onClose}
+            type="button"
+          >
+            <MaterialIcon>close</MaterialIcon>
+          </button>
+        </header>
+        <div className="flex min-h-48 flex-col items-center justify-center gap-3 p-md text-center lg:p-lg">
+          <p className="text-body-md text-on-surface-variant">{message}</p>
+          {actionLabel && onAction ? (
+            <button
+              className="rounded-lg bg-primary px-4 py-2 text-label-md font-medium text-on-primary"
+              onClick={onAction}
+              type="button"
+            >
+              {actionLabel}
+            </button>
+          ) : null}
         </div>
       </div>
     </ModalOverlay>
