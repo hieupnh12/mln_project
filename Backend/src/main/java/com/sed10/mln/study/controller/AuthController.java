@@ -77,8 +77,8 @@ public class AuthController {
             
             // Redirect to frontend with token and role
             String frontendRedirectUrl = String.format(
-                    "%s/auth/callback?token=%s&role=%s&userId=%d",
-                    frontendBaseUrl,
+                    "%s?token=%s&role=%s&userId=%d",
+                    buildFrontendUrl("/auth/callback"),
                     URLEncoder.encode(token, StandardCharsets.UTF_8),
                     URLEncoder.encode(user.getRole(), StandardCharsets.UTF_8),
                     user.getId()
@@ -91,9 +91,13 @@ public class AuthController {
         } catch (Exception e) {
             log.error("Error handling Google callback: {}", e.getMessage(), e);
             return ResponseEntity.status(302)
-                    .header("Location", "http://localhost:5173/login?error=oauth_failed")
+                    .header("Location", buildFrontendUrl("/login?error=oauth_failed"))
                     .build();
         }
+    }
+
+    private String buildFrontendUrl(String path) {
+        return frontendBaseUrl.replaceAll("/+$", "") + path;
     }
     
     @PostMapping("/validate-token")
