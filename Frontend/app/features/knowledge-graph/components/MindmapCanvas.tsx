@@ -55,10 +55,14 @@ export default function MindmapCanvas({ initialNodes, initialEdges, isEditable, 
 
   const handleAddNode = (entityType: 'CHAPTER' | 'LESSON') => {
     const newNodeId = `node-${Date.now()}`;
+    // Random offset between -25 and +25 to prevent exact stacking
+    const offsetX = Math.floor(Math.random() * 50) - 25;
+    const offsetY = Math.floor(Math.random() * 50) - 25;
+
     const newNode = {
       id: newNodeId,
       type: 'entity',
-      position: { x: 250, y: 150 },
+      position: { x: 250 + offsetX, y: 150 + offsetY },
       data: {
         id: newNodeId,
         title: entityType === 'CHAPTER' ? 'Chương mới' : 'Bài học mới',
@@ -82,6 +86,8 @@ export default function MindmapCanvas({ initialNodes, initialEdges, isEditable, 
         nodesDraggable={isEditable}
         nodesConnectable={isEditable}
         elementsSelectable={true} // Allow selection to view details even in read-only
+        minZoom={0.05}
+        maxZoom={3}
         fitView
         className="bg-[var(--color-surface)]"
       >

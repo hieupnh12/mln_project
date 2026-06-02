@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Handle, Position } from '@xyflow/react';
 import type { NodeProps } from '@xyflow/react';
-import { Check, ChevronRight, ChevronLeft } from 'lucide-react';
+import { ChevronRight, ChevronLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function CustomConceptNode({ id, data, selected }: NodeProps) {
@@ -10,7 +10,6 @@ export default function CustomConceptNode({ id, data, selected }: NodeProps) {
   const cluster = (data?.cluster as number) !== undefined ? (data?.cluster as number) : -1;
   const hasChildren = !!data?.hasChildren;
   const isCollapsed = !!data?.isCollapsed;
-  const isCompleted = !!data?.isCompleted;
 
   const isEditing = !!data?.isEditing;
   const onSaveEdit = data?.onSaveEdit as ((label: string) => void) | undefined;
@@ -191,6 +190,7 @@ export default function CustomConceptNode({ id, data, selected }: NodeProps) {
   };
 
   const theme = getRoleBasedStyles();
+  const branchColor = data?.branchColor as string | undefined;
 
   return (
     <motion.div
@@ -203,30 +203,29 @@ export default function CustomConceptNode({ id, data, selected }: NodeProps) {
         onDoubleClickEdit?.();
       }}
       className={`
-        relative px-4 py-3 min-w-[180px] max-w-[260px] 
-        ${theme.isPill ? 'rounded-full px-6 py-2' : 'rounded-[var(--radius-lg)]'}
-        ${theme.bg}
-        ${selected ? 'ring-2 ring-[var(--color-secondary)] ring-offset-2' : ''}
-        ${isCompleted ? 'ring-2 ring-emerald-500 border-emerald-500' : ''}
+        relative px-5 py-3 w-[280px]
+        rounded-full flex items-center justify-center
+        ${branchColor ? '' : theme.bg}
+        ${selected ? 'ring-4 ring-white/50 ring-offset-2 ring-offset-black/10' : ''}
       `}
+      style={{
+        backgroundColor: branchColor || undefined,
+        color: branchColor ? '#ffffff' : undefined,
+        boxShadow: selected ? '0 10px 25px rgba(0,0,0,0.2)' : '0 4px 15px rgba(0,0,0,0.1)',
+      }}
     >
-      {/* Left Handle for incoming connections */}
-      {level > 0 && (
-        <Handle
-          type="target"
-          position={Position.Left}
-          className={`w-3 h-3 border-2 border-white ${theme.handlesColor}`}
-        />
-      )}
+      {/* Handles with IDs for precise edge routing */}
+      <Handle id="target-left" type="target" position={Position.Left} className="opacity-0 w-0 h-0" />
+      <Handle id="source-left" type="source" position={Position.Left} className="opacity-0 w-0 h-0" />
+      <Handle id="target-right" type="target" position={Position.Right} className="opacity-0 w-0 h-0" />
+      <Handle id="source-right" type="source" position={Position.Right} className="opacity-0 w-0 h-0" />
+      
+      <Handle id="target-top" type="target" position={Position.Top} className="opacity-0 w-0 h-0" />
+      <Handle id="source-top" type="source" position={Position.Top} className="opacity-0 w-0 h-0" />
+      <Handle id="target-bottom" type="target" position={Position.Bottom} className="opacity-0 w-0 h-0" />
+      <Handle id="source-bottom" type="source" position={Position.Bottom} className="opacity-0 w-0 h-0" />
 
-      {/* Completion checkmark */}
-      {isCompleted && (
-        <div className="absolute -top-2 -left-2 bg-emerald-500 text-white rounded-full p-0.5 shadow-sm flex items-center justify-center w-5 h-5 z-10 animate-fade-up">
-          <Check size={12} strokeWidth={3} />
-        </div>
-      )}
-
-      <div className="flex flex-col gap-1.5">
+      <div className="flex flex-col gap-1.5 w-full">
         <div className="flex items-center justify-between gap-2">
           <span className={`text-[9px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded-full ${theme.badge}`}>
             {theme.badgeText}
@@ -274,13 +273,6 @@ export default function CustomConceptNode({ id, data, selected }: NodeProps) {
           </button>
         </div>
       )}
-
-      {/* Right Handle for outgoing connections */}
-      <Handle
-        type="source"
-        position={Position.Right}
-        className={`w-3 h-3 border-2 border-white ${theme.handlesColor}`}
-      />
     </motion.div>
   );
 }

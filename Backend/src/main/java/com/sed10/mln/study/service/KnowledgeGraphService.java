@@ -14,6 +14,10 @@ import com.sed10.mln.study.exception.ErrorCode;
 import com.sed10.mln.study.repository.KnowledgeGraphEdgeRepository;
 import com.sed10.mln.study.repository.KnowledgeGraphNodeRepository;
 import com.sed10.mln.study.repository.SubjectRepository;
+import com.sed10.mln.study.repository.ChapterRepository;
+import com.sed10.mln.study.repository.LessonRepository;
+import com.sed10.mln.study.entity.Chapter;
+import com.sed10.mln.study.entity.Lesson;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +35,8 @@ public class KnowledgeGraphService {
     private final KnowledgeGraphNodeRepository nodeRepository;
     private final KnowledgeGraphEdgeRepository edgeRepository;
     private final SubjectRepository subjectRepository;
+    private final ChapterRepository chapterRepository;
+    private final LessonRepository lessonRepository;
 
     @Transactional(readOnly = true)
     public MindmapResponse getMindmap(Long subjectId) {
@@ -39,6 +45,10 @@ public class KnowledgeGraphService {
 
         List<KnowledgeGraphNode> nodes = nodeRepository.findAllBySubjectId(subjectId);
         List<KnowledgeGraphEdge> edges = edgeRepository.findAllBySubjectId(subjectId);
+
+        if (nodes.isEmpty()) {
+            return generateDefaultMindmap(subject);
+        }
 
         List<MindmapNodeDTO> nodeDTOs = nodes.stream().map(node -> {
             MindmapNodeDTO dto = new MindmapNodeDTO();
@@ -71,6 +81,92 @@ public class KnowledgeGraphService {
 
         return MindmapResponse.builder()
                 .courseId(String.valueOf(subjectId))
+                .nodes(nodeDTOs)
+                .edges(edgeDTOs)
+                .build();
+    }
+
+    private MindmapResponse generateDefaultMindmap(Subject subject) {
+        List<MindmapNodeDTO> nodeDTOs = new ArrayList<>();
+        List<MindmapEdgeDTO> edgeDTOs = new ArrayList<>();
+
+        // Root Node (Subject)
+        MindmapNodeDTO root = new MindmapNodeDTO();
+        root.setId("root-" + subject.getId());
+        root.setType("entity");
+        
+        NodeDataDTO rootData = new NodeDataDTO();
+        rootData.setId(root.getId());
+        rootData.setTitle(subject.getTitle());
+        rootData.setEntityType("SUBJECT");
+        rootData.setEntityId(subject.getId());
+        root.setData(rootData);
+        
+        PositionDTO rootPos = new PositionDTO();
+        rootPos.setX(0.0f);
+        rootPos.setY(0.0f);
+        root.setPosition(rootPos);
+        
+        nodeDTOs.add(root);
+
+        List<Chapter> chapters = chapterRepository.findAllBySubject(subject);
+        for (Chapter chapter : chapters) {
+            MindmapNodeDTO chapterNode = new MindmapNodeDTO();
+            chapterNode.setId("chapter-" + chapter.getId());
+            chapterNode.setType("entity");
+            
+            NodeDataDTO chapterData = new NodeDataDTO();
+            chapterData.setId(chapterNode.getId());
+            chapterData.setTitle(chapter.getTitle());
+            chapterData.setEntityType("CHAPTER");
+            chapterData.setEntityId(chapter.getId());
+            chapterNode.setData(chapterData);
+            
+            PositionDTO chapterPos = new PositionDTO();
+            chapterPos.setX(0.0f);
+            chapterPos.setY(0.0f);
+            chapterNode.setPosition(chapterPos);
+            
+            nodeDTOs.add(chapterNode);
+
+            MindmapEdgeDTO edge = new MindmapEdgeDTO();
+            edge.setId("edge-root-" + chapter.getId());
+            edge.setSource(root.getId());
+            edge.setTarget(chapterNode.getId());
+            edge.setType("smoothstep");
+            edgeDTOs.add(edge);
+
+            List<Lesson> lessons = lessonRepository.listlessonAndMaterialByChapterId(chapter.getId());
+            for (Lesson lesson : lessons) {
+                MindmapNodeDTO lessonNode = new MindmapNodeDTO();
+                lessonNode.setId("lesson-" + lesson.getId());
+                lessonNode.setType("entity");
+                
+                NodeDataDTO lessonData = new NodeDataDTO();
+                lessonData.setId(lessonNode.getId());
+                lessonData.setTitle(lesson.getTitle());
+                lessonData.setEntityType("LESSON");
+                lessonData.setEntityId(lesson.getId());
+                lessonNode.setData(lessonData);
+                
+                PositionDTO lessonPos = new PositionDTO();
+                lessonPos.setX(0.0f);
+                lessonPos.setY(0.0f);
+                lessonNode.setPosition(lessonPos);
+                
+                nodeDTOs.add(lessonNode);
+
+                MindmapEdgeDTO lEdge = new MindmapEdgeDTO();
+                lEdge.setId("edge-chapter-" + chapter.getId() + "-lesson-" + lesson.getId());
+                lEdge.setSource(chapterNode.getId());
+                lEdge.setTarget(lessonNode.getId());
+                lEdge.setType("smoothstep");
+                edgeDTOs.add(lEdge);
+            }
+        }
+
+        return MindmapResponse.builder()
+                .courseId(String.valueOf(subject.getId()))
                 .nodes(nodeDTOs)
                 .edges(edgeDTOs)
                 .build();

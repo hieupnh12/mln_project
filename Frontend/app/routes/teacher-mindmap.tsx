@@ -2,14 +2,32 @@ import React from 'react';
 import { useSearchParams } from 'react-router';
 import MindmapCanvas from '../features/knowledge-graph/components/MindmapCanvas';
 import { useGetMindmap, useSaveMindmap } from '../features/knowledge-graph/hooks/use-mindmap';
+import { getMindmapRadialLayout, applyMindmapStyles } from '../features/knowledge-graph/utils/mindmap-layout.util';
 import type { Node, Edge } from '@xyflow/react';
 
 export default function TeacherMindmapPage() {
   const [searchParams] = useSearchParams();
-  const courseId = searchParams.get('courseId') || '1';
+  const courseId = searchParams.get('courseId');
 
-  const { data: mindmapData, isLoading, isError } = useGetMindmap(courseId);
+  const { data: mindmapData, isLoading, isError } = useGetMindmap(courseId || '');
   const { mutate: saveMindmap, isPending: isSaving } = useSaveMindmap();
+
+  if (!courseId) {
+    return (
+      <div className="flex h-screen w-screen items-center justify-center bg-[var(--color-background)]">
+        <div className="text-center">
+          <h2 className="text-xl font-bold text-[var(--color-error)] mb-2">Lỗi truy cập</h2>
+          <p className="text-[var(--color-on-surface-variant)] mb-4">Không tìm thấy mã môn học. Vui lòng truy cập từ danh sách khóa học.</p>
+          <button 
+            onClick={() => window.history.back()}
+            className="px-4 py-2 bg-[var(--color-primary)] text-white rounded-lg hover:opacity-90 transition"
+          >
+            Quay lại
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const handleSave = (nodes: Node[], edges: Edge[]) => {
     saveMindmap({
@@ -46,13 +64,31 @@ export default function TeacherMindmapPage() {
             Không thể tải dữ liệu sơ đồ. Vui lòng thử lại sau.
           </div>
         ) : (
-          <MindmapCanvas 
-            initialNodes={mindmapData?.nodes || []} 
-            initialEdges={mindmapData?.edges || []} 
-            isEditable={true} 
-            onSave={handleSave}
-            isSaving={isSaving}
-          />
+          (() => {
+            let displayNodes = mindmapData?.nodes || [];
+            let displayEdges = mindmapData?.edges || [];
+            
+            const styled = applyMindmapStyles(displayNodes, displayEdges);
+            displayNodes = styled.nodes as any;
+            displayEdges = styled.edges as any;
+
+            const needsAutoLayout = displayNodes.every(n => n.position.x === 0 && n.position.y === 0);
+            if (needsAutoLayout && displayNodes.length > 0) {
+              const layouted = getMindmapRadialLayout(displayNodes, displayEdges);
+              displayNodes = layouted.nodes as any;
+              displayEdges = layouted.edges as any;
+            }
+
+            return (
+              <MindmapCanvas 
+                initialNodes={displayNodes} 
+                initialEdges={displayEdges} 
+                isEditable={true} 
+                onSave={handleSave}
+                isSaving={isSaving}
+              />
+            );
+          })()
         )}
       </div>
     </div>
