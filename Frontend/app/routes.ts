@@ -9,7 +9,9 @@ export default [
     index("routes/student-dashboard.tsx"),
     route("dashboard", "routes/student-dashboard-redirect.tsx"),
     route("courses/:courseId", "routes/student-course.tsx"),
+    route("courses/:courseId/practice", "routes/student-practice.tsx"),
     route("mindmap-preview", "routes/student-mindmap.tsx"),
+    route("lessons/:lessonId/mindmap", "routes/student-lesson-mindmap.tsx"),
   ]),
   route("teacher", "routes/teacher.tsx", [
     index("routes/teacher-dashboard.tsx"),
@@ -19,6 +21,7 @@ export default [
     route("pdfs", "routes/teacher-pdfs.tsx"),
     route("mindmaps", "routes/teacher-mindmaps.tsx"),
     route("mindmap-preview", "routes/teacher-mindmap.tsx"),
+    route("lessons/:lessonId/mindmap", "routes/teacher-lesson-mindmap.tsx"),
     route("flashcards", "routes/teacher-flashcards.tsx"),
     route("flashcards/new", "routes/teacher-create-flashcard.tsx"),
     route("questions", "routes/teacher-questions.tsx"),

@@ -29,6 +29,7 @@ public interface LessonMapper {
         .chapter(chapter)
         .teacher(teacher)
         .title(lessonRequest.getTitle())
+        .content(lessonRequest.getContent())
         .build();
     }
 

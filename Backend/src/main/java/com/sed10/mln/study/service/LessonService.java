@@ -53,8 +53,18 @@ public class LessonService {
 
     public void updateLesson(Long lessonId, LessonRequest lessonRequest) {
         Lesson lesson = lessonRepo.findById(lessonId).orElseThrow(() -> new AppException(ErrorCode.LESSON_NOT_FOUND));
-        lessonMap.updateLessonFromRequest(lessonRequest, lesson);
+        if (lessonRequest.getTitle() != null) {
+            lesson.setTitle(lessonRequest.getTitle());
+        }
+        if (lessonRequest.getContent() != null) {
+            lesson.setContent(lessonRequest.getContent());
+        }
         lessonRepo.save(lesson);       
+    }
+    
+    public LessonResponse getLessonById(Long lessonId) {
+        Lesson lesson = lessonRepo.findById(lessonId).orElseThrow(() -> new AppException(ErrorCode.LESSON_NOT_FOUND));
+        return lessonMap.toLessonResponse(lesson);
     }
     
     public List<LessonListResponse> listlessonAndMaterialByChapterId(Long chapterId) {

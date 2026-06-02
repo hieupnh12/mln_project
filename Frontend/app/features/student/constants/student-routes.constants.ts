@@ -7,3 +7,7 @@ export const STUDENT_ROUTES = {
 export function getStudentCoursePath(courseId: string) {
   return `${STUDENT_ROUTES.courseDetail}/${courseId}`;
 }
+
+export function getStudentPracticePath(courseId: string) {
+  return `${STUDENT_ROUTES.courseDetail}/${courseId}/practice`;
+}

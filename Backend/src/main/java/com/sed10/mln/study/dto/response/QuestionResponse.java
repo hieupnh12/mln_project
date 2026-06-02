@@ -28,6 +28,7 @@ public class QuestionResponse {
     Integer estimatedTime;
     List<String> tags;
     List<String> options;
+    List<Integer> correctOptionIndices;
     String updatedBy;
     String duplicateWarning;
 }

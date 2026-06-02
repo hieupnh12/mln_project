@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
+import { useNavigate } from 'react-router';
 import {
   ReactFlow,
   MiniMap,
@@ -23,6 +24,7 @@ interface MindmapCanvasProps {
 }
 
 export default function MindmapCanvas({ initialNodes, initialEdges, isEditable, onSave, isSaving }: MindmapCanvasProps) {
+  const navigate = useNavigate();
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
@@ -39,6 +41,17 @@ export default function MindmapCanvas({ initialNodes, initialEdges, isEditable, 
       onSave(nodes, edges);
     }
   };
+
+  const handleNodeDoubleClick = useCallback((event: React.MouseEvent, node: Node) => {
+    if (node.data && (node.data as any).entityType === 'LESSON') {
+      const lessonId = (node.data as any).entityId;
+      if (isEditable) {
+        navigate(`/teacher/lessons/${lessonId}/mindmap`);
+      } else {
+        navigate(`/student/lessons/${lessonId}/mindmap`);
+      }
+    }
+  }, [navigate, isEditable]);
 
   const handleAddNode = (entityType: 'CHAPTER' | 'LESSON') => {
     const newNodeId = `node-${Date.now()}`;
@@ -64,6 +77,7 @@ export default function MindmapCanvas({ initialNodes, initialEdges, isEditable, 
         onNodesChange={isEditable ? onNodesChange : undefined} // disable drag/select if not editable
         onEdgesChange={isEditable ? onEdgesChange : undefined}
         onConnect={isEditable ? onConnect : undefined}
+        onNodeDoubleClick={handleNodeDoubleClick}
         nodeTypes={nodeTypes}
         nodesDraggable={isEditable}
         nodesConnectable={isEditable}

@@ -31,10 +31,20 @@ public final class QuestionSpecification {
             Join<Chapter, Subject> subjectJoin = chapterJoin.join("subject", JoinType.LEFT);
 
             if (search != null && !search.isBlank()) {
-                String keyword = "%" + search.trim().toLowerCase() + "%";
-                predicates.add(criteriaBuilder.or(
-                        criteriaBuilder.like(criteriaBuilder.lower(root.get("title")), keyword),
-                        criteriaBuilder.like(criteriaBuilder.lower(root.get("content")), keyword)));
+                String trimmedSearch = search.trim();
+                String keyword = "%" + trimmedSearch.toLowerCase() + "%";
+                List<Predicate> searchPredicates = new ArrayList<>();
+                searchPredicates.add(
+                        criteriaBuilder.like(criteriaBuilder.lower(root.get("title")), keyword));
+                searchPredicates.add(
+                        criteriaBuilder.like(criteriaBuilder.lower(root.get("content")), keyword));
+
+                String numericPart = trimmedSearch.replaceAll("(?i)^q-?", "").trim();
+                if (numericPart.matches("\\d+")) {
+                    searchPredicates.add(criteriaBuilder.equal(root.get("id"), Long.parseLong(numericPart)));
+                }
+
+                predicates.add(criteriaBuilder.or(searchPredicates.toArray(Predicate[]::new)));
             }
             if (course != null && !course.isBlank() && !"all".equalsIgnoreCase(course)) {
                 predicates.add(criteriaBuilder.equal(subjectJoin.get("title"), course));

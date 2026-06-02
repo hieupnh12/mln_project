@@ -37,6 +37,7 @@ export type QuestionDto = {
   estimatedTime: number;
   tags: string[];
   options: string[];
+  correctOptionIndices?: number[];
   updatedBy: string;
   duplicateWarning?: string | null;
 };
@@ -116,7 +117,6 @@ export type BatchImportRowPayload = {
 
 export type BatchImportPayload = {
   lessonId: number;
-  defaultStatus?: string;
   rows: BatchImportRowPayload[];
 };
 
@@ -132,4 +132,16 @@ export type BatchImportReportDto = {
     message?: string;
     questionId?: string;
   }[];
+};
+
+export type BulkApproveQuestionsPayload = {
+  ids: number[];
+};
+
+export type BulkApproveQuestionsReportDto = {
+  requestedCount: number;
+  approvedCount: number;
+  skippedNotPending: number;
+  skippedWarning: number;
+  notFound: number;
 };

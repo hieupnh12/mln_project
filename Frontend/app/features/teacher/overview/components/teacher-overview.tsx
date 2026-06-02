@@ -1,10 +1,11 @@
 import { flashcardSets } from "../../flashcard/constants/flashcard.constants";
 import { pdfDocuments } from "../../pdf-document/constants/pdf-document.constants";
 import { questionItems } from "../../question-library/constants/question-library.constants";
-import { quizItems } from "../../quiz-management/constants/quiz-management.constants";
+import { useQuizStatsQuery } from "../../quiz-management/hooks/use-quiz-management-queries";
 import { MaterialIcon } from "../../components/teacher-icons";
 
 export function TeacherOverview() {
+  const quizStatsQuery = useQuizStatsQuery();
   return (
     <div className="mx-auto max-w-6xl space-y-md">
       <div className="space-y-xs">
@@ -20,7 +21,7 @@ export function TeacherOverview() {
         <MetricCard icon="account_tree" label="Chương học" value={0} />
         <MetricCard icon="picture_as_pdf" label="Tài liệu PDF" value={pdfDocuments.length} />
         <MetricCard icon="style" label="Bộ flashcard" value={flashcardSets.length} />
-        <MetricCard icon="task" label="Quiz" value={quizItems.length} />
+        <MetricCard icon="task" label="Quiz" value={quizStatsQuery.data?.total ?? 0} />
       </section>
 
       <section className="grid grid-cols-1 gap-gutter lg:grid-cols-[minmax(0,1fr)_320px]">

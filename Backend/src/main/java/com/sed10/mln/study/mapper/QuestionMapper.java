@@ -9,6 +9,7 @@ import com.sed10.mln.study.repository.QuestionTagRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -42,6 +43,12 @@ public class QuestionMapper {
 
         List<Answer> answers = answerRepository.findByQuestion_IdOrderBySortOrderAsc(question.getId());
         List<String> options = answers.stream().map(Answer::getContent).toList();
+        List<Integer> correctOptionIndices = new ArrayList<>();
+        for (int index = 0; index < answers.size(); index++) {
+            if (Boolean.TRUE.equals(answers.get(index).getIsCorrect())) {
+                correctOptionIndices.add(index);
+            }
+        }
         String correctAnswer = answers.stream()
                 .filter(answer -> Boolean.TRUE.equals(answer.getIsCorrect()))
                 .map(Answer::getContent)
@@ -74,6 +81,7 @@ public class QuestionMapper {
                 .estimatedTime(question.getEstimatedTimeSeconds())
                 .tags(tags)
                 .options(options)
+                .correctOptionIndices(correctOptionIndices)
                 .updatedBy(updatedByName)
                 .duplicateWarning(question.getDuplicateWarning())
                 .build();

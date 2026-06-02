@@ -12,6 +12,7 @@ import type {
   MaterialDetailDto,
   UpdateChapterPayload,
   UpdateLessonPayload,
+  LessonDetailDto,
 } from "../types/course-structure-api.types";
 
 function unwrap<T>(response: { data: BackendApiResponse<T> }): T {
@@ -79,6 +80,14 @@ export async function updateLessonApi(lessonId: number, payload: UpdateLessonPay
     payload,
     rootRequestConfig(),
   );
+}
+
+export async function fetchLessonDetailApi(lessonId: number): Promise<LessonDetailDto> {
+  const response = await apiClient.get<BackendApiResponse<LessonDetailDto>>(
+    `/lessons/${lessonId}`,
+    rootRequestConfig(),
+  );
+  return unwrap(response);
 }
 
 export async function deleteLessonApi(lessonId: number) {

@@ -1,18 +1,19 @@
 
-import { useMemo, useState } from "react";
-import { Link, useParams } from "react-router";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useParams, useSearchParams } from "react-router";
 
 import { StudentMaterialIcon as MaterialIcon } from "../../components/student-material-icon";
 import { STUDENT_ROUTES } from "../../constants/student-routes.constants";
 import type { LearningTab } from "../../types/student.types";
 import { CourseCurriculumSidebar } from "../components/course-curriculum-sidebar";
 import { CourseMaterialViewer } from "../components/course-material-viewer";
+import { CoursePracticePanel } from "../components/course-practice-panel";
+import { CourseSubjectHeading } from "../components/course-subject-heading";
 import {
   studentCourseBottomNavItems,
   studentCourseFlashcards,
   studentCourseProfile,
   studentCourseTabs,
-  studentCourseTests,
 } from "../constants/student-course.constants";
 import { useCourseSubjectQuery } from "../hooks/use-course-learning-queries";
 import type { CourseMaterialSummary } from "../types/course-learning.types";
@@ -26,11 +27,30 @@ function parseSubjectId(courseId: string | undefined) {
   return Number.isNaN(parsed) ? null : parsed;
 }
 
+function parseTabParam(value: string | null): LearningTab {
+  if (value === "flashcards" || value === "tests" || value === "lectures") {
+    return value;
+  }
+  return "lectures";
+}
+
 export function StudentCoursePage() {
   const { courseId } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const subjectId = useMemo(() => parseSubjectId(courseId), [courseId]);
 
-  const [activeTab, setActiveTab] = useState<LearningTab>("lectures");
+  const [activeTab, setActiveTab] = useState<LearningTab>(() =>
+    parseTabParam(searchParams.get("tab")),
+  );
+
+  function handleTabChange(tab: LearningTab) {
+    setActiveTab(tab);
+    setSearchParams(tab === "lectures" ? {} : { tab }, { replace: true });
+  }
+
+  useEffect(() => {
+    setActiveTab(parseTabParam(searchParams.get("tab")));
+  }, [searchParams]);
   const [expandedChapterId, setExpandedChapterId] = useState<number | null>(null);
   const [selectedMaterialId, setSelectedMaterialId] = useState<number | null>(null);
 
@@ -96,38 +116,39 @@ export function StudentCoursePage() {
       </header>
 
       <main className="mx-auto w-full px-margin-mobile py-md md:px-margin-desktop">
-        <section className="mb-lg">
-          <div className="flex flex-col justify-between gap-md md:flex-row md:items-end">
-            <div className="min-w-0">
-              {subjectQuery.isLoading ? (
-                <div className="space-y-2">
-                  <div className="h-8 w-64 animate-pulse rounded-lg bg-surface-container" />
-                  <div className="h-5 w-40 animate-pulse rounded-lg bg-surface-container-low" />
-                </div>
-              ) : subjectQuery.isError ? (
-                <div>
-                  <h2 className="mb-xs text-headline-lg font-semibold text-primary">
-                    Không tải được thông tin môn học
-                  </h2>
-                  <button
-                    className="text-label-md font-medium text-secondary underline"
-                    onClick={() => subjectQuery.refetch()}
-                    type="button"
-                  >
-                    Thử lại
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <h2 className="mb-xs text-headline-lg font-semibold text-primary">
-                    {subject?.title}
-                  </h2>
-                  <p className="text-body-md text-on-surface-variant">
-                    Mã môn: {subject?.code}
-                  </p>
-                </>
-              )}
-            </div>
+        <section className="mb-md">
+          <div className="flex items-center justify-between gap-4">
+            {subjectQuery.isLoading ? (
+              <div className="flex items-center gap-3">
+                <div className="h-8 w-56 max-w-full animate-pulse rounded-lg bg-surface-container" />
+                <div className="h-7 w-16 animate-pulse rounded-md bg-surface-container-low" />
+              </div>
+            ) : subjectQuery.isError ? (
+              <div>
+                <h2 className="text-headline-md font-semibold text-primary">
+                  Không tải được thông tin môn học
+                </h2>
+                <button
+                  className="mt-2 text-label-md font-medium text-secondary underline"
+                  onClick={() => subjectQuery.refetch()}
+                  type="button"
+                >
+                  Thử lại
+                </button>
+              </div>
+            ) : subject ? (
+              <CourseSubjectHeading code={subject.code} title={subject.title} />
+            ) : null}
+
+            {subject && (
+              <Link
+                to={`/student/mindmap-preview?courseId=${subjectId}`}
+                className="flex shrink-0 items-center justify-center gap-2 rounded-lg bg-secondary-container px-4 py-2.5 text-label-md font-semibold text-secondary transition-colors hover:bg-secondary/10"
+              >
+                <MaterialIcon>hub</MaterialIcon>
+                <span>Mindmap Học Phần</span>
+              </Link>
+            )}
           </div>
         </section>
 
@@ -141,7 +162,7 @@ export function StudentCoursePage() {
                     : "whitespace-nowrap px-1 pb-3 text-label-md font-medium text-on-surface-variant transition-colors hover:text-primary"
                 }
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => handleTabChange(tab.id)}
                 type="button"
               >
                 {tab.label}
@@ -150,8 +171,18 @@ export function StudentCoursePage() {
           </div>
         </nav>
 
-        <div className="grid grid-cols-1 gap-gutter lg:grid-cols-12">
-          <div className="min-w-0 space-y-md lg:col-span-9">
+        <div
+          className={
+            activeTab === "tests"
+              ? "min-w-0"
+              : "grid grid-cols-1 gap-gutter lg:grid-cols-12"
+          }
+        >
+          <div
+            className={
+              activeTab === "tests" ? "min-w-0 space-y-md" : "min-w-0 space-y-md lg:col-span-9"
+            }
+          >
             {activeTab === "lectures" ? (
               <CourseMaterialViewer
                 selectedMaterialId={selectedMaterialId}
@@ -179,28 +210,7 @@ export function StudentCoursePage() {
             ) : null}
 
             {activeTab === "tests" ? (
-              <section className="grid grid-cols-1 gap-gutter md:grid-cols-3">
-                {studentCourseTests.map((test) => (
-                  <article
-                    className="rounded-xl border border-outline-variant/30 bg-white p-gutter shadow-[0_4px_20px_rgba(35,39,51,0.04)]"
-                    key={test.title}
-                  >
-                    <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-secondary-container text-primary">
-                      <MaterialIcon>quiz</MaterialIcon>
-                    </div>
-                    <h3 className="text-headline-md font-semibold text-primary">{test.title}</h3>
-                    <p className="mt-3 text-body-md text-on-surface-variant">
-                      {test.questions} câu hỏi - {test.duration}
-                    </p>
-                    <button
-                      className="mt-6 w-full rounded-lg bg-primary px-5 py-3 text-label-md font-medium text-white transition hover:bg-primary-container"
-                      type="button"
-                    >
-                      Bắt đầu
-                    </button>
-                  </article>
-                ))}
-              </section>
+              <CoursePracticePanel active subjectId={subjectId} />
             ) : null}
           </div>
 

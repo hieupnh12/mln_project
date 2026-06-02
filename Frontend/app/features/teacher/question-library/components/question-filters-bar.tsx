@@ -13,43 +13,56 @@ import type { Difficulty, QuestionFilters, QuestionStatus, QuestionType } from "
 type QuestionFiltersBarProps = {
   filters: QuestionFilters;
   selectedCount: number;
+  canApprove: boolean;
+  approvingSelected: boolean;
   canDelete: boolean;
   courseOptions: string[];
   chapterOptions: string[];
   lessonOptions: string[];
   onChange: (filters: QuestionFilters) => void;
+  onSearchChange: (search: string) => void;
   onReset: () => void;
+  onApproveSelected: () => void;
   onDeleteSelected: () => void;
   onOpenExport: () => void;
-  onOpenRandom: () => void;
 };
 
 export function QuestionFiltersBar({
   filters,
   selectedCount,
+  canApprove,
+  approvingSelected,
   canDelete,
   courseOptions,
   chapterOptions,
   lessonOptions,
   onChange,
+  onSearchChange,
   onReset,
+  onApproveSelected,
   onDeleteSelected,
   onOpenExport,
-  onOpenRandom,
 }: QuestionFiltersBarProps) {
   return (
     <div className="space-y-gutter rounded-lg bg-surface-container-low p-gutter">
-      <div className="relative max-w-md">
-        <MaterialIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">
-          search
-        </MaterialIcon>
-        <input
-          className="w-full rounded-lg border-none bg-white py-2 pl-10 pr-4 text-body-md focus:ring-2 focus:ring-primary/20"
-          onChange={(e) => onChange({ ...filters, search: e.target.value })}
-          placeholder="Tìm kiếm câu hỏi..."
-          type="search"
-          value={filters.search}
-        />
+      <div className="w-full">
+        <label className="sr-only" htmlFor="question-library-search">
+          Tìm kiếm câu hỏi
+        </label>
+        <div className="relative">
+          <MaterialIcon className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">
+            search
+          </MaterialIcon>
+          <input
+            autoComplete="off"
+            className="block min-h-10 w-full rounded-lg border border-outline-variant/20 bg-white py-2 pl-10 pr-4 text-body-md text-on-surface placeholder:text-on-surface-variant/60 focus:border-primary/30 focus:outline-none focus:ring-2 focus:ring-primary/20"
+            id="question-library-search"
+            onChange={(event) => onSearchChange(event.target.value)}
+            placeholder="Tìm kiếm theo nội dung, tiêu đề hoặc mã Q-..."
+            type="search"
+            value={filters.search}
+          />
+        </div>
       </div>
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-7">
         <FilterSelect
@@ -139,14 +152,26 @@ export function QuestionFiltersBar({
       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-outline-variant/10 pt-4">
         <div className="flex flex-wrap gap-3">
           <OutlineAction icon="download" label="Export" onClick={onOpenExport} />
-          <OutlineAction icon="casino" label="Random đề" onClick={onOpenRandom} />
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center justify-end gap-3">
           {selectedCount > 0 ? (
             <span className="rounded-full bg-primary-fixed px-3 py-1 text-label-md font-medium text-primary">
               Đã chọn {selectedCount}
             </span>
           ) : null}
+          <button
+            className={
+              canApprove
+                ? "flex items-center gap-2 rounded-lg bg-secondary-container px-4 py-2 text-label-md font-medium text-primary transition hover:bg-secondary-fixed disabled:cursor-not-allowed disabled:opacity-70"
+                : "flex cursor-not-allowed items-center gap-2 rounded-lg px-4 py-2 text-label-md font-medium text-on-surface-variant/40"
+            }
+            disabled={!canApprove || approvingSelected}
+            onClick={onApproveSelected}
+            type="button"
+          >
+            <MaterialIcon>{approvingSelected ? "sync" : "done_all"}</MaterialIcon>
+            {approvingSelected ? "Đang duyệt..." : "Duyệt đã chọn"}
+          </button>
           <button
             className={
               canDelete
