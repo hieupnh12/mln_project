@@ -1,19 +1,17 @@
-
-import { useMemo, useState } from "react";
-import { Link, useParams } from "react-router";
+﻿
+import { useEffect, useMemo, useState } from "react";
+import { Link, useParams, useSearchParams } from "react-router";
 
 import { StudentMaterialIcon as MaterialIcon } from "../../components/student-material-icon";
 import { STUDENT_ROUTES } from "../../constants/student-routes.constants";
 import type { LearningTab } from "../../types/student.types";
 import { CourseCurriculumSidebar } from "../components/course-curriculum-sidebar";
 import { CourseMaterialViewer } from "../components/course-material-viewer";
-import { CourseProgressBar } from "../components/course-progress-bar";
 import {
   studentCourseBottomNavItems,
   studentCourseFlashcards,
   studentCourseProfile,
   studentCourseTabs,
-  studentCourseTests,
 } from "../constants/student-course.constants";
 import {
   useChapterLessonsQuery,
@@ -32,11 +30,30 @@ function parseSubjectId(courseId: string | undefined) {
   return Number.isNaN(parsed) ? null : parsed;
 }
 
+function parseTabParam(value: string | null): LearningTab {
+  if (value === "flashcards" || value === "tests" || value === "lectures") {
+    return value;
+  }
+  return "lectures";
+}
+
 export function StudentCoursePage() {
   const { courseId } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const subjectId = useMemo(() => parseSubjectId(courseId), [courseId]);
 
-  const [activeTab, setActiveTab] = useState<LearningTab>("lectures");
+  const [activeTab, setActiveTab] = useState<LearningTab>(() =>
+    parseTabParam(searchParams.get("tab")),
+  );
+
+  function handleTabChange(tab: LearningTab) {
+    setActiveTab(tab);
+    setSearchParams(tab === "lectures" ? {} : { tab }, { replace: true });
+  }
+
+  useEffect(() => {
+    setActiveTab(parseTabParam(searchParams.get("tab")));
+  }, [searchParams]);
   const [expandedChapterId, setExpandedChapterId] = useState<number | null>(null);
   const [selectedMaterialId, setSelectedMaterialId] = useState<number | null>(null);
 
@@ -114,7 +131,7 @@ export function StudentCoursePage() {
         </div>
       </header>
 
-      <main className="mx-auto w-full px-margin-mobile py-base md:px-margin-desktop md:py-md">
+      <main className="mx-auto w-full px-margin-mobile py-md md:px-margin-desktop">
         <section className="mb-lg">
           <div className="flex flex-col justify-between gap-md md:flex-row md:items-end">
             <div className="min-w-0">
@@ -143,16 +160,10 @@ export function StudentCoursePage() {
                   </h2>
                   <p className="text-body-md text-on-surface-variant">
                     Mã môn: {subject?.code}
-                    <br/>
-                    {instructorName ? `Giảng viên: ${instructorName}` : ""}
                   </p>
                 </>
               )}
             </div>
-
-            {!chaptersQuery.isLoading && chapters.length > 0 ? (
-              <CourseProgressBar progress={courseProgress} />
-            ) : null}
           </div>
         </section>
 
@@ -166,7 +177,7 @@ export function StudentCoursePage() {
                     : "whitespace-nowrap px-1 pb-3 text-label-md font-medium text-on-surface-variant transition-colors hover:text-primary"
                 }
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => handleTabChange(tab.id)}
                 type="button"
               >
                 {tab.label}
@@ -175,8 +186,18 @@ export function StudentCoursePage() {
           </div>
         </nav>
 
-        <div className="grid grid-cols-1 gap-gutter lg:grid-cols-12">
-          <div className="min-w-0 space-y-md lg:col-span-9">
+        <div
+          className={
+            activeTab === "tests"
+              ? "min-w-0"
+              : "grid grid-cols-1 gap-gutter lg:grid-cols-12"
+          }
+        >
+          <div
+            className={
+              activeTab === "tests" ? "min-w-0 space-y-md" : "min-w-0 space-y-md lg:col-span-9"
+            }
+          >
             {activeTab === "lectures" ? (
               <CourseMaterialViewer
                 selectedMaterialId={selectedMaterialId}
@@ -218,7 +239,7 @@ export function StudentCoursePage() {
                       {test.questions} câu hỏi - {test.duration}
                     </p>
                     <button
-                      className="mt-6 w-full rounded-lg bg-primary px-5 py-3 text-label-md font-medium text-on-primary transition hover:bg-primary-container"
+                      className="mt-6 w-full rounded-lg bg-primary px-5 py-3 text-label-md font-medium text-white transition hover:bg-primary-container"
                       type="button"
                     >
                       Bắt đầu
