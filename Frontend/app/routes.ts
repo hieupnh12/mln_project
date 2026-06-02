@@ -9,6 +9,7 @@ export default [
     index("routes/student-dashboard.tsx"),
     route("dashboard", "routes/student-dashboard-redirect.tsx"),
     route("courses/:courseId", "routes/student-course.tsx"),
+    route("courses/:courseId/practice", "routes/student-practice.tsx"),
     route("mindmap-preview", "routes/student-mindmap.tsx"),
     route("lessons/:lessonId/mindmap", "routes/student-lesson-mindmap.tsx"),
   ]),

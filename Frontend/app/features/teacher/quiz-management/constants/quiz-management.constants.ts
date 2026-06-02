@@ -1,13 +1,38 @@
-import {
-  chapterOptions,
-  courseOptions,
-} from "../../question-library/constants/question-library.constants";
-import type { QuizItem, QuizSettings } from "../types/quiz-management.types";
+import type { QuizFilters } from "../types/quiz-management.types";
 
-export const defaultQuizSettings: QuizSettings = {
-  title: "Quiz chương 1",
-  course: courseOptions[0],
-  chapter: chapterOptions[0],
+export const QUIZ_MANAGEMENT_ENDPOINTS = {
+  root: "/teacher/quizzes",
+  stats: "/teacher/quizzes/stats",
+  candidateQuestions: "/teacher/quizzes/candidate-questions",
+  byId: (id: string) => `/teacher/quizzes/${encodeURIComponent(id)}`,
+  publish: (id: string) => `/teacher/quizzes/${encodeURIComponent(id)}/publish`,
+  duplicate: (id: string) => `/teacher/quizzes/${encodeURIComponent(id)}/duplicate`,
+} as const;
+
+export const QUIZ_MANAGEMENT_QUERY_KEYS = {
+  root: ["teacher", "quiz-management"] as const,
+  list: (filters: QuizFilters) => ["teacher", "quiz-management", "list", filters] as const,
+  stats: ["teacher", "quiz-management", "stats"] as const,
+  detail: (id: string) => ["teacher", "quiz-management", "detail", id] as const,
+  candidates: (
+    scope: { course: string; chapter: string; lesson: string; search: string; difficulty: string },
+    page: number,
+    size: number,
+  ) => ["teacher", "quiz-management", "candidates", scope, page, size] as const,
+};
+
+export const QUIZ_CANDIDATE_PAGE_SIZE = 8;
+
+export const defaultQuizFilters: QuizFilters = {
+  search: "",
+  course: "all",
+  status: "all",
+};
+
+export const defaultQuizSettings = {
+  title: "Quiz mới",
+  course: "",
+  chapter: "",
   lesson: "all",
   duration: 20,
   passingScore: 70,
@@ -16,29 +41,14 @@ export const defaultQuizSettings: QuizSettings = {
   randomQuestions: false,
 };
 
-export const quizItems: QuizItem[] = [
-  {
-    id: "QUIZ01",
-    title: "Quiz chương 1",
-    course: courseOptions[0],
-    chapter: "Chương 1",
-    questionCount: 12,
-    duration: 15,
-    passingScore: 70,
-    status: "Đã xuất bản",
-    shuffleAnswers: true,
-    randomQuestions: false,
-  },
-  {
-    id: "QUIZ02",
-    title: "Ôn tập giữa kỳ",
-    course: courseOptions[0],
-    chapter: "Chương 1-3",
-    questionCount: 30,
-    duration: 45,
-    passingScore: 75,
-    status: "Bản nháp",
-    shuffleAnswers: true,
-    randomQuestions: true,
-  },
-];
+export const quizEditorTabLabels = {
+  settings: "Cài đặt",
+  questions: "Câu hỏi",
+  publish: "Xuất bản",
+} as const;
+
+export const quizEditorTabDescriptions = {
+  settings: "Tên, phạm vi môn/chương và quy tắc làm bài",
+  questions: "Chọn hoặc random câu từ ngân hàng đã duyệt",
+  publish: "Kiểm tra checklist và xuất bản cho sinh viên",
+} as const;
