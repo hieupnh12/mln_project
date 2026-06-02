@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 
 import { StudentMaterialIcon as MaterialIcon } from "../../components/student-material-icon";
 import {
@@ -43,6 +44,7 @@ function ChapterLessonsBlock({
   selectedMaterialId,
   onSelectMaterial,
 }: ChapterLessonsBlockProps) {
+  const navigate = useNavigate();
   const [expandedLessonId, setExpandedLessonId] = useState<number | null>(null);
   const lessonsQuery = useChapterLessonsQuery(isExpanded ? chapterId : null);
 
@@ -113,7 +115,7 @@ function ChapterLessonsBlock({
             >
               <span className="min-w-0">
                 <span className="block truncate text-label-md font-semibold text-primary">
-                  {lesson.title}
+                  {lesson.title || "Bài học chưa đặt tên"}
                 </span>
                 <span className="text-label-sm text-on-surface-variant">
                   {materialCount > 0
@@ -131,47 +133,68 @@ function ChapterLessonsBlock({
             </button>
 
             {isLessonExpanded ? (
-              materialCount > 0 ? (
-                <ul className="mt-1 space-y-1 pl-2">
-                  {lesson.materials.map((material) => {
-                    const isActive = selectedMaterialId === material.id;
+              <div className="mt-1 space-y-1 pl-2">
+                {/* Sơ đồ tư duy bài học */}
+                <button
+                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left transition hover:bg-surface-container-low"
+                  onClick={() => navigate(`/student/lessons/${lesson.id}/mindmap`)}
+                  type="button"
+                >
+                  <div className="flex h-10 w-14 items-center justify-center rounded bg-secondary-container/30 text-secondary">
+                    <MaterialIcon>hub</MaterialIcon>
+                  </div>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-label-md font-medium text-primary">
+                      Sơ đồ tư duy bài học
+                    </span>
+                    <span className="text-label-sm text-on-surface-variant">
+                      Xem cấu trúc kiến thức
+                    </span>
+                  </span>
+                </button>
 
-                    return (
-                      <li key={material.id}>
-                        <button
-                          className={
-                            isActive
-                              ? "flex w-full items-center gap-2 rounded-lg bg-secondary-container/40 px-3 py-2 text-left"
-                              : "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left transition hover:bg-surface-container-low"
-                          }
-                          onClick={() => onSelectMaterial(material)}
-                          type="button"
-                        >
-                          <CourseMaterialThumbnail
-                            className="h-10 w-14"
-                            contentType={material.contentType}
-                            previewImageUrl={material.previewImageUrl}
-                            title={material.title}
-                          />
-                          <span className="min-w-0 flex-1">
-                            <span className="block truncate text-label-md font-medium text-primary">
-                              {material.title}
+                {materialCount > 0 ? (
+                  <ul className="space-y-1">
+                    {lesson.materials.map((material) => {
+                      const isActive = selectedMaterialId === material.id;
+
+                      return (
+                        <li key={material.id}>
+                          <button
+                            className={
+                              isActive
+                                ? "flex w-full items-center gap-2 rounded-lg bg-secondary-container/40 px-3 py-2 text-left"
+                                : "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left transition hover:bg-surface-container-low"
+                            }
+                            onClick={() => onSelectMaterial(material)}
+                            type="button"
+                          >
+                            <CourseMaterialThumbnail
+                              className="h-10 w-14"
+                              contentType={material.contentType}
+                              previewImageUrl={material.previewImageUrl}
+                              title={material.title}
+                            />
+                            <span className="min-w-0 flex-1">
+                              <span className="block truncate text-label-md font-medium text-primary">
+                                {material.title}
+                              </span>
+                              <span className="text-label-sm text-on-surface-variant">
+                                {getMaterialTypeLabel(material.contentType)}
+                                {material.slideCount
+                                  ? ` · ${material.slideCount} slide`
+                                  : ""}
+                              </span>
                             </span>
-                            <span className="text-label-sm text-on-surface-variant">
-                              {getMaterialTypeLabel(material.contentType)}
-                              {material.slideCount
-                                ? ` · ${material.slideCount} slide`
-                                : ""}
-                            </span>
-                          </span>
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ul>
-              ) : (
-                <p className="mt-1 pl-2 text-label-sm text-on-surface-variant">Chưa có tài liệu.</p>
-              )
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                ) : (
+                  <p className="mt-1 pl-2 text-label-sm italic text-on-surface-variant/70">Chưa có tài liệu khác.</p>
+                )}
+              </div>
             ) : null}
           </div>
         );

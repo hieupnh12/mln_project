@@ -53,6 +53,15 @@ public class LessonController {
                 .build();
     }
 
+    @GetMapping("/{lessonId:\\d+}")
+    public ApiResponse<LessonResponse> getLessonById(@PathVariable Long lessonId) {
+        return ApiResponse.<LessonResponse>builder()
+                .result(lessonSer.getLessonById(lessonId))
+                .message("Get lesson by id successfully")
+                .code(1014)
+                .build();
+    }
+
 
     @GetMapping("/chapter/{chapterId:\\d+}")
     public ApiResponse<List<LessonListResponse>> listlessonAndMaterialByChapterId(@PathVariable Long chapterId) {

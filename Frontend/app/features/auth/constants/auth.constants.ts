@@ -1,7 +1,7 @@
 import type { UserRole } from "../types/auth.types";
 
 export const AUTH_ENDPOINTS = {
-  googleLoginUrl: "/api/auth/google/url",
+  googleLoginUrl: "/auth/google/url",
 } as const;
 
 export const AUTH_ROLE_REDIRECTS: Record<UserRole, string> = {

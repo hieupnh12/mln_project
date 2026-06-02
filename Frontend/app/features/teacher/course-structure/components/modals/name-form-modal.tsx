@@ -25,17 +25,17 @@ export function NameFormModal({
   onClose,
   onSubmit,
 }: NameFormModalProps) {
-  const [value, setValue] = useState(initialValue);
+  const [value, setValue] = useState(initialValue || "");
 
   useEffect(() => {
     if (open) {
-      setValue(initialValue);
+      setValue(initialValue || "");
     }
   }, [open, initialValue]);
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
-    const trimmed = value.trim();
+    const trimmed = (value || "").trim();
     if (!trimmed) {
       return;
     }
@@ -66,7 +66,7 @@ export function NameFormModal({
               autoFocus
               className="w-full rounded-lg border border-outline-variant/50 px-md py-sm text-body-md outline-none focus:border-secondary"
               onChange={(event) => setValue(event.target.value)}
-              value={value}
+              value={value || ""}
             />
           </label>
 
@@ -81,7 +81,7 @@ export function NameFormModal({
             </button>
             <button
               className="rounded-lg bg-primary px-5 py-2 text-label-md font-medium text-on-primary disabled:opacity-60"
-              disabled={isPending || !value.trim()}
+              disabled={isPending || !(value || "").trim()}
               type="submit"
             >
               {isPending ? "Đang lưu..." : submitLabel}

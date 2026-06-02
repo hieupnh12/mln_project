@@ -17,7 +17,7 @@ export default function StudentMindmapPage() {
             onClick={() => window.history.back()}
             className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-black/5 transition"
           >
-            <span className="material-symbols-rounded text-on-surface-variant">arrow_back</span>
+            <span className="material-symbols-outlined text-on-surface-variant">arrow_back</span>
           </button>
           <div>
             <h1 className="text-2xl font-bold text-[var(--color-on-background)]">Học tập qua Sơ đồ tư duy</h1>

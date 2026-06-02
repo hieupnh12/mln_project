@@ -50,3 +50,12 @@ export type DeleteTarget =
   | { type: "material"; id: number; title: string; lessonId: number };
 
 export type MaterialFormMode = "SLIDE_DECK" | "YOUTUBE";
+
+export interface MindmapNodeData {
+  label: string;
+  level: number;
+  parentId?: string;
+  isCollapsed?: boolean;
+  isCompleted?: boolean;
+  nodeRole: 'root' | 'chapter' | 'concept' | 'timeline' | 'example' | 'quote'; 
+}

@@ -12,4 +12,5 @@ public class LessonRequest {
     private Long chapterId;
     private Long teacherId;
     private String title;
+    private String content;
 }
