@@ -15,7 +15,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.AccessLevel;
 
 @RestController
-@RequestMapping("/chapters")
+@RequestMapping({"/api/chapters", "/chapters"})
 @RequiredArgsConstructor
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE)

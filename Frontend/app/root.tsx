@@ -11,6 +11,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 import type { Route } from "./+types/root";
 import { AsyncActivityBar } from "./shared/components/async-activity-bar";
+import { NotFoundPage } from "./shared/components/not-found-page";
 import { AppQueryProvider } from "./shared/providers/query-provider";
 import "./app.css";
 
@@ -63,30 +64,32 @@ export default function App() {
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
-  let message = "Oops!";
+  if (isRouteErrorResponse(error) && error.status === 404) {
+    return <NotFoundPage />;
+  }
+
+  let message = "Đã xảy ra lỗi";
   let details = "An unexpected error occurred.";
   let stack: string | undefined;
 
   if (isRouteErrorResponse(error)) {
-    message = error.status === 404 ? "404" : "Error";
-    details =
-      error.status === 404
-        ? "The requested page could not be found."
-        : error.statusText || details;
+    details = error.statusText || details;
   } else if (import.meta.env.DEV && error && error instanceof Error) {
     details = error.message;
     stack = error.stack;
   }
 
   return (
-    <main className="pt-16 p-4 container mx-auto">
-      <h1>{message}</h1>
-      <p>{details}</p>
-      {stack && (
-        <pre className="w-full p-4 overflow-x-auto">
-          <code>{stack}</code>
-        </pre>
-      )}
+    <main className="grid min-h-svh place-items-center bg-background px-margin-mobile py-12 text-on-surface">
+      <div className="w-full max-w-lg rounded-2xl border border-outline-variant/30 bg-surface-container-lowest p-8 text-center">
+        <h1 className="font-serif text-headline-md font-bold text-primary">{message}</h1>
+        <p className="mt-3 text-body-md text-on-surface-variant">{details}</p>
+        {stack && (
+          <pre className="mt-6 w-full overflow-x-auto rounded-lg bg-surface-container-low p-4 text-left text-label-sm text-on-surface-variant">
+            <code>{stack}</code>
+          </pre>
+        )}
+      </div>
     </main>
   );
 }

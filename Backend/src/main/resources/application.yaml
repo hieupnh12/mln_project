@@ -7,7 +7,9 @@ springdotenv:
 # false = tắt Basic Auth khi dev/test API (Postman). Production: đặt true hoặc APP_SECURITY_ENABLED=true
 app:
   security:
-    enabled: false
+    enabled: ${APP_SECURITY_ENABLED:false}
+  cors:
+    allowed-origin-patterns: ${CORS_ALLOWED_ORIGIN_PATTERNS:http://localhost:*,http://127.0.0.1:*}
   libreoffice:
     enabled: true
     path: ${LIBREOFFICE_PATH:C:/Program Files/LibreOffice/program/soffice.exe}
@@ -22,7 +24,7 @@ cloudinary:
 
 # Server Configuration
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
 spring:
   config:
     import: optional:file:../.env[.properties]
@@ -36,7 +38,7 @@ spring:
           google:
             client-id: ${GOOGLE_CLIENT_ID}
             client-secret: ${GOOGLE_CLIENT_SECRET}
-            redirect-uri: http://localhost:8080/api/auth/google/callback
+            redirect-uri: ${GOOGLE_REDIRECT_URI:http://localhost:8080/api/auth/google/callback}
             scope:
               - email
               - profile
@@ -65,16 +67,16 @@ spring:
       max-request-size: 100MB
 
 frontend:
-  base-url: "http://localhost:5173"
+  base-url: ${FRONTEND_BASE_URL:http://localhost:5173}
 
 jwt:
-  signerKey: "jwtSecretKey12345678901234567890123456789012345678901234567890"
+  signerKey: ${JWT_SIGNER_KEY:jwtSecretKey12345678901234567890123456789012345678901234567890}
   expiration: 86400000
   refreshable-duration: 604800000
   temp-expiration: 3600000
 
 admin:
-  email: "nguynhuphannguyen2004@gmail.com" 
+  email: ${ADMIN_EMAIL:nguynhuphannguyen2004@gmail.com}
 
 springdoc:
   api-docs:

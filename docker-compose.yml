@@ -6,6 +6,15 @@ services:
     environment:
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:?GOOGLE_CLIENT_ID is required}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:?GOOGLE_CLIENT_SECRET is required}
+      GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI:-http://localhost:8080/api/auth/google/callback}
+      FRONTEND_BASE_URL: ${FRONTEND_BASE_URL:-http://localhost:3000}
+      CORS_ALLOWED_ORIGIN_PATTERNS: ${CORS_ALLOWED_ORIGIN_PATTERNS:-http://localhost:*,http://127.0.0.1:*}
+      APP_SECURITY_ENABLED: ${APP_SECURITY_ENABLED:-false}
+      JWT_SIGNER_KEY: ${JWT_SIGNER_KEY:-jwtSecretKey12345678901234567890123456789012345678901234567890}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-nguynhuphannguyen2004@gmail.com}
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME:-}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY:-}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET:-}
       SPRING_DATASOURCE_URL: jdbc:mysql://${MYSQL_HOST:?MYSQL_HOST is required}:${MYSQL_PORT:-3306}/${MYSQL_DATABASE:?MYSQL_DATABASE is required}?sslMode=${MYSQL_SSL_MODE:-REQUIRED}&serverTimezone=UTC
       SPRING_DATASOURCE_USERNAME: ${MYSQL_USER:?MYSQL_USER is required}
       SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:?MYSQL_PASSWORD is required}
@@ -15,6 +24,9 @@ services:
   frontend:
     build:
       context: ./Frontend
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8080/api}
+        VITE_API_WITH_CREDENTIALS: ${VITE_API_WITH_CREDENTIALS:-false}
     restart: unless-stopped
     depends_on:
       - backend

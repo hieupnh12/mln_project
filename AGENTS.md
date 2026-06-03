@@ -2,6 +2,8 @@
 
 Before changing UI, API integration, routes, or shared styling, read `DESIGN.md`.
 
+**Teacher / student / admin routes:** read `AGENTS-TEACHER-ROUTES.md` before adding or changing protected routes, layouts, or direct URL access behavior.
+
 Analyze this feature first.
 
 Before coding:
