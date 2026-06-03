@@ -1,7 +1,7 @@
 import type { AdminUserRole } from "../types/admin-user.types";
 
 export const ADMIN_USER_ENDPOINTS = {
-  users: "/api/admin/users",
+  users: "/admin/users",
 } as const;
 
 export const ADMIN_USER_ROLE_OPTIONS: ReadonlyArray<{

@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 
-import { clearAuthSession } from "~/shared/services/auth-session.service";
-
+import { showErrorToast, showSuccessToast } from "~/shared/utils/toast";
 import { AdminUserFormModal } from "../components/admin-user-form-modal";
 import { AdminUsersTable } from "../components/admin-users-table";
 import { AdminUsersToolbar } from "../components/admin-users-toolbar";
@@ -34,12 +33,6 @@ export function AdminUserManagementPage() {
   const [roleFilter, setRoleFilter] = useState<AdminUserRole | "all">("all");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
-  const [submitError, setSubmitError] = useState<string | null>(null);
-
-  const handleLogout = () => {
-    clearAuthSession();
-    window.location.href = "/login";
-  };
 
   const filteredUsers = useMemo(() => {
     const users = usersQuery.data ?? [];
@@ -65,37 +58,34 @@ export function AdminUserManagementPage() {
 
   const openCreateModal = () => {
     setEditingUser(null);
-    setSubmitError(null);
     setIsFormOpen(true);
   };
 
   const openEditModal = (user: AdminUser) => {
     setEditingUser(user);
-    setSubmitError(null);
     setIsFormOpen(true);
   };
 
   const closeModal = () => {
     setIsFormOpen(false);
     setEditingUser(null);
-    setSubmitError(null);
   };
 
   const handleSubmitForm = async (value: AdminUserFormValue) => {
     try {
-      setSubmitError(null);
-
       if (editingUser) {
         await updateUserMutation.mutateAsync({ id: editingUser.id, payload: value });
+        showSuccessToast("Cập nhật người dùng thành công");
       } else {
         await createUserMutation.mutateAsync(value);
+        showSuccessToast("Tạo người dùng thành công");
       }
 
       closeModal();
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Không thể lưu người dùng.";
-      setSubmitError(errorMessage);
+      showErrorToast(errorMessage);
     }
   };
 
@@ -110,8 +100,9 @@ export function AdminUserManagementPage() {
 
     try {
       await deleteUserMutation.mutateAsync(user.id);
+      showSuccessToast("Xóa người dùng thành công");
     } catch (error) {
-      window.alert(error instanceof Error ? error.message : "Không thể xóa người dùng.");
+      showErrorToast(error instanceof Error ? error.message : "Không thể xóa người dùng.");
     }
   };
 
@@ -128,27 +119,8 @@ export function AdminUserManagementPage() {
     createUserMutation.isPending || updateUserMutation.isPending;
 
   return (
-    <main className="min-h-svh bg-background font-body-md text-on-surface">
-      <div className="flex flex-col">
-        <header className="border-b border-outline-variant/20 bg-surface-container-lowest px-4 py-5 shadow-sm sm:px-8 sm:py-6">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <h1 className="font-serif text-2xl font-bold text-primary">M-L Master</h1>
-              <p className="text-sm text-on-surface-variant">
-                Admin Dashboard - Quản lý người dùng
-              </p>
-            </div>
-            <button
-              onClick={handleLogout}
-              className="rounded-lg bg-error px-4 py-2 text-sm font-medium text-on-error transition hover:opacity-90"
-            >
-              Đăng xuất
-            </button>
-          </div>
-        </header>
-
-        <div className="flex-1 px-4 py-6 sm:px-8 sm:py-8">
-          <div className="mx-auto flex w-full max-w-6xl flex-col gap-5">
+    <>
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-5">
             <section className="rounded-xl border border-outline-variant/20 bg-surface-container-low p-4 sm:p-6">
               <h2 className="text-xl font-semibold text-primary">CRUD người dùng</h2>
               <p className="mt-1 text-sm text-on-surface-variant">
@@ -194,8 +166,6 @@ export function AdminUserManagementPage() {
               />
             ) : null}
           </div>
-        </div>
-      </div>
 
       {isFormOpen ? (
         <AdminUserFormModal
@@ -203,11 +173,11 @@ export function AdminUserManagementPage() {
           mode={editingUser ? "edit" : "create"}
           initialValue={formInitialValue}
           isSubmitting={isSubmitting}
-          submitError={submitError}
+          submitError={null}
           onClose={closeModal}
           onSubmit={handleSubmitForm}
         />
       ) : null}
-    </main>
+    </>
   );
 }

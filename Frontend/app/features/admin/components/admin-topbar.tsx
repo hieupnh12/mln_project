@@ -1,8 +1,8 @@
 import { useLogout } from "../../auth/hooks/use-logout";
-import { teacherProfile } from "../constants/teacher-dashboard.constants";
-import { MaterialIcon } from "./teacher-icons";
+import { adminProfile } from "../constants/admin-dashboard.constants";
+import { MaterialIcon } from "./admin-icons";
 
-export function TeacherTopbar() {
+export function AdminTopbar() {
   const logout = useLogout();
 
   return (
@@ -10,10 +10,10 @@ export function TeacherTopbar() {
       <div className="flex h-auto items-center justify-between gap-4 px-margin-mobile py-md md:px-margin-desktop lg:h-xl">
         <div className="min-w-0">
           <p className="text-label-sm font-semibold uppercase tracking-wider text-secondary lg:hidden">
-            Teacher Portal
+            Admin Portal
           </p>
           <h2 className="truncate text-headline-md font-bold text-primary">
-            Chào buổi sáng, {teacherProfile.name}
+            Chào buổi sáng, {adminProfile.name}
           </h2>
         </div>
         <div className="flex shrink-0 items-center gap-md">
@@ -27,7 +27,7 @@ export function TeacherTopbar() {
           <div className="hidden h-8 w-px bg-outline-variant/30 sm:block" />
           <div className="hidden items-center gap-sm sm:flex">
             <span className="text-label-md font-semibold">
-              {teacherProfile.course}
+              {adminProfile.plan}
             </span>
             <MaterialIcon className="text-primary-container/60">
               arrow_drop_down

@@ -1,7 +1,8 @@
-﻿import { Link } from "react-router";
+import { Link } from "react-router";
 
 import { useSubjects } from "../hooks/dashboard.hooks";
 
+import { useLogout } from "../../../auth/hooks/use-logout";
 import { StudentMaterialIcon as MaterialIcon } from "../../components/student-material-icon";
 import { getStudentCoursePath, STUDENT_ROUTES } from "../../constants/student-routes.constants";
 import { StudentCurriculumSection } from "../components/student-curriculum-section";
@@ -12,6 +13,7 @@ import {
 } from "../constants/student-dashboard.constants";
 
 export function StudentDashboardPage() {
+  const logout = useLogout();
   const { data: subjects } = useSubjects();
   const featuredCoursePath = subjects?.[0]
     ? getStudentCoursePath(String(subjects[0].id))
@@ -60,6 +62,13 @@ export function StudentDashboardPage() {
               <MaterialIcon className="hidden text-on-surface-variant sm:inline-flex">
                 account_circle
               </MaterialIcon>
+            </button>
+            <button
+              onClick={logout}
+              title="Đăng xuất"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-error transition hover:bg-error-container/50 active:scale-95"
+            >
+              <MaterialIcon>logout</MaterialIcon>
             </button>
           </div>
         </div>

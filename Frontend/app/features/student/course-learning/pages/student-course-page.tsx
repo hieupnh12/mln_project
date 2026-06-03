@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router";
 
+import { useLogout } from "../../../auth/hooks/use-logout";
 import { StudentMaterialIcon as MaterialIcon } from "../../components/student-material-icon";
 import { STUDENT_ROUTES } from "../../constants/student-routes.constants";
 import type { LearningTab } from "../../types/student.types";
@@ -35,6 +36,7 @@ function parseTabParam(value: string | null): LearningTab {
 }
 
 export function StudentCoursePage() {
+  const logout = useLogout();
   const { courseId } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const subjectId = useMemo(() => parseSubjectId(courseId), [courseId]);
@@ -111,6 +113,13 @@ export function StudentCoursePage() {
               className="h-8 w-8 rounded-full bg-secondary-container object-cover"
               src={studentCourseProfile.avatarUrl}
             />
+            <button
+              onClick={logout}
+              title="Đăng xuất"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-error transition hover:bg-error-container/50 active:scale-95"
+            >
+              <MaterialIcon>logout</MaterialIcon>
+            </button>
           </div>
         </div>
       </header>

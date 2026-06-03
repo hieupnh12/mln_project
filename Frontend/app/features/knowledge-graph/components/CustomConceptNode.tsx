@@ -238,17 +238,21 @@ export default function CustomConceptNode({ id, data, selected }: NodeProps) {
         </div>
 
         {isEditing ? (
-          <input
+          <textarea
             autoFocus
             value={localEditValue}
             onChange={(e) => setLocalEditValue(e.target.value)}
             onBlur={() => onSaveEdit?.(localEditValue)}
             onKeyDown={(e) => {
               e.stopPropagation();
-              if (e.key === 'Enter') onSaveEdit?.(localEditValue);
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                onSaveEdit?.(localEditValue);
+              }
               if (e.key === 'Escape') onCancelEdit?.();
             }}
-            className="w-full text-gray-900 px-1 py-0.5 rounded text-xs outline-none border border-blue-400 focus:border-blue-600 shadow-inner nodrag"
+            rows={Math.max(2, Math.min(5, Math.ceil(localEditValue.length / 35)))}
+            className="w-full bg-white/95 text-gray-900 px-2.5 py-1.5 rounded-md font-medium outline-none ring-2 ring-blue-500/70 focus:ring-blue-600 border-none shadow-inner nodrag resize-none leading-snug text-sm"
           />
         ) : (
           <p className="leading-snug break-words font-medium">

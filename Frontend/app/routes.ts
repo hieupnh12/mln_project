@@ -4,7 +4,10 @@ export default [
   index("routes/home.tsx"),
   route("login", "routes/login.tsx"),
   route("auth/callback", "routes/auth-callback.tsx"),
-  route("admin/dashboard", "routes/admin-dashboard.tsx"),
+  route("admin", "routes/admin.tsx", [
+    index("routes/admin-dashboard.tsx"),
+    route("dashboard", "routes/admin-dashboard-redirect.tsx"),
+  ]),
   route("student", "routes/student.tsx", [
     index("routes/student-dashboard.tsx"),
     route("dashboard", "routes/student-dashboard-redirect.tsx"),
