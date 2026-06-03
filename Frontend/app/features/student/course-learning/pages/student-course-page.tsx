@@ -133,6 +133,7 @@ export function StudentCoursePage() {
       </header>
 
       <main className="mx-auto w-full px-margin-mobile py-md md:px-margin-desktop">
+<<<<<<< HEAD
         <section className="mb-lg">
           <div className="flex flex-col justify-between gap-md md:flex-row md:items-end">
             <div className="min-w-0">
@@ -165,6 +166,41 @@ export function StudentCoursePage() {
                 </>
               )}
             </div>
+=======
+        <section className="mb-md">
+          <div className="flex items-center justify-between gap-4">
+            {subjectQuery.isLoading ? (
+              <div className="flex items-center gap-3">
+                <div className="h-8 w-56 max-w-full animate-pulse rounded-lg bg-surface-container" />
+                <div className="h-7 w-16 animate-pulse rounded-md bg-surface-container-low" />
+              </div>
+            ) : subjectQuery.isError ? (
+              <div>
+                <h2 className="text-headline-md font-semibold text-primary">
+                  Không tải được thông tin môn học
+                </h2>
+                <button
+                  className="mt-2 text-label-md font-medium text-secondary underline"
+                  onClick={() => subjectQuery.refetch()}
+                  type="button"
+                >
+                  Thử lại
+                </button>
+              </div>
+            ) : subject ? (
+              <CourseSubjectHeading code={subject.code} title={subject.title} />
+            ) : null}
+
+            {subject && (
+              <Link
+                to={`/student/mindmap-preview?courseId=${subjectId}`}
+                className="flex shrink-0 items-center justify-center gap-2 rounded-lg bg-secondary-container px-4 py-2.5 text-label-md font-semibold text-secondary transition-colors hover:bg-secondary/10"
+              >
+                <MaterialIcon>hub</MaterialIcon>
+                <span>Mindmap Học Phần</span>
+              </Link>
+            )}
+>>>>>>> a19a03a477bb7e2d96b886cac5537e78d5093bce
           </div>
         </section>
 

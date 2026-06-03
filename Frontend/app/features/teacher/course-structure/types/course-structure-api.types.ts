@@ -56,7 +56,16 @@ export type CreateLessonPayload = {
 };
 
 export type UpdateLessonPayload = {
+  title?: string;
+  content?: string | null;
+};
+
+export type LessonDetailDto = {
+  lessonId: number;
+  chapterName: string;
+  teacherName: string;
   title: string;
+  content: string | null;
 };
 
 export type CreateMaterialPayload = {

@@ -3,6 +3,7 @@ export type TeacherRoutePath =
   | "/teacher/courses"
   | "/teacher/pdfs"
   | "/teacher/mindmaps"
+  | "/teacher/mindmap-preview"
   | "/teacher/flashcards"
   | "/teacher/questions"
   | "/teacher/quizzes";

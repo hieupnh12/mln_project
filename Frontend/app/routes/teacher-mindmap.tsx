@@ -22,9 +22,17 @@ export default function TeacherMindmapPage() {
   return (
     <div className="flex flex-col h-screen bg-[var(--color-background)] overflow-hidden p-6">
       <div className="mb-4 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-[var(--color-on-background)]">Quản lý Sơ đồ tư duy (Giáo viên)</h1>
-          <p className="text-sm text-[var(--color-on-surface-variant)] mt-1">Kéo thả để sắp xếp, nối các điểm để tạo quan hệ.</p>
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={() => window.history.back()}
+            className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-black/5 transition"
+          >
+            <span className="material-symbols-outlined text-on-surface-variant">arrow_back</span>
+          </button>
+          <div>
+            <h1 className="text-2xl font-bold text-[var(--color-on-background)]">Quản lý Sơ đồ tư duy (Giáo viên)</h1>
+            <p className="text-sm text-[var(--color-on-surface-variant)] mt-1">Kéo thả để sắp xếp, nối các điểm để tạo quan hệ.</p>
+          </div>
         </div>
       </div>
       
@@ -37,14 +45,10 @@ export default function TeacherMindmapPage() {
           <div className="flex-1 flex items-center justify-center text-[var(--color-error)]">
             Không thể tải dữ liệu sơ đồ. Vui lòng thử lại sau.
           </div>
-        ) : !mindmapData || mindmapData.nodes.length === 0 ? (
-          <div className="flex-1 flex items-center justify-center text-[var(--color-on-surface-variant)]">
-            Chưa có dữ liệu sơ đồ cho môn học này.
-          </div>
         ) : (
           <MindmapCanvas 
-            initialNodes={mindmapData.nodes} 
-            initialEdges={mindmapData.edges} 
+            initialNodes={mindmapData?.nodes || []} 
+            initialEdges={mindmapData?.edges || []} 
             isEditable={true} 
             onSave={handleSave}
             isSaving={isSaving}

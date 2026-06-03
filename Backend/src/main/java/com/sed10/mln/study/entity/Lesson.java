@@ -23,5 +23,9 @@ public class Lesson {
 
     @Column(length = 255) String title;
 
+    @Lob
+    @Column(name = "content", columnDefinition = "LONGTEXT")
+    String content;
+
     @OneToMany(mappedBy = "lesson", cascade = CascadeType.ALL) List<Material> materials;
 }

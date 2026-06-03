@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router";
 
 import { showErrorToast, showSuccessToast } from "~/shared/utils/toast";
 
@@ -123,6 +124,7 @@ function LessonBlock({
   onDeleteLesson: (target: DeleteTarget) => void;
   onDeleteMaterial: (target: DeleteTarget) => void;
 }) {
+  const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [materialOpen, setMaterialOpen] = useState(false);
@@ -162,7 +164,7 @@ function LessonBlock({
             </div>
             <div className="min-w-0 flex-1">
               <span className="break-words text-label-md font-medium text-on-surface">
-                {lesson.title}
+                {lesson.title || "Bài học chưa đặt tên"}
               </span>
               <p className="text-label-sm text-on-surface-variant">
                 {lesson.teacherName}
@@ -187,6 +189,14 @@ function LessonBlock({
             >
               <MaterialIcon className="h-4 w-4 text-[16px]">add</MaterialIcon>
               Tài liệu
+            </button>
+            <button
+              className="inline-flex items-center gap-1 rounded-lg bg-outline-variant/20 px-sm py-xs text-label-sm font-semibold text-primary"
+              onClick={() => navigate(`/teacher/lessons/${lesson.id}/mindmap`)}
+              type="button"
+            >
+              <MaterialIcon className="h-4 w-4 text-[16px]">hub</MaterialIcon>
+              Sơ đồ
             </button>
             <button className="p-xs transition hover:text-primary" onClick={() => setEditOpen(true)} type="button">
               <MaterialIcon className="h-5 w-5 text-[20px]">edit</MaterialIcon>

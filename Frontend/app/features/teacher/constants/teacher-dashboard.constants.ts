@@ -12,7 +12,7 @@ export const TEACHER_ROUTES = {
   dashboard: "/teacher",
   courses: "/teacher/courses",
   pdfs: "/teacher/pdfs",
-  mindmaps: "/teacher/mindmaps",
+  mindmaps: "/teacher/mindmap-preview",
   flashcards: "/teacher/flashcards",
   questions: "/teacher/questions",
   quizzes: "/teacher/quizzes",

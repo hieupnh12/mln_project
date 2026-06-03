@@ -13,4 +13,5 @@ public class LessonResponse {
     private String chapterName;
     private String teacherName;
     private String title;
+    private String content;
 }
