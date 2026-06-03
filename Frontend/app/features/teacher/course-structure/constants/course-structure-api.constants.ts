@@ -8,6 +8,7 @@ export const COURSE_STRUCTURE_ENDPOINTS = {
     `/lessons/chapter/${chapterId}/teacher/${teacherId}`,
   updateLesson: (lessonId: number) => `/lessons/${lessonId}`,
   deleteLesson: (lessonId: number) => `/lessons/${lessonId}`,
+  lessonDetail: (lessonId: number) => `/lessons/${lessonId}`,
   createMaterial: (lessonId: number) => `/materials/lesson/${lessonId}`,
   materialDetail: (materialId: number) => `/materials/${materialId}`,
   deleteMaterial: (materialId: number) => `/materials/${materialId}`,
