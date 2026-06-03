@@ -11,22 +11,12 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      "/api": {
+      // Frontend gọi /mlnStudy/... → Vite bỏ prefix → backend thật /api, /chapters, ...
+      "/mlnStudy": {
         target: "http://localhost:8080",
         changeOrigin: true,
         secure: false,
-      },
-      "/chapters": {
-        target: "http://localhost:8080",
-        changeOrigin: true,
-      },
-      "/lessons": {
-        target: "http://localhost:8080",
-        changeOrigin: true,
-      },
-      "/materials": {
-        target: "http://localhost:8080",
-        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/mlnStudy/, ""),
       },
     },
   },

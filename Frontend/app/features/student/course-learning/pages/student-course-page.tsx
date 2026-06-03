@@ -12,6 +12,7 @@ import {
   studentCourseFlashcards,
   studentCourseProfile,
   studentCourseTabs,
+  studentCourseTests,
 } from "../constants/student-course.constants";
 import {
   useChapterLessonsQuery,

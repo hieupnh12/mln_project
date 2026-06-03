@@ -91,7 +91,7 @@ public class AuthController {
         } catch (Exception e) {
             log.error("Error handling Google callback: {}", e.getMessage(), e);
             return ResponseEntity.status(302)
-                    .header("Location", "http://localhost:5173/login?error=oauth_failed")
+                    .header("Location", frontendBaseUrl + "/login?error=oauth_failed")
                     .build();
         }
     }
