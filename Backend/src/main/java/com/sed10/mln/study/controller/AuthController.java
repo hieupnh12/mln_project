@@ -74,14 +74,20 @@ public class AuthController {
             );
             
             log.info("Generated JWT token for user: {} with role: {}", user.getEmail(), user.getRole());
+            String displayName = user.getFullName() == null || user.getFullName().isBlank()
+                    ? userInfo.getName()
+                    : user.getFullName();
             
             // Redirect to frontend with token and role
             String frontendRedirectUrl = String.format(
-                    "%s?token=%s&role=%s&userId=%d",
+                    "%s?token=%s&role=%s&userId=%d&name=%s&email=%s&avatarUrl=%s",
                     buildFrontendUrl("/auth/callback"),
-                    URLEncoder.encode(token, StandardCharsets.UTF_8),
-                    URLEncoder.encode(user.getRole(), StandardCharsets.UTF_8),
-                    user.getId()
+                    encodeQueryValue(token),
+                    encodeQueryValue(user.getRole()),
+                    user.getId(),
+                    encodeQueryValue(displayName),
+                    encodeQueryValue(user.getEmail()),
+                    encodeQueryValue(userInfo.getPicture())
             );
             
             return ResponseEntity.status(302)
@@ -98,6 +104,10 @@ public class AuthController {
 
     private String buildFrontendUrl(String path) {
         return frontendBaseUrl.replaceAll("/+$", "") + path;
+    }
+
+    private String encodeQueryValue(String value) {
+        return URLEncoder.encode(value == null ? "" : value, StandardCharsets.UTF_8);
     }
     
     @PostMapping("/validate-token")

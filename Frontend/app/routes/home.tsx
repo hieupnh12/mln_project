@@ -1,5 +1,9 @@
-import { Link } from "react-router";
+import { Link, redirect } from "react-router";
 import { useEffect } from "react";
+
+import { AuthenticatedRedirectFallback } from "~/features/auth/components/authenticated-redirect-fallback";
+import { useRedirectAuthenticatedUser } from "~/features/auth/hooks/use-auth-redirect";
+import { getAuthenticatedRedirectPath } from "~/features/auth/utils/auth-route-redirect";
 
 import type { Route } from "./+types/home";
 
@@ -58,7 +62,27 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
+export function loader({ request }: Route.LoaderArgs) {
+  const redirectPath = getAuthenticatedRedirectPath(request);
+
+  if (redirectPath) {
+    return redirect(redirectPath);
+  }
+
+  return null;
+}
+
 export default function Home() {
+  const { isRedirecting, redirectPath } = useRedirectAuthenticatedUser();
+
+  if (isRedirecting) {
+    return <AuthenticatedRedirectFallback redirectPath={redirectPath ?? "/student"} />;
+  }
+
+  return <HomeContent />;
+}
+
+function HomeContent() {
   useEffect(() => {
     const blobs = document.querySelectorAll<HTMLElement>(".blob");
 
