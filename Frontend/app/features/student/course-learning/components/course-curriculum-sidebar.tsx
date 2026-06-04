@@ -136,14 +136,7 @@ function ChapterLessonsBlock({
             </button>
 
             {isLessonExpanded ? (
-<<<<<<< HEAD
-              materialCount > 0 ? (
-                <ul className="space-y-1 border-t border-outline-variant/30 px-2 pb-2 pt-1">
-                  {lesson.materials.map((material) => {
-                    const isActive = selectedMaterialId === material.id;
-=======
               <div className="mt-1 space-y-1 pl-2">
-                {/* Sơ đồ tư duy bài học */}
                 <button
                   className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left transition hover:bg-surface-container-low"
                   onClick={() => navigate(`/student/lessons/${lesson.id}/mindmap`)}
@@ -161,7 +154,6 @@ function ChapterLessonsBlock({
                     </span>
                   </span>
                 </button>
->>>>>>> a19a03a477bb7e2d96b886cac5537e78d5093bce
 
                 {materialCount > 0 ? (
                   <ul className="space-y-1">
@@ -196,35 +188,17 @@ function ChapterLessonsBlock({
                                   : ""}
                               </span>
                             </span>
-<<<<<<< HEAD
-                            <span className="text-label-sm text-on-surface-variant">
-                              {getMaterialTypeLabel(material.contentType)}
-                              {material.slideCount
-                                ? ` · ${material.slideCount} slide`
-                                : ""}
-                            </span>
-                          </span>
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ul>
-              ) : (
-                <p className="border-t border-outline-variant/30 px-3 pb-2 pt-1 text-label-sm text-on-surface-variant">
-                  Chưa có tài liệu.
-                </p>
-              )
-=======
                           </button>
                         </li>
                       );
                     })}
                   </ul>
                 ) : (
-                  <p className="mt-1 pl-2 text-label-sm italic text-on-surface-variant/70">Chưa có tài liệu khác.</p>
+                  <p className="text-label-sm italic text-on-surface-variant/70">
+                    Chưa có tài liệu khác.
+                  </p>
                 )}
               </div>
->>>>>>> a19a03a477bb7e2d96b886cac5537e78d5093bce
             ) : null}
           </div>
         );

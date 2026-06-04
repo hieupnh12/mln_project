@@ -21,6 +21,7 @@ import {
 } from "../hooks/use-course-learning-queries";
 import type { CourseMaterialSummary } from "../types/course-learning.types";
 import { computeCourseProgress } from "../utils/get-chapter-visual-state";
+import { CourseSubjectHeading } from "../components/course-subject-heading";
 
 function parseSubjectId(courseId: string | undefined) {
   if (!courseId) {
@@ -133,7 +134,7 @@ export function StudentCoursePage() {
       </header>
 
       <main className="mx-auto w-full px-margin-mobile py-md md:px-margin-desktop">
-<<<<<<< HEAD
+{/* <<<<<<< HEAD
         <section className="mb-lg">
           <div className="flex flex-col justify-between gap-md md:flex-row md:items-end">
             <div className="min-w-0">
@@ -166,7 +167,7 @@ export function StudentCoursePage() {
                 </>
               )}
             </div>
-=======
+======= */}
         <section className="mb-md">
           <div className="flex items-center justify-between gap-4">
             {subjectQuery.isLoading ? (
@@ -200,7 +201,7 @@ export function StudentCoursePage() {
                 <span>Mindmap Học Phần</span>
               </Link>
             )}
->>>>>>> a19a03a477bb7e2d96b886cac5537e78d5093bce
+{/* >>>>>>> a19a03a477bb7e2d96b886cac5537e78d5093bce */}
           </div>
         </section>
 
