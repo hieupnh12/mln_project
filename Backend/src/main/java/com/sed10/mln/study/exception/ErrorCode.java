@@ -18,6 +18,7 @@ public enum ErrorCode {
     QUIZ_NOT_FOUND(3010, "Không tìm thấy quiz", HttpStatus.NOT_FOUND),
     QUIZ_SCOPE_INVALID(3011, "Phạm vi môn/chương/bài không hợp lệ", HttpStatus.BAD_REQUEST),
     QUIZ_PUBLISH_INVALID(3012, "Quiz chưa đủ điều kiện xuất bản", HttpStatus.BAD_REQUEST),
+    STUDENT_ACCESS_DENIED(3020, "Không có quyền truy cập dữ liệu học sinh khác", HttpStatus.FORBIDDEN),
     SUBJECT_NOT_FOUND(1000, "Subject not found", HttpStatus.NOT_FOUND),
     CHAPTER_NOT_FOUND(1001, "Chapter not found", HttpStatus.NOT_FOUND),
     MATERIAL_NOT_FOUND(1002, "Material not found", HttpStatus.NOT_FOUND),
