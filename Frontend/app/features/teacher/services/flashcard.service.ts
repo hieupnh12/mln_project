@@ -8,15 +8,15 @@ export function getFlashcardSets() {
   return flashcardApi.fetchFlashcardSets();
 }
 
-export function getFlashcards(lessonId: number) {
-  return flashcardApi.fetchFlashcardsByLesson(lessonId);
+export function getFlashcards(chapterId: number) {
+  return flashcardApi.fetchFlashcardsByChapter(chapterId);
 }
 
 export function addFlashcard(
-  lessonId: number,
+  chapterId: number,
   request: CreateFlashcardRequest,
 ) {
-  return flashcardApi.createFlashcard(lessonId, request);
+  return flashcardApi.createFlashcard(chapterId, request);
 }
 
 export function editFlashcard(id: number, request: UpdateFlashcardRequest) {
@@ -28,8 +28,8 @@ export function removeFlashcard(id: number) {
 }
 
 export function addFlashcardsBulk(
-  lessonId: number,
+  chapterId: number,
   requests: CreateFlashcardRequest[],
 ) {
-  return flashcardApi.createFlashcardsBulk(lessonId, requests);
+  return flashcardApi.createFlashcardsBulk(chapterId, requests);
 }

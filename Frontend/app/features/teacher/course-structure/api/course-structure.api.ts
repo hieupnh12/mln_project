@@ -90,6 +90,14 @@ export async function fetchLessonDetailApi(lessonId: number): Promise<LessonDeta
   return unwrap(response);
 }
 
+export async function fetchChapterDetailApi(chapterId: number): Promise<ChapterDto> {
+  const response = await apiClient.get<BackendApiResponse<ChapterDto>>(
+    `/chapters/detail/${chapterId}`,
+    rootRequestConfig(),
+  );
+  return unwrap(response);
+}
+
 export async function deleteLessonApi(lessonId: number) {
   await apiClient.delete(COURSE_STRUCTURE_ENDPOINTS.deleteLesson(lessonId), rootRequestConfig());
 }
