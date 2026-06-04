@@ -1,8 +1,13 @@
-import { practiceQuestionBank } from "../constants/practice.constants";
+import { fetchPracticeQuestions } from "../api/practice.api";
 import type { PracticeQuestion, PracticeScope } from "../types/practice.types";
-import { filterPracticeQuestions } from "../utils/filter-practice-questions";
+import { mapPracticeQuestionDto } from "../utils/map-practice-question-dto";
 
-export async function getPracticeQuestions(scope: PracticeScope): Promise<PracticeQuestion[]> {
-  const filtered = filterPracticeQuestions(scope);
-  return filtered.length > 0 ? filtered : practiceQuestionBank;
+export async function getPracticeQuestions(
+  subjectId: number,
+  scope: PracticeScope,
+): Promise<PracticeQuestion[]> {
+  const response = await fetchPracticeQuestions(subjectId, scope);
+  return response
+    .map(mapPracticeQuestionDto)
+    .filter((question): question is PracticeQuestion => question != null);
 }

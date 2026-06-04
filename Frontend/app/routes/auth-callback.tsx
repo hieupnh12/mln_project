@@ -28,15 +28,17 @@ export default function AuthCallback() {
     const token = searchParams.get("token");
     const role = searchParams.get("role") as string | null;
     const error = searchParams.get("error");
+    const userId = searchParams.get("userId") ?? undefined;
+    const name = searchParams.get("name") ?? undefined;
+    const email = searchParams.get("email") ?? undefined;
+    const avatarUrl = searchParams.get("avatarUrl") ?? undefined;
 
     if (error) {
-      console.error("OAuth error:", error);
       navigate("/login?error=oauth_failed");
       return;
     }
 
     if (!token) {
-      console.error("Missing token");
       navigate("/login?error=missing_params");
       return;
     }
@@ -48,12 +50,17 @@ export default function AuthCallback() {
       setAuthSession({
         accessToken: token,
         role: normalizedRole,
+        user: {
+          id: userId,
+          name,
+          email,
+          avatarUrl,
+        },
       });
 
       // Redirect based on role
       navigate(getRedirectUrl(normalizedRole), { replace: true });
-    } catch (err) {
-      console.error("Failed to set auth session:", err);
+    } catch {
       navigate("/login?error=auth_failed");
     }
   }, [searchParams, navigate]);

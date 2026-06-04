@@ -13,6 +13,8 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class QuestionResponse {
     String id;
+    Long subjectId;
+    Long chapterId;
     Long lessonId;
     String title;
     String question;

@@ -4,7 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 import {
   DEFAULT_PRACTICE_SETTINGS,
   PRACTICE_QUERY_KEYS,
-  practiceTestCards,
 } from "../constants/practice.constants";
 import { getPracticeQuestions } from "../services/practice.service";
 import type { PracticeModeSettings, PracticeScope } from "../types/practice.types";
@@ -19,14 +18,13 @@ type UseCoursePracticeOptions = {
 export function useCoursePractice({ subjectId, active }: UseCoursePracticeOptions) {
   const [scope, setScope] = useState<PracticeScope>({ chapterId: null, lessonId: null });
   const [settings, setSettings] = useState<PracticeModeSettings>(DEFAULT_PRACTICE_SETTINGS);
-  const [activeTestId, setActiveTestId] = useState(practiceTestCards[0]?.id ?? "quick-ch1");
   const scopeKeyRef = useRef("");
 
   const { chaptersQuery, lessonsQuery } = usePracticeScope(subjectId, scope);
 
   const questionsQuery = useQuery({
     queryKey: PRACTICE_QUERY_KEYS.questions(subjectId, scope.chapterId, scope.lessonId),
-    queryFn: () => getPracticeQuestions(scope),
+    queryFn: () => getPracticeQuestions(subjectId, scope),
     enabled: active,
   });
 
@@ -41,7 +39,7 @@ export function useCoursePractice({ subjectId, active }: UseCoursePracticeOption
   const wasActiveRef = useRef(false);
 
   useEffect(() => {
-    if (!active || questionsQuery.isLoading || session.poolEmpty) {
+    if (!active || questionsQuery.isLoading || questionsQuery.isFetching || session.poolEmpty) {
       if (!active) {
         wasActiveRef.current = false;
       }
@@ -59,6 +57,7 @@ export function useCoursePractice({ subjectId, active }: UseCoursePracticeOption
   }, [
     active,
     questionsQuery.isLoading,
+    questionsQuery.isFetching,
     questionsQuery.data,
     scopeKey,
     session.poolEmpty,
@@ -70,12 +69,9 @@ export function useCoursePractice({ subjectId, active }: UseCoursePracticeOption
     setScope,
     settings,
     setSettings,
-    activeTestId,
-    setActiveTestId,
     chaptersQuery,
     lessonsQuery,
     questionsQuery,
     session,
-    practiceTestCards,
   };
 }
