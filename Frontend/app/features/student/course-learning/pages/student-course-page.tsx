@@ -1,5 +1,4 @@
-﻿
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router";
 
 import { StudentMaterialIcon as MaterialIcon } from "../../components/student-material-icon";
@@ -17,7 +16,6 @@ import {
 } from "../constants/student-course.constants";
 import { useCourseChaptersQuery, useCourseSubjectQuery } from "../hooks/use-course-learning-queries";
 import type { CourseMaterialSummary } from "../types/course-learning.types";
-import { computeCourseProgress } from "../utils/get-chapter-visual-state";
 import { CourseSubjectHeading } from "../components/course-subject-heading";
 
 function parseSubjectId(courseId: string | undefined) {
@@ -69,14 +67,8 @@ export function StudentCoursePage() {
   const needsCurriculum = activeTab === "lectures";
 
   const subjectQuery = useCourseSubjectQuery(subjectId);
-  const chaptersQuery = useCourseChaptersQuery(subjectId, { enabled: needsCurriculum });
+  useCourseChaptersQuery(subjectId, { enabled: needsCurriculum });
   const subject = subjectQuery.data;
-  const chapters = chaptersQuery.data ?? [];
-
-  const courseProgress = useMemo(
-    () => computeCourseProgress(expandedChapterId, chapters),
-    [chapters, expandedChapterId],
-  );
 
   function handleToggleChapter(chapterId: number) {
     setExpandedChapterId((current) => (current === chapterId ? null : chapterId));
