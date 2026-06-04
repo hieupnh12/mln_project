@@ -1,5 +1,3 @@
-import { useEffect, useRef } from "react";
-
 import { StudentMaterialIcon as MaterialIcon } from "../../components/student-material-icon";
 import { usePracticeCountdown } from "../hooks/use-practice-countdown";
 import type {
@@ -38,28 +36,16 @@ export function PracticeSessionContent({
   onContinue,
   onCountdownComplete,
 }: PracticeSessionContentProps) {
-  const explanationRef = useRef<HTMLDivElement | null>(null);
-
   const { progressPercent } = usePracticeCountdown({
     totalSeconds: settings.autoAdvanceSeconds,
     active: countdownActive,
     onComplete: onCountdownComplete,
   });
 
-  useEffect(() => {
-    if (answerState === "answered" && explanationRef.current) {
-      const timeoutId = window.setTimeout(() => {
-        explanationRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-      }, 100);
-      return () => window.clearTimeout(timeoutId);
-    }
-    return undefined;
-  }, [answerState, currentQuestion.id]);
-
   const showContinue = answerState === "answered" && !settings.autoAdvance;
 
   return (
-    <div className="relative flex flex-col gap-6 md:gap-8">
+    <div className="relative flex flex-col gap-4 md:gap-5">
       <PracticeCountdownBar
         progressPercent={progressPercent}
         variant={countdownVariant}
@@ -79,7 +65,7 @@ export function PracticeSessionContent({
         selectedOptionIndex={selectedOptionIndex}
       />
 
-      <div ref={explanationRef}>
+      <div>
         <PracticeExplanationPanel
           explanation={currentQuestion.explanation}
           visible={answerState === "answered"}
@@ -87,9 +73,9 @@ export function PracticeSessionContent({
       </div>
 
       {showContinue ? (
-        <div className="flex justify-end pt-2 pb-2">
+        <div className="flex justify-end">
           <button
-            className="flex items-center gap-2 rounded-xl bg-primary px-8 py-4 text-label-md font-bold text-on-primary shadow-md shadow-primary/10 transition hover:opacity-90 active:scale-95"
+            className="flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-label-md font-bold text-on-primary shadow-md shadow-primary/10 transition hover:opacity-90 active:scale-95"
             onClick={onContinue}
             type="button"
           >

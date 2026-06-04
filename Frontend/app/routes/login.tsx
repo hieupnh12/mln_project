@@ -1,7 +1,13 @@
-import { Link, useNavigate } from "react-router";
+import { Link, redirect } from "react-router";
 import { useState } from "react";
 
+import { AuthenticatedRedirectFallback } from "~/features/auth/components/authenticated-redirect-fallback";
+import { useRedirectAuthenticatedUser } from "~/features/auth/hooks/use-auth-redirect";
+import { getAuthenticatedRedirectPath } from "~/features/auth/utils/auth-route-redirect";
+import { showErrorToast } from "~/shared/utils/toast";
+
 import { getGoogleLoginUrl } from "../features/auth/services/auth.service";
+import type { Route } from "./+types/login";
 
 const supportLinks = ["Trợ giúp", "Điều khoản dịch vụ", "Bảo mật"];
 
@@ -15,8 +21,23 @@ export function meta() {
   ];
 }
 
+export function loader({ request }: Route.LoaderArgs) {
+  const redirectPath = getAuthenticatedRedirectPath(request);
+
+  if (redirectPath) {
+    return redirect(redirectPath);
+  }
+
+  return null;
+}
+
 export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
+  const { isRedirecting, redirectPath } = useRedirectAuthenticatedUser();
+
+  if (isRedirecting) {
+    return <AuthenticatedRedirectFallback redirectPath={redirectPath ?? "/student"} />;
+  }
 
   const handleGoogleLogin = async () => {
     setIsLoading(true);
@@ -25,8 +46,8 @@ export default function Login() {
       if (response.redirectUrl) {
         window.location.href = response.redirectUrl;
       }
-    } catch (error) {
-      console.error("Failed to get Google login URL:", error);
+    } catch {
+      showErrorToast("Không thể bắt đầu đăng nhập Google. Vui lòng thử lại.");
       setIsLoading(false);
     }
   };

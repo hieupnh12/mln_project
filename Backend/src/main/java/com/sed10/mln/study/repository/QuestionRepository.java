@@ -1,9 +1,12 @@
 package com.sed10.mln.study.repository;
 
 import com.sed10.mln.study.entity.Question;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +29,24 @@ public interface QuestionRepository extends JpaRepository<Question, Long>, JpaSp
 
     @Query("select q.status as value, count(q) as total from Question q group by q.status")
     List<QuestionCountProjection> countGroupedByStatus();
+
+    @Query("""
+            select q
+            from Question q
+            join q.lesson lesson
+            join lesson.chapter chapter
+            join chapter.subject subject
+            where subject.id = :subjectId
+              and q.status = :status
+              and (:chapterId is null or chapter.id = :chapterId)
+              and (:lessonId is null or lesson.id = :lessonId)
+            """)
+    Page<Question> findPracticeQuestions(
+            @Param("subjectId") Long subjectId,
+            @Param("chapterId") Long chapterId,
+            @Param("lessonId") Long lessonId,
+            @Param("status") String status,
+            Pageable pageable);
 
     @Query("""
             select count(distinct subject.id)

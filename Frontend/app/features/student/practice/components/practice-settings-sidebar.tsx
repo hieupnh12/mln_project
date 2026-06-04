@@ -3,7 +3,6 @@ import { StudentMaterialIcon as MaterialIcon } from "../../components/student-ma
 import { PRACTICE_AUTO_SECONDS_OPTIONS } from "../constants/practice.constants";
 import type { PracticeModeSettings, PracticeScope } from "../types/practice.types";
 import { PracticeTestsSidebar } from "./practice-tests-sidebar";
-import type { PracticeTestCard } from "../types/practice.types";
 
 type PracticeSettingsSidebarProps = {
   scope: PracticeScope;
@@ -12,11 +11,8 @@ type PracticeSettingsSidebarProps = {
   lessons: CourseLessonItem[] | undefined;
   chaptersLoading: boolean;
   lessonsLoading: boolean;
-  tests: PracticeTestCard[];
-  activeTestId: string;
   onScopeChange: (scope: PracticeScope) => void;
   onSettingsChange: (settings: PracticeModeSettings) => void;
-  onSelectTest: (testId: string) => void;
 };
 
 export function PracticeSettingsSidebar({
@@ -26,22 +22,19 @@ export function PracticeSettingsSidebar({
   lessons,
   chaptersLoading,
   lessonsLoading,
-  tests,
-  activeTestId,
   onScopeChange,
   onSettingsChange,
-  onSelectTest,
 }: PracticeSettingsSidebarProps) {
   return (
-    <div className="flex flex-col gap-gutter">
-      <section className="rounded-xl border border-outline-variant/20 bg-surface-container-lowest p-gutter shadow-sm">
+    <div className="flex min-w-0 flex-col gap-gutter">
+      <section className="min-w-0 rounded-xl border border-outline-variant/20 bg-surface-container-lowest p-4 shadow-sm">
         <h3 className="text-label-md font-bold text-primary">Phạm vi &amp; chế độ</h3>
 
         <div className="mt-4 space-y-4">
-          <label className="flex flex-col gap-2">
+          <label className="flex min-w-0 flex-col gap-2">
             <span className="text-label-sm font-medium text-on-surface-variant">Chương</span>
             <select
-              className="rounded-lg border border-outline-variant bg-white px-3 py-2 text-body-md"
+              className="w-full min-w-0 max-w-full truncate rounded-lg border border-outline-variant bg-white px-3 py-2 text-body-md"
               disabled={chaptersLoading}
               onChange={(event) => {
                 const value = event.target.value;
@@ -50,21 +43,25 @@ export function PracticeSettingsSidebar({
                   lessonId: null,
                 });
               }}
+              title={
+                chapters?.find((chapter) => chapter.id === scope.chapterId)?.title ??
+                "Tất cả chương"
+              }
               value={scope.chapterId ?? ""}
             >
               <option value="">Tất cả chương</option>
               {chapters?.map((chapter) => (
-                <option key={chapter.id} value={chapter.id}>
+                <option key={chapter.id} title={chapter.title} value={chapter.id}>
                   {chapter.title}
                 </option>
               ))}
             </select>
           </label>
 
-          <label className="flex flex-col gap-2">
+          <label className="flex min-w-0 flex-col gap-2">
             <span className="text-label-sm font-medium text-on-surface-variant">Bài học</span>
             <select
-              className="rounded-lg border border-outline-variant bg-white px-3 py-2 text-body-md"
+              className="w-full min-w-0 max-w-full truncate rounded-lg border border-outline-variant bg-white px-3 py-2 text-body-md"
               disabled={scope.chapterId == null || lessonsLoading}
               onChange={(event) => {
                 const value = event.target.value;
@@ -73,11 +70,14 @@ export function PracticeSettingsSidebar({
                   lessonId: value === "" ? null : Number(value),
                 });
               }}
+              title={
+                lessons?.find((lesson) => lesson.id === scope.lessonId)?.title ?? "Tất cả bài"
+              }
               value={scope.lessonId ?? ""}
             >
               <option value="">Tất cả bài</option>
               {lessons?.map((lesson) => (
-                <option key={lesson.id} value={lesson.id}>
+                <option key={lesson.id} title={lesson.title} value={lesson.id}>
                   {lesson.title}
                 </option>
               ))}
@@ -85,10 +85,12 @@ export function PracticeSettingsSidebar({
           </label>
 
           <label className="flex cursor-pointer items-center justify-between gap-3">
-            <span className="text-label-sm font-medium text-primary">Chuyển câu liên tục</span>
+            <span className="min-w-0 text-label-sm font-medium text-primary">
+              Chuyển câu liên tục
+            </span>
             <input
               checked={settings.autoAdvance}
-              className="h-5 w-5 accent-secondary"
+              className="h-5 w-5 shrink-0 accent-secondary"
               onChange={(event) =>
                 onSettingsChange({
                   ...settings,
@@ -101,12 +103,12 @@ export function PracticeSettingsSidebar({
           </label>
 
           {settings.autoAdvance ? (
-            <label className="flex flex-col gap-2">
+            <label className="flex min-w-0 flex-col gap-2">
               <span className="text-label-sm font-medium text-on-surface-variant">
                 Giây chờ
               </span>
               <select
-                className="rounded-lg border border-outline-variant bg-white px-3 py-2 text-body-md"
+                className="w-full min-w-0 max-w-full rounded-lg border border-outline-variant bg-white px-3 py-2 text-body-md"
                 onChange={(event) =>
                   onSettingsChange({
                     ...settings,
@@ -132,10 +134,10 @@ export function PracticeSettingsSidebar({
       </section>
 
       <PracticeTestsSidebar
-        activeTestId={activeTestId}
+        activeTestId=""
         embedded
-        onSelectTest={onSelectTest}
-        tests={tests}
+        onSelectTest={() => undefined}
+        tests={[]}
       />
     </div>
   );

@@ -1,18 +1,20 @@
 ﻿import { Link } from "react-router";
 
 import { useSubjects } from "../hooks/dashboard.hooks";
+import { useAuthUser } from "~/features/auth/hooks/use-auth-user";
 
 import { StudentMaterialIcon as MaterialIcon } from "../../components/student-material-icon";
 import { getStudentCoursePath, STUDENT_ROUTES } from "../../constants/student-routes.constants";
+import { StudentAccountMenu } from "../components/student-account-menu";
 import { StudentCurriculumSection } from "../components/student-curriculum-section";
 import {
   studentDashboardBottomNavItems,
   studentDashboardNavItems,
-  studentDashboardProfile,
 } from "../constants/student-dashboard.constants";
 
 export function StudentDashboardPage() {
   const { data: subjects } = useSubjects();
+  const authUser = useAuthUser();
   const featuredCoursePath = subjects?.[0]
     ? getStudentCoursePath(String(subjects[0].id))
     : "#curriculum";
@@ -51,16 +53,7 @@ export function StudentDashboardPage() {
             >
               <MaterialIcon>notifications</MaterialIcon>
             </button>
-            <button className="flex items-center gap-2 rounded-full p-1 transition hover:bg-surface-variant/50 sm:pr-3">
-              <img
-                alt="Ảnh đại diện học sinh"
-                className="h-8 w-8 rounded-full object-cover"
-                src={studentDashboardProfile.avatarUrl}
-              />
-              <MaterialIcon className="hidden text-on-surface-variant sm:inline-flex">
-                account_circle
-              </MaterialIcon>
-            </button>
+            <StudentAccountMenu user={authUser} />
           </div>
         </div>
       </header>
@@ -76,7 +69,7 @@ export function StudentDashboardPage() {
                 Chào mừng trở lại
               </span>
               <h1 className="max-w-[12ch] wrap-break-word text-[32px] font-bold leading-[1.12] text-primary sm:max-w-none sm:text-[42px] lg:text-display-lg">
-                Xin chào, {studentDashboardProfile.name}
+                Xin chào, {authUser.name}
               </h1>
             </div>
             <p className="max-w-[62ch] text-base leading-7 text-on-surface-variant sm:text-body-lg">

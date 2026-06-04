@@ -5,7 +5,7 @@ export const AUTH_ENDPOINTS = {
 } as const;
 
 export const AUTH_ROLE_REDIRECTS: Record<UserRole, string> = {
-  student: "/student/dashboard",
+  student: "/student",
   teacher: "/teacher/dashboard",
   admin: "/admin/dashboard",
 };
