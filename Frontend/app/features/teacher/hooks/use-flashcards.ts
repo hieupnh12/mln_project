@@ -8,8 +8,8 @@ import type {
 
 const QUERY_KEYS = {
   sets: ["teacher", "flashcard-sets"] as const,
-  flashcards: (lessonId: number) =>
-    ["teacher", "flashcards", lessonId] as const,
+  flashcards: (chapterId: number) =>
+    ["teacher", "flashcards", chapterId] as const,
 };
 
 export function useTeacherFlashcardSets() {
@@ -19,24 +19,24 @@ export function useTeacherFlashcardSets() {
   });
 }
 
-export function useFlashcardsByLesson(lessonId: number, enabled = true) {
+export function useFlashcardsByChapter(chapterId: number, enabled = true) {
   return useQuery({
-    queryKey: QUERY_KEYS.flashcards(lessonId),
-    queryFn: () => flashcardService.getFlashcards(lessonId),
-    enabled: enabled && lessonId > 0,
+    queryKey: QUERY_KEYS.flashcards(chapterId),
+    queryFn: () => flashcardService.getFlashcards(chapterId),
+    enabled: enabled && chapterId > 0,
   });
 }
 
-export function useCreateFlashcard(lessonId: number) {
+export function useCreateFlashcard(chapterId: number) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (request: CreateFlashcardRequest) =>
-      flashcardService.addFlashcard(lessonId, request),
+      flashcardService.addFlashcard(chapterId, request),
     onSuccess: () => {
-      // Invalidate the flashcard list for this specific lesson
+      // Invalidate the flashcard list for this specific chapter
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.flashcards(lessonId),
+        queryKey: QUERY_KEYS.flashcards(chapterId),
       });
       // Invalidate the sets list to update counts
       queryClient.invalidateQueries({
@@ -46,7 +46,7 @@ export function useCreateFlashcard(lessonId: number) {
   });
 }
 
-export function useUpdateFlashcard(lessonId: number) {
+export function useUpdateFlashcard(chapterId: number) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -59,20 +59,20 @@ export function useUpdateFlashcard(lessonId: number) {
     }) => flashcardService.editFlashcard(id, request),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.flashcards(lessonId),
+        queryKey: QUERY_KEYS.flashcards(chapterId),
       });
     },
   });
 }
 
-export function useDeleteFlashcard(lessonId: number) {
+export function useDeleteFlashcard(chapterId: number) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (id: number) => flashcardService.removeFlashcard(id),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.flashcards(lessonId),
+        queryKey: QUERY_KEYS.flashcards(chapterId),
       });
       queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.sets,
@@ -81,15 +81,15 @@ export function useDeleteFlashcard(lessonId: number) {
   });
 }
 
-export function useCreateFlashcardsBulk(lessonId: number) {
+export function useCreateFlashcardsBulk(chapterId: number) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (requests: CreateFlashcardRequest[]) =>
-      flashcardService.addFlashcardsBulk(lessonId, requests),
+      flashcardService.addFlashcardsBulk(chapterId, requests),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.flashcards(lessonId),
+        queryKey: QUERY_KEYS.flashcards(chapterId),
       });
       queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.sets,

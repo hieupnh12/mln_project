@@ -1,9 +1,11 @@
 package com.sed10.mln.study.service;
 
+import com.sed10.mln.study.entity.Chapter;
 import com.sed10.mln.study.entity.Flashcard;
 import com.sed10.mln.study.entity.Lesson;
 import com.sed10.mln.study.exception.AppException;
 import com.sed10.mln.study.exception.ErrorCode;
+import com.sed10.mln.study.repository.ChapterRepository;
 import com.sed10.mln.study.repository.FlashcardRepository;
 import com.sed10.mln.study.repository.LessonRepository;
 import lombok.AccessLevel;
@@ -19,40 +21,46 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class FlashcardService {
 
+    ChapterRepository chapterRepository;
     FlashcardRepository flashcardRepository;
     LessonRepository lessonRepository;
 
-    public List<Lesson> getAllLessonsForTeacher(Long teacherId) {
-        return lessonRepository.findByTeacherId(teacherId);
+    public List<Chapter> getAllChaptersForTeacher(Long teacherId) {
+        List<Lesson> lessons = lessonRepository.findByTeacherId(teacherId);
+        return lessons.stream()
+                .map(Lesson::getChapter)
+                .filter(java.util.Objects::nonNull)
+                .distinct()
+                .toList();
     }
 
-    public List<Flashcard> getFlashcardsByLesson(Long lessonId) {
-        if (!lessonRepository.existsById(lessonId)) {
-            throw new AppException(ErrorCode.LESSON_NOT_FOUND);
+    public List<Flashcard> getFlashcardsByChapter(Long chapterId) {
+        if (!chapterRepository.existsById(chapterId)) {
+            throw new AppException(ErrorCode.CHAPTER_NOT_FOUND);
         }
-        return flashcardRepository.findByLessonId(lessonId);
+        return flashcardRepository.findByChapterId(chapterId);
     }
 
-    public long countFlashcardsInLesson(Long lessonId) {
-        return flashcardRepository.countByLessonId(lessonId);
+    public long countFlashcardsInChapter(Long chapterId) {
+        return flashcardRepository.countByChapterId(chapterId);
     }
 
     @Transactional
-    public Flashcard createFlashcard(Long lessonId, Flashcard flashcard) {
-        Lesson lesson = lessonRepository.findById(lessonId)
-                .orElseThrow(() -> new AppException(ErrorCode.LESSON_NOT_FOUND));
+    public Flashcard createFlashcard(Long chapterId, Flashcard flashcard) {
+        Chapter chapter = chapterRepository.findById(chapterId)
+                .orElseThrow(() -> new AppException(ErrorCode.CHAPTER_NOT_FOUND));
         
-        flashcard.setLesson(lesson);
+        flashcard.setChapter(chapter);
         return flashcardRepository.save(flashcard);
     }
 
     @Transactional
-    public List<Flashcard> createFlashcardsBulk(Long lessonId, List<Flashcard> flashcards) {
-        Lesson lesson = lessonRepository.findById(lessonId)
-                .orElseThrow(() -> new AppException(ErrorCode.LESSON_NOT_FOUND));
+    public List<Flashcard> createFlashcardsBulk(Long chapterId, List<Flashcard> flashcards) {
+        Chapter chapter = chapterRepository.findById(chapterId)
+                .orElseThrow(() -> new AppException(ErrorCode.CHAPTER_NOT_FOUND));
         
         for (Flashcard flashcard : flashcards) {
-            flashcard.setLesson(lesson);
+            flashcard.setChapter(chapter);
         }
         return flashcardRepository.saveAll(flashcards);
     }

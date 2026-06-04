@@ -15,6 +15,7 @@ export default [
     route("courses/:courseId/practice", "routes/student-practice.tsx"),
     route("mindmap-preview", "routes/student-mindmap.tsx"),
     route("lessons/:lessonId/mindmap", "routes/student-lesson-mindmap.tsx"),
+    route("chapters/:chapterId/flashcards", "routes/student-chapter-flashcards.tsx"),
   ]),
   route("teacher", "routes/teacher.tsx", [
     index("routes/teacher-dashboard.tsx"),
