@@ -1,5 +1,7 @@
 import type { Route } from "./+types/admin-dashboard";
 import { AdminUserManagementPage } from "~/features/admin/pages/admin-user-management-page";
+import { ProtectedRoute } from "../shared/components/protected-route";
+import { ROUTE_ACCESS } from "../shared/constants/route-access";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -12,5 +14,9 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function AdminDashboard() {
-  return <AdminUserManagementPage />;
+  return (
+    <ProtectedRoute allowedRoles={ROUTE_ACCESS.admin}>
+      <AdminUserManagementPage />
+    </ProtectedRoute>
+  );
 }
