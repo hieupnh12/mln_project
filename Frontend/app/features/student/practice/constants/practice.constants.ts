@@ -2,9 +2,19 @@ import type { PracticeModeSettings } from "../types/practice.types";
 
 export const PRACTICE_QUERY_KEYS = {
   root: ["student", "practice"] as const,
-  questions: (subjectId: number, chapterId: number | null, lessonId: number | null) =>
-    ["student", "practice", "questions", subjectId, chapterId, lessonId] as const,
+  count: (subjectId: number, chapterId: number | null, lessonId: number | null) =>
+    ["student", "practice", "count", subjectId, chapterId, lessonId] as const,
+  questions: (
+    subjectId: number,
+    chapterId: number | null,
+    lessonId: number | null,
+    size: number,
+  ) => ["student", "practice", "questions", subjectId, chapterId, lessonId, size] as const,
 };
+
+export const DEFAULT_PRACTICE_QUESTION_BATCH_SIZE = 30;
+
+export const PRACTICE_QUERY_STALE_TIME_MS = 5 * 60 * 1000;
 
 export const DEFAULT_PRACTICE_SETTINGS: PracticeModeSettings = {
   autoAdvance: false,

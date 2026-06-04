@@ -2,8 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 import {
+  DEFAULT_PRACTICE_QUESTION_BATCH_SIZE,
   DEFAULT_PRACTICE_SETTINGS,
   PRACTICE_QUERY_KEYS,
+  PRACTICE_QUERY_STALE_TIME_MS,
 } from "../constants/practice.constants";
 import { getPracticeQuestions } from "../services/practice.service";
 import type { PracticeModeSettings, PracticeScope } from "../types/practice.types";
@@ -23,9 +25,17 @@ export function useCoursePractice({ subjectId, active }: UseCoursePracticeOption
   const { chaptersQuery, lessonsQuery } = usePracticeScope(subjectId, scope);
 
   const questionsQuery = useQuery({
-    queryKey: PRACTICE_QUERY_KEYS.questions(subjectId, scope.chapterId, scope.lessonId),
-    queryFn: () => getPracticeQuestions(subjectId, scope),
+    queryKey: PRACTICE_QUERY_KEYS.questions(
+      subjectId,
+      scope.chapterId,
+      scope.lessonId,
+      DEFAULT_PRACTICE_QUESTION_BATCH_SIZE,
+    ),
+    queryFn: () =>
+      getPracticeQuestions(subjectId, scope, DEFAULT_PRACTICE_QUESTION_BATCH_SIZE),
     enabled: active,
+    staleTime: PRACTICE_QUERY_STALE_TIME_MS,
+    placeholderData: (previousData) => previousData,
   });
 
   const session = usePracticeSession({

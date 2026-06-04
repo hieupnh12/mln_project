@@ -39,7 +39,7 @@ export function PracticeOptionsList({
   onSelect,
 }: PracticeOptionsListProps) {
   return (
-    <section className="grid grid-cols-1 gap-2">
+    <section className="grid grid-cols-1 gap-2 lg:grid-cols-2">
       {options.map((text, index) => (
         <PracticeOptionButton
           index={index}
