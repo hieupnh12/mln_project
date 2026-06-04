@@ -23,7 +23,7 @@ export type StudentResource = {
   icon: string;
 };
 
-export type LearningTab = "lectures" | "flashcards" | "tests";
+export type LearningTab = "lectures" | "flashcards" | "practice" | "exams";
 
 export type StudentChapterState = "done" | "active" | "open" | "locked";
 

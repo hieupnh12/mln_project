@@ -20,7 +20,8 @@ export const studentCourseFeaturedQuote = {
 export const studentCourseTabs: Array<{ id: LearningTab; label: string }> = [
   { id: "lectures", label: "Bài giảng" },
   { id: "flashcards", label: "Flashcard" },
-  { id: "tests", label: "Kiểm tra" },
+  { id: "practice", label: "Luyện tập" },
+  { id: "exams", label: "Kiểm tra" },
 ];
 
 export const studentCourseFlashcards: StudentFlashcard[] = [

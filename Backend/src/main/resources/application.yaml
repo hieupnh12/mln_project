@@ -28,6 +28,10 @@ server:
 spring:
   config:
     import: optional:file:../.env[.properties]
+  devtools:
+    restart:
+      # Tránh ClassNotFoundException (ApiResponse, controller) sau hot-reload
+      enabled: false
   application:
     name: web-sales-backend
 

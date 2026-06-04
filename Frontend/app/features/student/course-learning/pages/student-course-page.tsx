@@ -7,18 +7,15 @@ import { STUDENT_ROUTES } from "../../constants/student-routes.constants";
 import type { LearningTab } from "../../types/student.types";
 import { CourseCurriculumSidebar } from "../components/course-curriculum-sidebar";
 import { CourseMaterialViewer } from "../components/course-material-viewer";
+import { CoursePracticePanel } from "../components/course-practice-panel";
+import { CourseExamCatalogPanel } from "../../exams/components/course-exam-catalog-panel";
 import {
   studentCourseBottomNavItems,
   studentCourseFlashcards,
   studentCourseProfile,
   studentCourseTabs,
-  studentCourseTests,
 } from "../constants/student-course.constants";
-import {
-  useChapterLessonsQuery,
-  useCourseChaptersQuery,
-  useCourseSubjectQuery,
-} from "../hooks/use-course-learning-queries";
+import { useCourseChaptersQuery, useCourseSubjectQuery } from "../hooks/use-course-learning-queries";
 import type { CourseMaterialSummary } from "../types/course-learning.types";
 import { computeCourseProgress } from "../utils/get-chapter-visual-state";
 import { CourseSubjectHeading } from "../components/course-subject-heading";
@@ -33,7 +30,13 @@ function parseSubjectId(courseId: string | undefined) {
 }
 
 function parseTabParam(value: string | null): LearningTab {
-  if (value === "flashcards" || value === "tests" || value === "lectures") {
+  if (value === "practice" || value === "tests") {
+    return "practice";
+  }
+  if (value === "exams") {
+    return "exams";
+  }
+  if (value === "flashcards" || value === "lectures") {
     return value;
   }
   return "lectures";
@@ -54,19 +57,21 @@ export function StudentCoursePage() {
   }
 
   useEffect(() => {
+    if (searchParams.get("tab") === "tests") {
+      setSearchParams({ tab: "practice" }, { replace: true });
+      return;
+    }
     setActiveTab(parseTabParam(searchParams.get("tab")));
-  }, [searchParams]);
+  }, [searchParams, setSearchParams]);
   const [expandedChapterId, setExpandedChapterId] = useState<number | null>(null);
   const [selectedMaterialId, setSelectedMaterialId] = useState<number | null>(null);
 
+  const needsCurriculum = activeTab === "lectures";
+
   const subjectQuery = useCourseSubjectQuery(subjectId);
-  const chaptersQuery = useCourseChaptersQuery(subjectId);
+  const chaptersQuery = useCourseChaptersQuery(subjectId, { enabled: needsCurriculum });
   const subject = subjectQuery.data;
   const chapters = chaptersQuery.data ?? [];
-
-  const firstChapterId = chapters[0]?.id ?? null;
-  const firstChapterLessonsQuery = useChapterLessonsQuery(firstChapterId);
-  const instructorName = firstChapterLessonsQuery.data?.[0]?.teacherName;
 
   const courseProgress = useMemo(
     () => computeCourseProgress(expandedChapterId, chapters),
@@ -134,40 +139,6 @@ export function StudentCoursePage() {
       </header>
 
       <main className="mx-auto w-full px-margin-mobile py-md md:px-margin-desktop">
-{/* <<<<<<< HEAD
-        <section className="mb-lg">
-          <div className="flex flex-col justify-between gap-md md:flex-row md:items-end">
-            <div className="min-w-0">
-              {subjectQuery.isLoading ? (
-                <div className="space-y-2">
-                  <div className="h-8 w-64 animate-pulse rounded-lg bg-surface-container" />
-                  <div className="h-5 w-40 animate-pulse rounded-lg bg-surface-container-low" />
-                </div>
-              ) : subjectQuery.isError ? (
-                <div>
-                  <h2 className="mb-xs text-headline-lg font-semibold text-primary">
-                    Không tải được thông tin môn học
-                  </h2>
-                  <button
-                    className="text-label-md font-medium text-secondary underline"
-                    onClick={() => subjectQuery.refetch()}
-                    type="button"
-                  >
-                    Thử lại
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <h2 className="mb-xs text-headline-lg font-semibold text-primary">
-                    {subject?.title}
-                  </h2>
-                  <p className="text-body-md text-on-surface-variant">
-                    Mã môn: {subject?.code}
-                  </p>
-                </>
-              )}
-            </div>
-======= */}
         <section className="mb-md">
           <div className="flex items-center justify-between gap-4">
             {subjectQuery.isLoading ? (
@@ -192,16 +163,15 @@ export function StudentCoursePage() {
               <CourseSubjectHeading code={subject.code} title={subject.title} />
             ) : null}
 
-            {subject && (
+            {subject ? (
               <Link
-                to={`/student/mindmap-preview?courseId=${subjectId}`}
                 className="flex shrink-0 items-center justify-center gap-2 rounded-lg bg-secondary-container px-4 py-2.5 text-label-md font-semibold text-secondary transition-colors hover:bg-secondary/10"
+                to={`/student/mindmap-preview?courseId=${subjectId}`}
               >
                 <MaterialIcon>hub</MaterialIcon>
                 <span>Mindmap Học Phần</span>
               </Link>
-            )}
-{/* >>>>>>> a19a03a477bb7e2d96b886cac5537e78d5093bce */}
+            ) : null}
           </div>
         </section>
 
@@ -226,14 +196,16 @@ export function StudentCoursePage() {
 
         <div
           className={
-            activeTab === "tests"
+            activeTab === "practice" || activeTab === "exams"
               ? "min-w-0"
               : "grid grid-cols-1 gap-gutter lg:grid-cols-12"
           }
         >
           <div
             className={
-              activeTab === "tests" ? "min-w-0 space-y-md" : "min-w-0 space-y-md lg:col-span-9"
+              activeTab === "practice" || activeTab === "exams"
+                ? "min-w-0 space-y-md"
+                : "min-w-0 space-y-md lg:col-span-9"
             }
           >
             {activeTab === "lectures" ? (
@@ -262,29 +234,16 @@ export function StudentCoursePage() {
               </section>
             ) : null}
 
-            {activeTab === "tests" ? (
-              <section className="grid grid-cols-1 gap-gutter md:grid-cols-3">
-                {studentCourseTests.map((test) => (
-                  <article
-                    className="rounded-xl border border-outline-variant/30 bg-white p-gutter shadow-[0_4px_20px_rgba(35,39,51,0.04)]"
-                    key={test.title}
-                  >
-                    <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-secondary-container text-primary">
-                      <MaterialIcon>quiz</MaterialIcon>
-                    </div>
-                    <h3 className="text-headline-md font-semibold text-primary">{test.title}</h3>
-                    <p className="mt-3 text-body-md text-on-surface-variant">
-                      {test.questions} câu hỏi - {test.duration}
-                    </p>
-                    <button
-                      className="mt-6 w-full rounded-lg bg-primary px-5 py-3 text-label-md font-medium text-white transition hover:bg-primary-container"
-                      type="button"
-                    >
-                      Bắt đầu
-                    </button>
-                  </article>
-                ))}
-              </section>
+            {activeTab === "practice" ? (
+              <CoursePracticePanel active subjectId={subjectId} />
+            ) : null}
+
+            {activeTab === "exams" ? (
+              <CourseExamCatalogPanel
+                active
+                courseTitle={subject?.title}
+                subjectId={subjectId}
+              />
             ) : null}
           </div>
 
