@@ -10,6 +10,7 @@ COPY mvnw.cmd .
 COPY .mvn .mvn
 
 # Download dependencies
+RUN chmod +x mvnw
 RUN ./mvnw dependency:resolve
 
 # Copy source code
