@@ -40,6 +40,15 @@ public interface QuestionRepository extends JpaRepository<Question, Long>, JpaSp
               and q.status = :status
               and (:chapterId is null or chapter.id = :chapterId)
               and (:lessonId is null or lesson.id = :lessonId)
+              and (select count(answer)
+                   from Answer answer
+                   where answer.question = q
+                     and trim(answer.content) <> '') >= 2
+              and exists (
+                   select correctAnswer.id
+                   from Answer correctAnswer
+                   where correctAnswer.question = q
+                     and correctAnswer.isCorrect = true)
             """)
     Page<Question> findPracticeQuestions(
             @Param("subjectId") Long subjectId,
@@ -47,6 +56,32 @@ public interface QuestionRepository extends JpaRepository<Question, Long>, JpaSp
             @Param("lessonId") Long lessonId,
             @Param("status") String status,
             Pageable pageable);
+
+    @Query("""
+            select count(q)
+            from Question q
+            join q.lesson lesson
+            join lesson.chapter chapter
+            join chapter.subject subject
+            where subject.id = :subjectId
+              and q.status = :status
+              and (:chapterId is null or chapter.id = :chapterId)
+              and (:lessonId is null or lesson.id = :lessonId)
+              and (select count(answer)
+                   from Answer answer
+                   where answer.question = q
+                     and trim(answer.content) <> '') >= 2
+              and exists (
+                   select correctAnswer.id
+                   from Answer correctAnswer
+                   where correctAnswer.question = q
+                     and correctAnswer.isCorrect = true)
+            """)
+    long countPracticeQuestions(
+            @Param("subjectId") Long subjectId,
+            @Param("chapterId") Long chapterId,
+            @Param("lessonId") Long lessonId,
+            @Param("status") String status);
 
     @Query("""
             select count(distinct subject.id)

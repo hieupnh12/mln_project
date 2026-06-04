@@ -23,8 +23,9 @@ export const QUESTION_LIBRARY_QUERY_KEYS = {
   root: ["teacher", "question-library"] as const,
   metadata: ["teacher", "question-library", "metadata"] as const,
   stats: ["teacher", "question-library", "stats"] as const,
+  questionsRoot: ["teacher", "question-library", "questions"] as const,
   questions: (filters: QuestionFilters, page: number, size: number) =>
-    ["teacher", "question-library", "questions", filters, page, size] as const,
+    [...QUESTION_LIBRARY_QUERY_KEYS.questionsRoot, filters, page, size] as const,
   question: (id: string) => ["teacher", "question-library", "question", id] as const,
 };
 

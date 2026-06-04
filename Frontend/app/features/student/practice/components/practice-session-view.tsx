@@ -49,7 +49,7 @@ export function PracticeSessionView({
         sessionTimeLabel={formatSessionTime(stats.sessionSeconds)}
       />
 
-      <div className="mx-auto w-full max-w-[800px] px-margin-mobile py-8 md:px-0 md:py-16">
+      <div className="mx-auto w-full max-w-[1040px] px-margin-mobile py-6 md:px-gutter md:py-8 xl:px-0">
         <PracticeSessionContent
           answerState={answerState}
           countdownActive={countdownActive}

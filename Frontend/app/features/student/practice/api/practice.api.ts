@@ -9,9 +9,30 @@ function unwrap<T>(response: { data: BackendApiResponse<T> }): T {
   return response.data.result;
 }
 
-export async function fetchPracticeQuestions(subjectId: number, scope: PracticeScope) {
+export async function fetchPracticeQuestions(
+  subjectId: number,
+  scope: PracticeScope,
+  size: number,
+) {
   const response = await apiClient.get<BackendApiResponse<PracticeQuestionDto[]>>(
     PRACTICE_ENDPOINTS.practiceQuestions(subjectId),
+    {
+      params: {
+        chapterId: scope.chapterId ?? undefined,
+        lessonId: scope.lessonId ?? undefined,
+        size,
+      },
+    },
+  );
+  return unwrap(response);
+}
+
+export async function fetchPracticeQuestionCount(
+  subjectId: number,
+  scope: PracticeScope,
+) {
+  const response = await apiClient.get<BackendApiResponse<number>>(
+    PRACTICE_ENDPOINTS.practiceQuestionCount(subjectId),
     {
       params: {
         chapterId: scope.chapterId ?? undefined,
