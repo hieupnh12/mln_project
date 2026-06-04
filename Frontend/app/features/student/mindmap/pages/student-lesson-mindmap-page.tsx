@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router';
-import { ReactFlowProvider } from '@xyflow/react';
+import { ReactFlowProvider, getNodesBounds, getViewportForBounds } from '@xyflow/react';
 import type { Edge, Node } from '@xyflow/react';
+import { toPng } from 'html-to-image';
 
 import { fetchLessonDetailApi } from '~/features/teacher/course-structure/api/course-structure.api';
-import { showErrorToast } from '~/shared/utils/toast';
+import { showErrorToast, showSuccessToast } from '~/shared/utils/toast';
 import CustomConceptNode from '~/features/knowledge-graph/components/CustomConceptNode';
 import { getMindmapRadialLayout, computeClustersAndLevels, applyMindmapStyles } from '~/features/knowledge-graph/utils/mindmap-layout.util';
 import { StudentMindmapCanvas } from '../components/student-mindmap-canvas';
@@ -161,6 +162,44 @@ export function StudentLessonMindmapPage() {
     return { visibleNodes: layoutedNodes, visibleEdges: layoutedEdges };
   }, [nodes, edges]);
 
+  const handleDownload = () => {
+    if (visibleNodes.length === 0) return;
+    
+    showSuccessToast("Đang chuẩn bị ảnh tải xuống...");
+    
+    setTimeout(() => {
+      const nodesBounds = getNodesBounds(visibleNodes);
+      const padding = 100;
+      const imageWidth = nodesBounds.width + padding * 2;
+      const imageHeight = nodesBounds.height + padding * 2;
+      const viewportProps = getViewportForBounds(nodesBounds, imageWidth, imageHeight, 0.5, 2, padding);
+      
+      const viewport = document.querySelector('.react-flow__viewport') as HTMLElement;
+      if (!viewport) return;
+
+      toPng(viewport, {
+        backgroundColor: '#fcf8f9',
+        width: imageWidth,
+        height: imageHeight,
+        pixelRatio: 4, // Tăng độ nét gấp 4 lần (Ultra HD)
+        style: {
+          width: `${imageWidth}px`,
+          height: `${imageHeight}px`,
+          transform: `translate(${viewportProps.x}px, ${viewportProps.y}px) scale(${viewportProps.zoom})`,
+        },
+      })
+        .then((dataUrl) => {
+          const a = document.createElement('a');
+          a.setAttribute('download', `Sodo-${lessonTitle}.png`);
+          a.setAttribute('href', dataUrl);
+          a.click();
+        })
+        .catch((err) => {
+          showErrorToast("Lỗi tải ảnh: " + err.message);
+        });
+    }, 100);
+  };
+
   if (isLoading) {
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-[var(--color-background)]">
@@ -191,6 +230,16 @@ export function StudentLessonMindmapPage() {
             </h1>
           </div>
         </div>
+
+        {hasMindmap && (
+          <button
+            onClick={handleDownload}
+            className="flex items-center gap-2 rounded-lg bg-[var(--color-primary)] px-4 py-2 text-sm font-semibold text-white hover:bg-opacity-90 transition-colors shadow-sm"
+          >
+            <span className="material-symbols-outlined text-xl">download</span>
+            Tải chất lượng cao
+          </button>
+        )}
       </div>
 
       {/* Main Canvas & fallback */}

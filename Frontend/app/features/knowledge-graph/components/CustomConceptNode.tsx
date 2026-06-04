@@ -22,6 +22,8 @@ export default function CustomConceptNode({ id, data, selected }: NodeProps) {
   }, [isEditing, label]);
   const nodeRole = data?.nodeRole as string | undefined;
   const onToggleCollapse = data?.onToggleCollapse as ((id: string) => void) | undefined;
+  const direction = (data?.direction as 'left' | 'right' | undefined) || 'right';
+  const isLeft = direction === 'left';
 
   // Determine styling based on Cluster & Level
 
@@ -203,15 +205,15 @@ export default function CustomConceptNode({ id, data, selected }: NodeProps) {
         onDoubleClickEdit?.();
       }}
       className={`
-        relative px-5 py-3 w-[280px]
-        rounded-full flex items-center justify-center
+        relative flex items-center justify-center
+        ${level === 0 ? 'aspect-square min-w-[96px] max-w-[180px] rounded-full p-4' : 'px-5 py-2 min-w-[60px] max-w-[300px] rounded-full'}
         ${branchColor ? '' : theme.bg}
         ${selected ? 'ring-4 ring-white/50 ring-offset-2 ring-offset-black/10' : ''}
       `}
       style={{
         backgroundColor: branchColor || undefined,
-        color: branchColor ? '#ffffff' : undefined,
-        boxShadow: selected ? '0 10px 25px rgba(0,0,0,0.2)' : '0 4px 15px rgba(0,0,0,0.1)',
+        color: branchColor ? '#111827' : undefined,
+        boxShadow: selected ? '6px 6px 16px rgba(0,0,0,0.5)' : '4px 4px 8px rgba(0,0,0,0.4)',
       }}
     >
       {/* Handles with IDs for precise edge routing */}
@@ -226,17 +228,6 @@ export default function CustomConceptNode({ id, data, selected }: NodeProps) {
       <Handle id="source-bottom" type="source" position={Position.Bottom} className="opacity-0 w-0 h-0" />
 
       <div className="flex flex-col gap-1.5 w-full">
-        <div className="flex items-center justify-between gap-2">
-          <span className={`text-[9px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded-full ${theme.badge}`}>
-            {theme.badgeText}
-          </span>
-          {level > 0 && (
-            <span className="text-[9px] opacity-75 font-semibold">
-              Cấp {level}
-            </span>
-          )}
-        </div>
-
         {isEditing ? (
           <textarea
             autoFocus
@@ -252,18 +243,18 @@ export default function CustomConceptNode({ id, data, selected }: NodeProps) {
               if (e.key === 'Escape') onCancelEdit?.();
             }}
             rows={Math.max(2, Math.min(5, Math.ceil(localEditValue.length / 35)))}
-            className="w-full bg-white/95 text-gray-900 px-2.5 py-1.5 rounded-md font-medium outline-none ring-2 ring-blue-500/70 focus:ring-blue-600 border-none shadow-inner nodrag resize-none leading-snug text-sm"
+            className="w-full bg-white/95 text-gray-900 px-2.5 py-1.5 rounded-md font-semibold outline-none ring-2 ring-blue-500/70 focus:ring-blue-600 border-none shadow-inner nodrag resize-none leading-snug text-sm"
           />
         ) : (
-          <p className="leading-snug break-words font-medium">
+          <p className="leading-snug break-words font-semibold text-center">
             {label}
           </p>
         )}
       </div>
 
-      {/* Right Toggle Collapse/Expand Button */}
+      {/* Toggle Collapse/Expand Button */}
       {hasChildren && onToggleCollapse && (
-        <div className="absolute -right-3 top-1/2 -translate-y-1/2 z-10 nodrag">
+        <div className={`absolute ${isLeft ? '-left-3' : '-right-3'} top-1/2 -translate-y-1/2 z-10 nodrag`}>
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -273,7 +264,11 @@ export default function CustomConceptNode({ id, data, selected }: NodeProps) {
             type="button"
             title={isCollapsed ? 'Mở rộng' : 'Thu gọn'}
           >
-            {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+            {isLeft ? (
+              isCollapsed ? <ChevronLeft size={14} /> : <ChevronRight size={14} />
+            ) : (
+              isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />
+            )}
           </button>
         </div>
       )}

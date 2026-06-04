@@ -79,19 +79,22 @@ export function TeacherMindmapCanvas({
     >
       <Background variant={BackgroundVariant.Dots} gap={12} size={1} color="var(--color-outline-variant)" />
       <Controls showInteractive={true} />
-      <MiniMap maskColor="var(--color-surface-dim)" />
+      <MiniMap 
+        maskColor="rgba(220, 217, 218, 0.6)" 
+        nodeColor={(n) => (n.data?.branchColor as string) || '#232733'}
+      />
       <Panel position="top-right" className="m-4">
         <div className="bg-white border border-[var(--color-outline-variant)] px-3 py-1.5 rounded-lg shadow-sm">
           <p className="text-[10px] text-[var(--color-on-surface-variant)] italic">
-            Sơ đồ tự động tỏa ra 2 bên. Click icon để mở rộng nhánh.
+            Click icon để mở rộng/thu gọn nhánh.
           </p>
         </div>
       </Panel>
-      <MindmapLevelControls 
-        nodes={nodes} 
-        edges={edges} 
-        setNodes={setNodes} 
-        setFocusTarget={setFocusTarget} 
+      <MindmapLevelControls
+        nodes={nodes}
+        edges={edges}
+        setNodes={setNodes}
+        setFocusTarget={setFocusTarget}
       />
     </ReactFlow>
   );

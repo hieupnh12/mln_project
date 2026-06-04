@@ -47,20 +47,31 @@ export function StudentCoursePage() {
 
   function handleTabChange(tab: LearningTab) {
     setActiveTab(tab);
-    setSearchParams(tab === "lectures" ? {} : { tab }, { replace: true });
+    if (tab === "lectures") {
+      searchParams.delete("tab");
+    } else {
+      searchParams.set("tab", tab);
+    }
+    setSearchParams(searchParams, { replace: true });
   }
 
   useEffect(() => {
     setActiveTab(parseTabParam(searchParams.get("tab")));
   }, [searchParams]);
-  const [expandedChapterId, setExpandedChapterId] = useState<number | null>(null);
+  const chapterParam = searchParams.get("chapter");
+  const expandedChapterId = chapterParam ? Number(chapterParam) : null;
   const [selectedMaterialId, setSelectedMaterialId] = useState<number | null>(null);
 
   const subjectQuery = useCourseSubjectQuery(subjectId);
   const subject = subjectQuery.data;
 
   function handleToggleChapter(chapterId: number) {
-    setExpandedChapterId((current) => (current === chapterId ? null : chapterId));
+    if (expandedChapterId === chapterId) {
+      searchParams.delete("chapter");
+    } else {
+      searchParams.set("chapter", String(chapterId));
+    }
+    setSearchParams(searchParams, { replace: true });
     setSelectedMaterialId(null);
   }
 

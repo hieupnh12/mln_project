@@ -362,39 +362,33 @@ export function TeacherLessonMindmapPage() {
   }, [nodes, edges, setNodes, editingNodeId, pushHistory]);
 
   const copyPromptText = () => {
-    const prompt = `Bạn là một chuyên gia sư phạm và kiến trúc sư dữ liệu.
-Nhiệm vụ của bạn là đọc hiểu toàn bộ văn bản giáo trình ở cuối, TÓM GỌN KIẾN THỨC thành các TỪ KHÓA cốt lõi, và cấu trúc thành JSON dạng cây (Tree) để vẽ Sơ đồ tư duy (Mindmap).
+    const prompt = `TẠO CẤU TRÚC JSON DẠNG CÂY MẪU:
 
-QUY TẮC TỐI ƯU HÓA MINDMAP (TINH GỌN & HIỆU QUẢ):
-1. BẢN CHẤT CỦA MINDMAP LÀ TỪ KHÓA: Tuyệt đối KHÔNG bê nguyên văn câu dài vào Sơ đồ. Bạn phải đóng vai trò màng lọc: Đọc hiểu -> Rút trích cụm từ cốt lõi (Danh từ/Động từ chính) -> Lược bỏ sạch sẽ các từ nối, từ rườm rà.
-2. TÓM GỌN VÀ GỘP Ý: Nếu tài liệu quá dài dòng hoặc liệt kê lắt nhắt, hãy tự động tổng hợp chúng thành các cụm từ khái quát. Không tạo ra quá nhiều node con vụn vặt làm nặng nề sơ đồ (tối đa 5-6 node con cho 1 nhánh).
-3. TÔN TRỌNG LÕI KIẾN THỨC, NHƯNG ĐƯỢC PARAPHRASE: Không bịa đặt lý thuyết ngoài tài liệu, nhưng ĐƯỢC PHÉP tự do diễn đạt lại tài liệu gốc bằng ngôn từ cực kỳ ngắn gọn và súc tích.
-4. Nhãn (title): SIÊU NGẮN (tối đa 5-7 từ). TỰ ĐỘNG LƯỢC BỎ các số thứ tự, chữ cái đầu dòng (ví dụ: 1., a), +, -) vì cấu trúc phân nhánh của Mindmap đã tự thể hiện thứ bậc.
-5. Phân loại (role): Mỗi ý gán 1 trường "role": 'root' (gốc), 'chapter' (mục lớn), 'concept' (khái niệm/ý chính), 'timeline' (mốc thời gian), 'example' (ví dụ thực tế).
-6. Quyền mở rộng sư phạm: Bạn CÓ QUYỀN tự suy luận thêm ví dụ thực tế (role 'example') hoặc giải thích nôm na cực ngắn cho các thuật ngữ quá hàn lâm/trừu tượng, miễn là giúp học sinh dễ hiểu hơn.
-7. Đầu ra: CHỈ TRẢ VỀ DUY NHẤT một khối code JSON hợp lệ đúng chuẩn Cây Phân Cấp, tuyệt đối không tự ý thêm các trường đồ họa (như id, x, y) vào JSON.
-
-CẤU TRÚC JSON DẠNG CÂY MẪU:
 {
   "title": "${lessonTitle}",
   "role": "root",
   "children": [
     {
-      "title": "Tên mục lớn",
+      "title": "",
       "role": "chapter",
       "children": [
         {
-          "title": "Khái niệm cụ thể",
+          "title": "",
           "role": "concept",
           "children": []
         }
       ]
     }
   ]
-}
+} 
 
-DƯỚI ĐÂY LÀ VĂN BẢN BÀI HỌC CẦN BÓC TÁCH CHI TIẾT:
-[DÁN ĐOẠN VĂN BẢN THÔ CỦA BÀI HỌC "${lessonTitle}" VÀO ĐÂY]`;
+ÁP DỤNG PHƯƠNG PHÁP Mind Map
+1. Xác định rõ ý chính
+2. Phát triển các nhánh từ ý chính
+3. Sử dụng từ khóa
+4. Ví dụ ngắn gọn thực tế
+
+TỪ NỘI DUNG SAU:  [ ]`;
 
     navigator.clipboard.writeText(prompt);
     showSuccessToast('Đã sao chép prompt AI phiên bản Tối ưu Kiến thức vào clipboard!');
@@ -409,7 +403,7 @@ DƯỚI ĐÂY LÀ VĂN BẢN BÀI HỌC CẦN BÓC TÁCH CHI TIẾT:
   }
 
   return (
-    <div className="flex h-screen bg-[var(--color-background)] overflow-hidden">
+    <div className="fixed inset-0 z-[60] flex bg-[var(--color-background)] overflow-hidden">
       {/* Editor Canvas */}
       <main className="flex-1 h-full relative">
         {nodes.length === 0 ? (

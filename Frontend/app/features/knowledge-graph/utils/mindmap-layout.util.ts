@@ -5,13 +5,28 @@ export function getLayoutedElements(nodes: Node[], edges: Edge[], direction = 'L
   const dagreGraph = new dagre.graphlib.Graph();
   dagreGraph.setDefaultEdgeLabel(() => ({}));
 
-  const nodeWidth = 300; 
-  const nodeHeight = 80;
-
-  dagreGraph.setGraph({ rankdir: direction, nodesep: 25, ranksep: 120 });
+  dagreGraph.setGraph({ rankdir: direction, nodesep: 25, ranksep: 100 });
 
   nodes.forEach((node) => {
-    dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
+    // Dynamically estimate width and height based on text length to avoid overly sparse layout
+    const label = (node.data?.label as string) || '';
+    
+    // Root node has aspect-square and is generally larger
+    if (node.data?.level === 0) {
+      dagreGraph.setNode(node.id, { width: 140, height: 140 });
+      return;
+    }
+
+    const maxCharsPerLine = 35;
+    const lines = Math.max(1, Math.ceil(label.length / maxCharsPerLine));
+    
+    // Estimate width: (approx 7px per char) + (padding px-5 = 40px) + (collapse button = 24px)
+    const estimatedWidth = Math.min(280, Math.max(90, label.length * 7 + 64));
+    
+    // Estimate height: (approx 20px per line) + (padding py-2 = 16px)
+    const estimatedHeight = Math.max(40, lines * 20 + 16);
+
+    dagreGraph.setNode(node.id, { width: estimatedWidth, height: estimatedHeight });
   });
 
   edges.forEach((edge) => {
@@ -27,8 +42,8 @@ export function getLayoutedElements(nodes: Node[], edges: Edge[], direction = 'L
       targetPosition: 'left' as any,
       sourcePosition: 'right' as any,
       position: {
-        x: nodeWithPosition.x - nodeWidth / 2,
-        y: nodeWithPosition.y - nodeHeight / 2,
+        x: nodeWithPosition.x - nodeWithPosition.width / 2,
+        y: nodeWithPosition.y - nodeWithPosition.height / 2,
       },
     };
   });
@@ -127,6 +142,9 @@ export function getMindmapRadialLayout(nodes: Node[], edges: Edge[]) {
   layoutedLeft.nodes.forEach(n => {
     n.position.x += offsetLeftX;
     n.position.y += offsetLeftY;
+    if (n.id !== root.id) {
+      n.data = { ...n.data, direction: 'left' };
+    }
   });
 
   leftEdges.forEach(e => {
@@ -143,6 +161,9 @@ export function getMindmapRadialLayout(nodes: Node[], edges: Edge[]) {
   layoutedRight.nodes.forEach(n => {
     n.position.x += offsetRightX;
     n.position.y += offsetRightY;
+    if (n.id !== root.id) {
+      n.data = { ...n.data, direction: 'right' };
+    }
   });
 
   rightEdges.forEach(e => {
@@ -161,15 +182,23 @@ export function getMindmapRadialLayout(nodes: Node[], edges: Edge[]) {
   };
 }
 
-// Bảng màu hiện đại cho các nhánh
 const BRANCH_COLORS = [
-  '#ef4444', // Red
-  '#f59e0b', // Amber/Yellow
-  '#10b981', // Emerald/Green
-  '#3b82f6', // Blue
-  '#8b5cf6', // Violet
-  '#ec4899', // Pink
-  '#14b8a6', // Teal
+  '#FFB3BA', // Pastel Red
+  '#FFDFBA', // Pastel Orange
+  '#BAFFC9', // Pastel Green
+  '#BAE1FF', // Pastel Blue
+  '#E2BAFF', // Pastel Purple
+  '#FFC2E2', // Pastel Pink
+];
+
+// Màu dây (stroke) đậm hơn tương ứng với các nhánh
+const STROKE_COLORS = [
+  '#EF4444', // Darker Red
+  '#F97316', // Darker Orange
+  '#22C55E', // Darker Green
+  '#3B82F6', // Darker Blue
+  '#A855F7', // Darker Purple
+  '#EC4899', // Darker Pink
 ];
 
 // Hàm tự động tô màu các nhánh và đường nối
@@ -182,7 +211,7 @@ export function applyMindmapStyles(nodes: Node[], edges: Edge[]) {
   const newEdges = edges.map(e => ({ ...e }));
 
   const rootIndex = newNodes.findIndex(n => n.id === root.id);
-  newNodes[rootIndex].data.branchColor = '#0f172a'; // Root color: slate-900
+  // Do not set branchColor for root so it falls back to theme.bg (default styling)
 
   const adj = new Map<string, string[]>();
   newEdges.forEach(e => {
@@ -193,6 +222,7 @@ export function applyMindmapStyles(nodes: Node[], edges: Edge[]) {
   const chapters = adj.get(root.id) || [];
   chapters.forEach((chapterId, index) => {
     const color = BRANCH_COLORS[index % BRANCH_COLORS.length];
+    const strokeColor = STROKE_COLORS[index % STROKE_COLORS.length];
 
     const queue = [chapterId];
     while (queue.length > 0) {
@@ -200,6 +230,7 @@ export function applyMindmapStyles(nodes: Node[], edges: Edge[]) {
       const nodeIndex = newNodes.findIndex(n => n.id === current);
       if (nodeIndex !== -1) {
         newNodes[nodeIndex].data.branchColor = color;
+        newNodes[nodeIndex].data.strokeColor = strokeColor;
       }
       const children = adj.get(current) || [];
       queue.push(...children);
@@ -208,14 +239,15 @@ export function applyMindmapStyles(nodes: Node[], edges: Edge[]) {
 
   newEdges.forEach(edge => {
     const targetNode = newNodes.find(n => n.id === edge.target);
-    const color = (targetNode?.data?.branchColor as string) || '#ccc';
+    const stroke = (targetNode?.data?.strokeColor as string) || '#94a3b8';
     
     edge.type = 'default'; // Bezier curve
     edge.animated = false;
     edge.style = {
       ...edge.style,
-      stroke: color,
+      stroke: stroke,
       strokeWidth: 3,
+      filter: 'drop-shadow(3px 3px 4px rgba(0,0,0,0.3))',
     };
   });
 

@@ -93,14 +93,14 @@ export default function MindmapCanvas({ initialNodes, initialEdges, isEditable, 
       >
         <Background variant={BackgroundVariant.Dots} gap={12} size={1} color="var(--color-outline-variant)" />
         <Controls showInteractive={false} />
-        <MiniMap 
+        <MiniMap
           nodeColor={(n) => {
             if (n.data?.entityType === 'CHAPTER') return 'var(--color-secondary-container)';
             return 'var(--color-primary-fixed)';
           }}
           maskColor="var(--color-surface-dim)"
         />
-        
+
         {/* Toolbar UI for Teacher */}
         {isEditable && (
           <Panel position="top-left" className="m-4">
@@ -108,20 +108,20 @@ export default function MindmapCanvas({ initialNodes, initialEdges, isEditable, 
               <div className="glass-card px-4 py-2 rounded-lg shadow-sm flex gap-3 items-center bg-white border border-[var(--color-outline-variant)]">
                 <span className="text-sm font-semibold text-[var(--color-secondary)]">Công cụ vẽ</span>
                 <div className="h-4 w-[1px] bg-[var(--color-outline-variant)] mx-1"></div>
-                <button 
+                <button
                   className="px-3 py-1.5 text-xs font-medium bg-[var(--color-secondary-container)] text-[var(--color-on-secondary-container)] rounded-md hover:opacity-90 transition-opacity whitespace-nowrap"
                   onClick={() => handleAddNode('CHAPTER')}
                 >
                   + Thêm Chương
                 </button>
-                <button 
+                <button
                   className="px-3 py-1.5 text-xs font-medium bg-[var(--color-primary-container)] text-[var(--color-on-primary-container)] rounded-md hover:opacity-90 transition-opacity whitespace-nowrap"
                   onClick={() => handleAddNode('LESSON')}
                 >
                   + Thêm Bài học
                 </button>
                 <div className="h-4 w-[1px] bg-[var(--color-outline-variant)] mx-1"></div>
-                <button 
+                <button
                   className="px-3 py-1.5 text-xs font-medium bg-[var(--color-primary)] text-[var(--color-on-primary)] rounded-md hover:opacity-90 transition-opacity disabled:opacity-50 whitespace-nowrap"
                   onClick={handleSave}
                   disabled={isSaving}

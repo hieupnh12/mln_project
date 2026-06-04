@@ -21,7 +21,7 @@ export function StudentMindmapCanvas({ nodes, edges, nodeTypes, focusTarget, onN
         // Smart Focus: Find ALL visible descendants of the expanded node
         const descendants = new Set<string>();
         const queue = [focusTarget.id];
-        
+
         while (queue.length > 0) {
           const current = queue.shift();
           if (current) {
@@ -30,9 +30,9 @@ export function StudentMindmapCanvas({ nodes, edges, nodeTypes, focusTarget, onN
             queue.push(...children);
           }
         }
-        
+
         const focusNodes = nodes.filter((n: any) => descendants.has(n.id));
-        
+
         if (focusNodes.length > 0) {
           fitView({ nodes: focusNodes, duration: 800, padding: 0.2, maxZoom: 1.2 });
         } else {
@@ -61,7 +61,10 @@ export function StudentMindmapCanvas({ nodes, edges, nodeTypes, focusTarget, onN
     >
       <Background variant={BackgroundVariant.Dots} gap={12} size={1} color="var(--color-outline-variant)" />
       <Controls showInteractive={false} />
-      <MiniMap maskColor="var(--color-surface-dim)" />
+      <MiniMap 
+        maskColor="rgba(220, 217, 218, 0.6)" 
+        nodeColor={(n) => (n.data?.branchColor as string) || '#232733'}
+      />
       <Panel position="bottom-center" className="mb-6">
         <div className="bg-white border border-[var(--color-outline-variant)] px-4 py-2.5 rounded-xl shadow-md flex items-center gap-4 text-xs">
           <span className="flex items-center gap-1.5 text-[var(--color-on-surface-variant)]">
@@ -70,11 +73,11 @@ export function StudentMindmapCanvas({ nodes, edges, nodeTypes, focusTarget, onN
           </span>
         </div>
       </Panel>
-      <MindmapLevelControls 
-        nodes={nodes} 
-        edges={edges} 
-        setNodes={setNodes} 
-        setFocusTarget={setFocusTarget} 
+      <MindmapLevelControls
+        nodes={nodes}
+        edges={edges}
+        setNodes={setNodes}
+        setFocusTarget={setFocusTarget}
       />
     </ReactFlow>
   );
