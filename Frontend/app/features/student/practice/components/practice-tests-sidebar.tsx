@@ -28,6 +28,11 @@ export function PracticeTestsSidebar({
         }
       >
         <h3 className="mb-4 text-label-md font-bold text-primary">Các bài kiểm tra khác</h3>
+        {tests.length === 0 ? (
+          <p className="rounded-lg bg-surface-container-low p-3 text-label-sm text-on-surface-variant">
+            Chức năng làm bài kiểm tra sẽ được cập nhật ở phiên bản sau.
+          </p>
+        ) : null}
         <ul className="custom-scrollbar flex max-h-[calc(100vh-7rem)] flex-col gap-3 overflow-y-auto">
           {tests.map((test) => {
             const isActive = test.id === activeTestId;

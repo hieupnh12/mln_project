@@ -7,7 +7,7 @@ import type {
   QuestionType,
 } from "../types/question-library.types";
 
-/** Paths relative to api client base (`/api` in dev via Vite proxy → backend `/mlnStudy/api`). */
+/** Paths relative to api client base (`/api` in local development via Vite proxy). */
 export const QUESTION_LIBRARY_ENDPOINTS = {
   metadata: "/teacher/question-library/metadata",
   questions: "/teacher/question-library/questions",

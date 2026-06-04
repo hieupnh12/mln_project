@@ -14,7 +14,7 @@ import com.sed10.mln.study.dto.response.LessonResponse;
 import com.sed10.mln.study.service.LessonService;
 
 @RestController
-@RequestMapping("/lessons")
+@RequestMapping({"/api/lessons", "/lessons"})
 @RequiredArgsConstructor
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE)

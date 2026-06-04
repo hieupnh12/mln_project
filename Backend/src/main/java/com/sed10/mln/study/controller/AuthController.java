@@ -74,14 +74,20 @@ public class AuthController {
             );
             
             log.info("Generated JWT token for user: {} with role: {}", user.getEmail(), user.getRole());
+            String displayName = user.getFullName() == null || user.getFullName().isBlank()
+                    ? userInfo.getName()
+                    : user.getFullName();
             
             // Redirect to frontend with token and role
             String frontendRedirectUrl = String.format(
-                    "%s/auth/callback?token=%s&role=%s&userId=%d",
-                    frontendBaseUrl,
-                    URLEncoder.encode(token, StandardCharsets.UTF_8),
-                    URLEncoder.encode(user.getRole(), StandardCharsets.UTF_8),
-                    user.getId()
+                    "%s?token=%s&role=%s&userId=%d&name=%s&email=%s&avatarUrl=%s",
+                    buildFrontendUrl("/auth/callback"),
+                    encodeQueryValue(token),
+                    encodeQueryValue(user.getRole()),
+                    user.getId(),
+                    encodeQueryValue(displayName),
+                    encodeQueryValue(user.getEmail()),
+                    encodeQueryValue(userInfo.getPicture())
             );
             
             return ResponseEntity.status(302)
@@ -91,9 +97,17 @@ public class AuthController {
         } catch (Exception e) {
             log.error("Error handling Google callback: {}", e.getMessage(), e);
             return ResponseEntity.status(302)
-                    .header("Location", "http://localhost:5173/login?error=oauth_failed")
+                    .header("Location", buildFrontendUrl("/login?error=oauth_failed"))
                     .build();
         }
+    }
+
+    private String buildFrontendUrl(String path) {
+        return frontendBaseUrl.replaceAll("/+$", "") + path;
+    }
+
+    private String encodeQueryValue(String value) {
+        return URLEncoder.encode(value == null ? "" : value, StandardCharsets.UTF_8);
     }
     
     @PostMapping("/validate-token")

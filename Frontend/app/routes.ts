@@ -31,4 +31,5 @@ export default [
     route("questions", "routes/teacher-questions.tsx"),
     route("quizzes", "routes/teacher-quizzes.tsx"),
   ]),
+  route("*", "routes/not-found.tsx"),
 ] satisfies RouteConfig;

@@ -11,7 +11,7 @@ type PracticeOptionButtonProps = {
 
 function optionClassName(state: PracticeOptionVisualState): string {
   const base =
-    "group flex w-full items-start gap-4 rounded-xl border p-5 text-left transition-all duration-250";
+    "group flex w-full items-start gap-3 rounded-xl border px-4 py-3 text-left transition-all duration-250";
 
   switch (state) {
     case "correct":
@@ -27,7 +27,7 @@ function optionClassName(state: PracticeOptionVisualState): string {
 
 function badgeClassName(state: PracticeOptionVisualState): string {
   const base =
-    "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-label-md font-bold transition-colors";
+    "flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-label-md font-bold transition-colors";
 
   switch (state) {
     case "correct":
@@ -62,7 +62,7 @@ export function PracticeOptionButton({
           label
         )}
       </span>
-      <span className="pt-0.5 text-body-md">{text}</span>
+      <span className="min-w-0 pt-0.5 text-body-sm leading-relaxed md:text-body-md">{text}</span>
     </button>
   );
 }

@@ -108,6 +108,9 @@ Desktop.ini
 .env.local
 .env.*.local
 .env.test
+.env.production.example
+.env.production
+.env.test
 config.local.js
 local.properties
 
@@ -201,3 +204,4 @@ secrets.yaml
 
 # Environment Variables
 .env
+ENVIRONMENTS.md

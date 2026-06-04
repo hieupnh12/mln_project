@@ -405,7 +405,7 @@ export function QuestionLibraryManager() {
           {metadataQuery.isError ? "metadata" : null}
           {metadataQuery.isError && questionsQuery.isError ? ", " : null}
           {questionsQuery.isError ? "danh sách câu hỏi" : null}). Backend:{" "}
-          <code className="font-mono text-label-sm">http://localhost:8080</code>
+          <code className="font-mono text-label-sm">VITE_API_BASE_URL</code>
         </p>
       )}
 
