@@ -1,8 +1,9 @@
-import { StudentMaterialIcon as MaterialIcon } from "../../components/student-material-icon";
-import { useMaterialDetailQuery } from "../hooks/use-course-learning-queries";
 import type { SubjectListItem } from "../../types/student.types";
+import { studentCourseFeaturedQuote } from "../constants/student-course.constants";
+import { useMaterialDetailQuery } from "../hooks/use-course-learning-queries";
 import { resolveCourseCoverImage } from "../utils/resolve-course-cover-image";
 import { CourseCoverPanel } from "./course-cover-panel";
+import { CourseQuotePanel } from "./course-quote-panel";
 import { CourseSlideViewer } from "./course-slide-viewer";
 import { CourseYoutubeViewer } from "./course-youtube-viewer";
 
@@ -26,11 +27,17 @@ export function CourseMaterialViewer({
 
   if (selectedMaterialId == null) {
     return (
-      <CourseCoverPanel
-        coverImageUrl={coverImageUrl}
-        description={subject?.description}
-        subjectTitle={subject?.title ?? "Đang tải môn học..."}
-      />
+      <div className="space-y-md">
+        <CourseCoverPanel
+          coverImageUrl={coverImageUrl}
+          description={subject?.description}
+          subjectTitle={subject?.title ?? "Đang tải môn học..."}
+        />
+        <CourseQuotePanel
+          author={studentCourseFeaturedQuote.author}
+          quote={studentCourseFeaturedQuote.quote}
+        />
+      </div>
     );
   }
 
@@ -74,20 +81,10 @@ export function CourseMaterialViewer({
         <CourseSlideViewer material={material} />
       )}
 
-      <aside className="rounded-lg border-l-4 border-secondary-container bg-primary-container p-md text-white shadow-lg">
-        <div className="mb-2 flex items-center gap-2 text-secondary-container">
-          <MaterialIcon>info</MaterialIcon>
-          <span className="text-label-md font-semibold uppercase tracking-wide">
-            {material.contentType === "YOUTUBE" ? "Video bài giảng" : "Slide bài giảng"}
-          </span>
-        </div>
-        <p className="text-headline-md font-semibold">{material.title}</p>
-        {material.contentType === "SLIDE_DECK" ? (
-          <p className="mt-2 text-label-md text-secondary-container/80">
-            {material.slides.length} slide
-          </p>
-        ) : null}
-      </aside>
+      <CourseQuotePanel
+        author={studentCourseFeaturedQuote.author}
+        quote={studentCourseFeaturedQuote.quote}
+      />
     </div>
   );
 }

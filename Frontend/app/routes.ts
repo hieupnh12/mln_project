@@ -13,6 +13,15 @@ export default [
     route("dashboard", "routes/student-dashboard-redirect.tsx"),
     route("courses/:courseId", "routes/student-course.tsx"),
     route("courses/:courseId/practice", "routes/student-practice.tsx"),
+    route("courses/:courseId/exams/:quizId", "routes/student-exam-session.tsx"),
+    route(
+      "courses/:courseId/exams/:quizId/summary/:attemptId",
+      "routes/student-exam-summary.tsx",
+    ),
+    route(
+      "courses/:courseId/exams/:quizId/review/:attemptId",
+      "routes/student-exam-review.tsx",
+    ),
     route("mindmap-preview", "routes/student-mindmap.tsx"),
     route("lessons/:lessonId/mindmap", "routes/student-lesson-mindmap.tsx"),
     route("chapters/:chapterId/flashcards", "routes/student-chapter-flashcards.tsx"),

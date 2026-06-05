@@ -28,4 +28,14 @@ public class StudentPracticeController {
                 .result(studentPracticeService.listPracticeQuestions(subjectId, chapterId, lessonId, size))
                 .build();
     }
+
+    @GetMapping("/courses/{subjectId}/practice-question-count")
+    public ApiResponse<Long> countPracticeQuestions(
+            @PathVariable Long subjectId,
+            @RequestParam(required = false) Long chapterId,
+            @RequestParam(required = false) Long lessonId) {
+        return ApiResponse.<Long>builder()
+                .result(studentPracticeService.countPracticeQuestions(subjectId, chapterId, lessonId))
+                .build();
+    }
 }

@@ -7,6 +7,7 @@ import { getAuthSession } from "../services/auth-session.service";
 import type { AppUserRole, AuthSession } from "../types/auth-session.types";
 import { getRoleHomePath } from "../utils/role-home-path";
 import { showInfoToast } from "../utils/toast";
+import { PageLoadingShell } from "./page-loading-shell";
 
 type ProtectedRouteProps = {
   allowedRoles?: readonly AppUserRole[];
@@ -37,18 +38,6 @@ function getSafeReturnPath(
   }
 
   return getRoleHomePath(session.role);
-}
-
-function ProtectedRouteLoading() {
-  return (
-    <main className="grid min-h-svh place-items-center bg-background px-margin-mobile text-on-surface">
-      <div className="w-full max-w-sm rounded-xl border border-outline-variant/40 bg-surface-container-lowest p-md text-center shadow-[0_12px_30px_rgba(35,39,51,0.06)]">
-        <p className="text-label-md font-medium text-on-surface-variant">
-          Đang kiểm tra quyền truy cập...
-        </p>
-      </div>
-    </main>
-  );
 }
 
 export function ProtectedRoute({
@@ -91,7 +80,12 @@ export function ProtectedRoute({
   }, [allowedRoles, location.pathname, location.search, location.state, navigate, redirectTo]);
 
   if (!isAuthorized) {
-    return <ProtectedRouteLoading />;
+    return (
+      <PageLoadingShell
+        description="Vui lòng chờ trong giây lát để hệ thống xác thực tài khoản của bạn..."
+        title="Đang kiểm tra quyền truy cập"
+      />
+    );
   }
 
   return <>{children}</>;

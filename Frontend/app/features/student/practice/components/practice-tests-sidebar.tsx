@@ -14,6 +14,10 @@ export function PracticeTestsSidebar({
   onSelectTest,
   embedded = false,
 }: PracticeTestsSidebarProps) {
+  if (tests.length === 0) {
+    return null;
+  }
+
   const wrapperClass = embedded
     ? "w-full"
     : "hidden w-full shrink-0 lg:block lg:max-w-xs xl:max-w-sm";
@@ -27,15 +31,13 @@ export function PracticeTestsSidebar({
             : "sticky top-20 rounded-xl border border-outline-variant/20 bg-surface-container-lowest p-gutter shadow-sm"
         }
       >
-        <h3 className="mb-4 text-label-md font-bold text-primary">Các bài kiểm tra khác</h3>
-        {tests.length === 0 ? (
-          <p className="rounded-lg bg-surface-container-low p-3 text-label-sm text-on-surface-variant">
-            Chức năng làm bài kiểm tra sẽ được cập nhật ở phiên bản sau.
-          </p>
-        ) : null}
+        <h3 className="mb-4 text-label-md font-bold text-primary">
+          Các bài kiểm tra khác
+        </h3>
         <ul className="custom-scrollbar flex max-h-[calc(100vh-7rem)] flex-col gap-3 overflow-y-auto">
           {tests.map((test) => {
             const isActive = test.id === activeTestId;
+
             return (
               <li key={test.id}>
                 <button
@@ -50,8 +52,12 @@ export function PracticeTestsSidebar({
                   <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-secondary-container text-primary">
                     <MaterialIcon>quiz</MaterialIcon>
                   </div>
-                  <p className="text-label-md font-semibold text-primary">{test.title}</p>
-                  <p className="mt-1 text-label-sm text-on-surface-variant">{test.description}</p>
+                  <p className="text-label-md font-semibold text-primary">
+                    {test.title}
+                  </p>
+                  <p className="mt-1 text-label-sm text-on-surface-variant">
+                    {test.description}
+                  </p>
                   <p className="mt-2 text-label-sm text-on-surface-variant">
                     {test.questionCountLabel} · {test.durationLabel}
                   </p>

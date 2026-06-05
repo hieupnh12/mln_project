@@ -1,13 +1,11 @@
-import { StudentMaterialIcon as MaterialIcon } from "../../components/student-material-icon";
 import { usePracticeCountdown } from "../hooks/use-practice-countdown";
 import type {
   PracticeAnswerState,
   PracticeModeSettings,
   PracticeQuestion,
-  PracticeSessionStats,
 } from "../types/practice.types";
+import { PracticeAnswerFeedback } from "./practice-answer-feedback";
 import { PracticeCountdownBar } from "./practice-countdown-bar";
-import { PracticeExplanationPanel } from "./practice-explanation-panel";
 import { PracticeOptionsList } from "./practice-options-list";
 import { PracticeQuestionCard } from "./practice-question-card";
 
@@ -42,10 +40,10 @@ export function PracticeSessionContent({
     onComplete: onCountdownComplete,
   });
 
-  const showContinue = answerState === "answered" && !settings.autoAdvance;
+  const showFeedback = answerState === "answered";
 
   return (
-    <div className="relative flex flex-col gap-4 md:gap-5">
+    <div className="relative flex flex-col gap-3 pb-8 md:gap-4">
       <PracticeCountdownBar
         progressPercent={progressPercent}
         variant={countdownVariant}
@@ -65,30 +63,13 @@ export function PracticeSessionContent({
         selectedOptionIndex={selectedOptionIndex}
       />
 
-      <div>
-        <PracticeExplanationPanel
+      {showFeedback ? (
+        <PracticeAnswerFeedback
+          autoAdvance={settings.autoAdvance}
+          autoAdvanceSeconds={settings.autoAdvanceSeconds}
           explanation={currentQuestion.explanation}
-          visible={answerState === "answered"}
+          onContinue={onContinue}
         />
-      </div>
-
-      {showContinue ? (
-        <div className="flex justify-end">
-          <button
-            className="flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-label-md font-bold text-on-primary shadow-md shadow-primary/10 transition hover:opacity-90 active:scale-95"
-            onClick={onContinue}
-            type="button"
-          >
-            Tiếp theo
-            <MaterialIcon>arrow_forward</MaterialIcon>
-          </button>
-        </div>
-      ) : null}
-
-      {settings.autoAdvance && answerState === "answered" ? (
-        <p className="text-center text-label-sm text-on-surface-variant">
-          Tự chuyển câu sau {settings.autoAdvanceSeconds} giây…
-        </p>
       ) : null}
     </div>
   );

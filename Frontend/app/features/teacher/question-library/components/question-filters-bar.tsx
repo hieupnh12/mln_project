@@ -16,6 +16,9 @@ type QuestionFiltersBarProps = {
   canApprove: boolean;
   approvingSelected: boolean;
   canDelete: boolean;
+  deletingSelected: boolean;
+  canSelectChapter: boolean;
+  canSelectLesson: boolean;
   courseOptions: string[];
   chapterOptions: string[];
   lessonOptions: string[];
@@ -33,6 +36,9 @@ export function QuestionFiltersBar({
   canApprove,
   approvingSelected,
   canDelete,
+  deletingSelected,
+  canSelectChapter,
+  canSelectLesson,
   courseOptions,
   chapterOptions,
   lessonOptions,
@@ -77,10 +83,13 @@ export function QuestionFiltersBar({
           ))}
         </FilterSelect>
         <FilterSelect
+          disabled={!canSelectChapter}
           onChange={(chapter) => onChange({ ...filters, chapter })}
           value={filters.chapter}
         >
-          <option value="all">Chương</option>
+          <option value="all">
+            {canSelectChapter ? "Chương" : "Chọn môn trước"}
+          </option>
           {chapterOptions.map((item) => (
             <option key={item} value={item}>
               {item}
@@ -88,10 +97,13 @@ export function QuestionFiltersBar({
           ))}
         </FilterSelect>
         <FilterSelect
+          disabled={!canSelectLesson}
           onChange={(lesson) => onChange({ ...filters, lesson })}
           value={filters.lesson}
         >
-          <option value="all">Bài học</option>
+          <option value="all">
+            {canSelectLesson ? "Bài học" : "Chọn chương trước"}
+          </option>
           {lessonOptions.map((item) => (
             <option key={item} value={item}>
               {item}
@@ -175,15 +187,15 @@ export function QuestionFiltersBar({
           <button
             className={
               canDelete
-                ? "flex items-center gap-2 rounded-lg px-4 py-2 text-label-md font-medium text-error transition hover:bg-error-container/20"
+                ? "flex items-center gap-2 rounded-lg px-4 py-2 text-label-md font-medium text-error transition hover:bg-error-container/20 disabled:cursor-not-allowed disabled:opacity-60"
                 : "flex cursor-not-allowed items-center gap-2 rounded-lg px-4 py-2 text-label-md font-medium text-on-surface-variant/40"
             }
-            disabled={!canDelete}
+            disabled={!canDelete || deletingSelected}
             onClick={onDeleteSelected}
             type="button"
           >
-            <MaterialIcon>delete_sweep</MaterialIcon>
-            Xóa nhiều
+            <MaterialIcon>{deletingSelected ? "sync" : "delete_sweep"}</MaterialIcon>
+            {deletingSelected ? "Đang xóa..." : "Xóa nhiều"}
           </button>
         </div>
       </div>
@@ -193,16 +205,19 @@ export function QuestionFiltersBar({
 
 function FilterSelect({
   children,
+  disabled = false,
   onChange,
   value,
 }: {
   children: ReactNode;
+  disabled?: boolean;
   onChange: (value: string) => void;
   value: string;
 }) {
   return (
     <select
-      className="rounded-lg border-outline-variant/30 bg-white p-2 text-label-md font-medium text-on-surface focus:ring-2 focus:ring-primary/20"
+      className="min-w-0 w-full rounded-lg border-outline-variant/30 bg-white p-2 text-label-md font-medium text-on-surface focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:bg-surface-container-high disabled:text-on-surface-variant/60"
+      disabled={disabled}
       onChange={(event) => onChange(event.target.value)}
       value={value}
     >

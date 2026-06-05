@@ -246,7 +246,7 @@ function LessonBlock({
       </div>
 
       <NameFormModal
-        initialValue={lesson.title}
+        initialValue={lesson.title ?? ""}
         isPending={updateMutation.isPending}
         label="Tên bài học"
         onClose={() => setEditOpen(false)}
