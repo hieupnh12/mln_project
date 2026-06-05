@@ -1,6 +1,7 @@
 package com.sed10.mln.study.controller;
 
 import com.sed10.mln.study.dto.request.SaveMindmapRequest;
+import com.sed10.mln.study.dto.response.ApiResponse;
 import com.sed10.mln.study.dto.response.MindmapResponse;
 import com.sed10.mln.study.service.KnowledgeGraphService;
 import lombok.RequiredArgsConstructor;
@@ -15,13 +16,17 @@ public class KnowledgeGraphController {
     private final KnowledgeGraphService knowledgeGraphService;
 
     @GetMapping("/{courseId}/mindmap")
-    public ResponseEntity<MindmapResponse> getMindmap(@PathVariable Long courseId) {
+    public ResponseEntity<ApiResponse<MindmapResponse>> getMindmap(@PathVariable Long courseId) {
         MindmapResponse response = knowledgeGraphService.getMindmap(courseId);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(ApiResponse.<MindmapResponse>builder()
+                .code(0)
+                .message("Success")
+                .result(response)
+                .build());
     }
 
     @PostMapping("/{courseId}/mindmap")
-    public ResponseEntity<Void> saveMindmap(
+    public ResponseEntity<ApiResponse<Void>> saveMindmap(
             @PathVariable Long courseId,
             @RequestBody SaveMindmapRequest request) {
         
@@ -30,6 +35,9 @@ public class KnowledgeGraphController {
         }
 
         knowledgeGraphService.saveMindmap(courseId, request);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(ApiResponse.<Void>builder()
+                .code(0)
+                .message("Mindmap saved successfully")
+                .build());
     }
 }

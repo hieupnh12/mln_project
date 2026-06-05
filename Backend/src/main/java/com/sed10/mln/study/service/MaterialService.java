@@ -59,6 +59,8 @@ public class MaterialService {
         Lesson lesson = lessonRepo.findById(lessonId)
                 .orElseThrow(() -> new AppException(ErrorCode.LESSON_NOT_FOUND));
 
+        checkLessonOwnership(lesson);
+
         if (hasYoutubeUrl(youtubeUrl)) {
             return createYoutubeMaterial(lesson, title, youtubeUrl);
         }
@@ -69,6 +71,8 @@ public class MaterialService {
     public MaterialDetailResponse replaceSlideDeck(Long materialId, String title, MultipartFile[] files) {
         Material material = materialRepo.findById(materialId)
                 .orElseThrow(() -> new AppException(ErrorCode.MATERIAL_NOT_FOUND));
+
+        checkLessonOwnership(material.getLesson());
 
         if (!ContentType.SLIDE_DECK.name().equals(material.getContentType())) {
             throw new AppException(ErrorCode.MATERIAL_CONTENT_CONFLICT);
@@ -106,6 +110,8 @@ public class MaterialService {
         Material material = materialRepo.findById(materialId)
                 .orElseThrow(() -> new AppException(ErrorCode.MATERIAL_NOT_FOUND));
 
+        checkLessonOwnership(material.getLesson());
+
         if (ContentType.SLIDE_DECK.name().equals(material.getContentType())) {
             fileStorageService.deleteMaterialFiles(materialId);
         }
@@ -116,6 +122,8 @@ public class MaterialService {
     public void updateMaterial(Long materialId, MaterialRequest materialRequest) {
         Material material = materialRepo.findById(materialId)
                 .orElseThrow(() -> new AppException(ErrorCode.MATERIAL_NOT_FOUND));
+
+        checkLessonOwnership(material.getLesson());
 
         if (StringUtils.hasText(materialRequest.getTitle())) {
             material.setTitle(materialRequest.getTitle().trim());
@@ -250,5 +258,12 @@ public class MaterialService {
             throw new AppException(ErrorCode.INVALID_YOUTUBE_URL);
         }
         return YoutubeUrlUtil.normalize(youtubeUrl);
+    }
+
+    private void checkLessonOwnership(Lesson lesson) {
+        com.sed10.mln.study.entity.User currentUser = com.sed10.mln.study.security.SecurityUtils.getCurrentUser();
+        if (!lesson.getTeacher().getId().equals(currentUser.getId()) && !currentUser.getRole().equalsIgnoreCase("admin")) {
+            throw new AppException(ErrorCode.UNAUTHORIZED_ACCESS);
+        }
     }
 }

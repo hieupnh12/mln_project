@@ -32,4 +32,7 @@ public class QuizAttempt {
 
     @Column(name = "attempted_at")
     LocalDateTime attemptedAt;
+
+    @Column(name = "elapsed_seconds")
+    Integer elapsedSeconds;
 }

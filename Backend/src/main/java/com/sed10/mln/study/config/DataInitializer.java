@@ -65,34 +65,30 @@ public class DataInitializer implements CommandLineRunner {
             
             lessonRepository.saveAll(List.of(lesson1, lesson2, lesson3));
 
-            // Seed flashcards for Concept (Lesson 1)
+            // Seed flashcards for Chapter 1
             flashcardRepository.saveAll(List.of(
                     Flashcard.builder()
-                            .lesson(lesson1)
+                            .chapter(chapter1)
                             .term("Triết học là gì?")
                             .definition("Hệ thống tri thức lý luận chung nhất của con người về thế giới, về bản thân con người và vị trí của con người trong thế giới đó.")
                             .build(),
                     Flashcard.builder()
-                            .lesson(lesson1)
+                            .chapter(chapter1)
                             .term("Thế giới quan là gì?")
                             .definition("Toàn bộ những quan điểm, quan niệm của con người về thế giới và về bản thân con người, về cuộc sống và vị trí của con người trong cuộc sống đó.")
                             .build(),
                     Flashcard.builder()
-                            .lesson(lesson1)
+                            .chapter(chapter1)
                             .term("Vấn đề cơ bản của triết học là gì?")
                             .definition("Mối quan hệ giữa vật chất và ý thức (giữa tư duy và tồn tại). Gồm 2 mặt: Bản thể luận (vật chất hay ý thức có trước) và Nhận thức luận (con người có nhận thức được thế giới không).")
-                            .build()
-            ));
-
-            // Seed flashcards for Dialectics (Lesson 2)
-            flashcardRepository.saveAll(List.of(
+                            .build(),
                     Flashcard.builder()
-                            .lesson(lesson2)
+                            .chapter(chapter1)
                             .term("Phép biện chứng là gì?")
                             .definition("Học thuyết về sự liên hệ phổ biến và sự phát triển dưới hình thức hoàn bị nhất, sâu sắc nhất và không phiến diện.")
                             .build(),
                     Flashcard.builder()
-                            .lesson(lesson2)
+                            .chapter(chapter1)
                             .term("Quy luật lượng - chất?")
                             .definition("Chỉ ra cách thức của sự vận động và phát triển: Những thay đổi dần dần về lượng đạt đến giới hạn (độ) sẽ dẫn đến sự thay đổi nhảy vọt về chất.")
                             .build()

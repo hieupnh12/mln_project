@@ -19,14 +19,23 @@ export function useCourseSubjectQuery(subjectId: number | null) {
   });
 }
 
-export function useCourseChaptersQuery(subjectId: number | null) {
+type CourseChaptersQueryOptions = {
+  enabled?: boolean;
+};
+
+export function useCourseChaptersQuery(
+  subjectId: number | null,
+  options: CourseChaptersQueryOptions = {},
+) {
+  const { enabled = true } = options;
+
   return useQuery({
     queryKey:
       subjectId == null
         ? COURSE_LEARNING_QUERY_KEYS.root
         : COURSE_LEARNING_QUERY_KEYS.chapters(subjectId),
     queryFn: () => getChaptersBySubjectId(subjectId as number),
-    enabled: isBrowser && subjectId != null && !Number.isNaN(subjectId),
+    enabled: enabled && isBrowser && subjectId != null && !Number.isNaN(subjectId),
   });
 }
 

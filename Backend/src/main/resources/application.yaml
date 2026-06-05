@@ -7,7 +7,7 @@ springdotenv:
 # false = tắt Basic Auth khi dev/test API (Postman). Production: đặt true hoặc APP_SECURITY_ENABLED=true
 app:
   security:
-    enabled: ${APP_SECURITY_ENABLED:false}
+    enabled: ${APP_SECURITY_ENABLED:true}
   cors:
     allowed-origin-patterns: ${CORS_ALLOWED_ORIGIN_PATTERNS:http://localhost:*,http://127.0.0.1:*}
   libreoffice:
@@ -28,6 +28,10 @@ server:
 spring:
   config:
     import: optional:file:../.env[.properties]
+  devtools:
+    restart:
+      # Tránh ClassNotFoundException (ApiResponse, controller) sau hot-reload
+      enabled: false
   application:
     name: web-sales-backend
 
@@ -67,7 +71,9 @@ spring:
       max-request-size: 100MB
 
 frontend:
+
   base-url: ${FRONTEND_BASE_URL:http://localhost:5173}
+
 
 jwt:
   signerKey: ${JWT_SIGNER_KEY:jwtSecretKey12345678901234567890123456789012345678901234567890}

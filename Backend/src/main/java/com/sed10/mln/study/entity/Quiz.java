@@ -62,4 +62,10 @@ public class Quiz {
 
     @Column(name = "updated_at")
     LocalDateTime updatedAt;
+
+    @Column(name = "available_from")
+    LocalDateTime availableFrom;
+
+    @Column(name = "available_until")
+    LocalDateTime availableUntil;
 }

@@ -8,7 +8,7 @@ import java.util.List;
 
 @Repository
 public interface FlashcardRepository extends JpaRepository<Flashcard, Long> {
-    List<Flashcard> findByLessonId(Long lessonId);
-    long countByLessonId(Long lessonId);
-    void deleteByLessonId(Long lessonId);
+    List<Flashcard> findByChapterId(Long chapterId);
+    long countByChapterId(Long chapterId);
+    void deleteByChapterId(Long chapterId);
 }

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
 
 import { showErrorToast, showSuccessToast } from "~/shared/utils/toast";
 
@@ -25,7 +25,9 @@ type CourseStructureManagerProps = {
 };
 
 export function CourseStructureManager({ subjectId }: CourseStructureManagerProps) {
-  const [activeChapterId, setActiveChapterId] = useState<number | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const chapterParam = searchParams.get("chapter");
+  const activeChapterId = chapterParam ? Number(chapterParam) : null;
   const [createChapterOpen, setCreateChapterOpen] = useState(false);
   const [editChapter, setEditChapter] = useState<CourseStructureChapter | null>(null);
   const [deleteChapterTarget, setDeleteChapterTarget] = useState<DeleteTarget | null>(null);
@@ -68,7 +70,8 @@ export function CourseStructureManager({ subjectId }: CourseStructureManagerProp
     try {
       await deleteChapterMutation.mutateAsync(deleteChapterTarget.id);
       if (activeChapterId === deleteChapterTarget.id) {
-        setActiveChapterId(null);
+        searchParams.delete("chapter");
+        setSearchParams(searchParams, { replace: true });
       }
       showSuccessToast("Đã xóa chương và toàn bộ bài học/tài liệu bên trong.");
       setDeleteChapterTarget(null);
@@ -139,9 +142,14 @@ export function CourseStructureManager({ subjectId }: CourseStructureManagerProp
             chapters={chapters}
             onDeleteChapter={setDeleteChapterTarget}
             onEditChapter={setEditChapter}
-            onToggleChapter={(chapterId) =>
-              setActiveChapterId((current) => (current === chapterId ? null : chapterId))
-            }
+            onToggleChapter={(chapterId) => {
+              if (activeChapterId === chapterId) {
+                searchParams.delete("chapter");
+              } else {
+                searchParams.set("chapter", String(chapterId));
+              }
+              setSearchParams(searchParams, { replace: true });
+            }}
             subjectId={subjectId}
           />
         ) : (

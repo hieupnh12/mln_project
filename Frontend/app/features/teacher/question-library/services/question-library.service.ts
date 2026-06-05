@@ -24,6 +24,7 @@ import type {
   QuestionFilters,
   QuestionItem,
   QuestionListItem,
+  QuestionListResult,
 } from "../types/question-library.types";
 
 function mapQuestionListItemDto(item: QuestionListItemDto): QuestionListItem {
@@ -59,7 +60,11 @@ export function getQuestionMetadata() {
   return fetchQuestionMetadata();
 }
 
-export async function getQuestions(filters: QuestionFilters, page: number, size: number) {
+export async function getQuestions(
+  filters: QuestionFilters,
+  page: number,
+  size: number,
+): Promise<QuestionListResult> {
   const response = await fetchQuestions(filters, page, size);
   return {
     items: response.items.map(mapQuestionListItemDto),

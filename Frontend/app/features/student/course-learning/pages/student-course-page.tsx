@@ -1,22 +1,23 @@
-
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router";
 
+import { useLogout } from "../../../auth/hooks/use-logout";
 import { StudentMaterialIcon as MaterialIcon } from "../../components/student-material-icon";
 import { STUDENT_ROUTES } from "../../constants/student-routes.constants";
 import type { LearningTab } from "../../types/student.types";
 import { CourseCurriculumSidebar } from "../components/course-curriculum-sidebar";
 import { CourseMaterialViewer } from "../components/course-material-viewer";
 import { CoursePracticePanel } from "../components/course-practice-panel";
-import { CourseSubjectHeading } from "../components/course-subject-heading";
+import { CourseExamCatalogPanel } from "../../exams/components/course-exam-catalog-panel";
 import {
   studentCourseBottomNavItems,
   studentCourseFlashcards,
   studentCourseProfile,
   studentCourseTabs,
 } from "../constants/student-course.constants";
-import { useCourseSubjectQuery } from "../hooks/use-course-learning-queries";
+import { useCourseChaptersQuery, useCourseSubjectQuery } from "../hooks/use-course-learning-queries";
 import type { CourseMaterialSummary } from "../types/course-learning.types";
+import { CourseSubjectHeading } from "../components/course-subject-heading";
 
 function parseSubjectId(courseId: string | undefined) {
   if (!courseId) {
@@ -28,13 +29,20 @@ function parseSubjectId(courseId: string | undefined) {
 }
 
 function parseTabParam(value: string | null): LearningTab {
-  if (value === "flashcards" || value === "tests" || value === "lectures") {
+  if (value === "practice" || value === "tests") {
+    return "practice";
+  }
+  if (value === "exams") {
+    return "exams";
+  }
+  if (value === "flashcards" || value === "lectures") {
     return value;
   }
   return "lectures";
 }
 
 export function StudentCoursePage() {
+  const logout = useLogout();
   const { courseId } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const subjectId = useMemo(() => parseSubjectId(courseId), [courseId]);
@@ -45,20 +53,38 @@ export function StudentCoursePage() {
 
   function handleTabChange(tab: LearningTab) {
     setActiveTab(tab);
-    setSearchParams(tab === "lectures" ? {} : { tab }, { replace: true });
+    if (tab === "lectures") {
+      searchParams.delete("tab");
+    } else {
+      searchParams.set("tab", tab);
+    }
+    setSearchParams(searchParams, { replace: true });
   }
 
   useEffect(() => {
+    if (searchParams.get("tab") === "tests") {
+      setSearchParams({ tab: "practice" }, { replace: true });
+      return;
+    }
     setActiveTab(parseTabParam(searchParams.get("tab")));
-  }, [searchParams]);
-  const [expandedChapterId, setExpandedChapterId] = useState<number | null>(null);
+  }, [searchParams, setSearchParams]);
+  const chapterParam = searchParams.get("chapter");
+  const expandedChapterId = chapterParam ? Number(chapterParam) : null;
   const [selectedMaterialId, setSelectedMaterialId] = useState<number | null>(null);
 
+  const needsCurriculum = activeTab === "lectures";
+
   const subjectQuery = useCourseSubjectQuery(subjectId);
+  useCourseChaptersQuery(subjectId, { enabled: needsCurriculum });
   const subject = subjectQuery.data;
 
   function handleToggleChapter(chapterId: number) {
-    setExpandedChapterId((current) => (current === chapterId ? null : chapterId));
+    if (expandedChapterId === chapterId) {
+      searchParams.delete("chapter");
+    } else {
+      searchParams.set("chapter", String(chapterId));
+    }
+    setSearchParams(searchParams, { replace: true });
     setSelectedMaterialId(null);
   }
 
@@ -84,7 +110,7 @@ export function StudentCoursePage() {
 
   return (
     <div className="min-h-svh bg-background pb-24 font-body-md text-on-surface md:pb-0">
-      <header className="sticky top-0 z-50 border-b border-outline-variant bg-surface/95 shadow-[0_4px_20px_rgba(35,39,51,0.04)] backdrop-blur">
+      <header className="sticky top-0 z-50 border-b border-outline-variant bg-surface shadow-sm">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-margin-mobile py-4 md:px-margin-desktop">
           <Link
             className="flex min-w-0 items-center gap-2 text-primary-container transition hover:opacity-70"
@@ -106,11 +132,20 @@ export function StudentCoursePage() {
             >
               <MaterialIcon>notifications</MaterialIcon>
             </button>
-            <img
-              alt="Ảnh đại diện học sinh"
-              className="h-8 w-8 rounded-full bg-secondary-container object-cover"
-              src={studentCourseProfile.avatarUrl}
-            />
+            <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-secondary-container">
+              <img
+                alt="Ảnh đại diện học sinh"
+                className="h-full w-full object-cover"
+                src={studentCourseProfile.avatarUrl}
+              />
+            </div>
+            <button
+              onClick={logout}
+              title="Đăng xuất"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-error transition hover:bg-error-container/50 active:scale-95"
+            >
+              <MaterialIcon>logout</MaterialIcon>
+            </button>
           </div>
         </div>
       </header>
@@ -140,15 +175,6 @@ export function StudentCoursePage() {
               <CourseSubjectHeading code={subject.code} title={subject.title} />
             ) : null}
 
-            {subject && (
-              <Link
-                to={`/student/mindmap-preview?courseId=${subjectId}`}
-                className="flex shrink-0 items-center justify-center gap-2 rounded-lg bg-secondary-container px-4 py-2.5 text-label-md font-semibold text-secondary transition-colors hover:bg-secondary/10"
-              >
-                <MaterialIcon>hub</MaterialIcon>
-                <span>Mindmap Học Phần</span>
-              </Link>
-            )}
           </div>
         </section>
 
@@ -173,14 +199,16 @@ export function StudentCoursePage() {
 
         <div
           className={
-            activeTab === "tests"
+            activeTab === "practice" || activeTab === "exams"
               ? "min-w-0"
               : "grid grid-cols-1 gap-gutter lg:grid-cols-12"
           }
         >
           <div
             className={
-              activeTab === "tests" ? "min-w-0 space-y-md" : "min-w-0 space-y-md lg:col-span-9"
+              activeTab === "practice" || activeTab === "exams"
+                ? "min-w-0 space-y-md"
+                : "min-w-0 space-y-md lg:col-span-9"
             }
           >
             {activeTab === "lectures" ? (
@@ -209,8 +237,16 @@ export function StudentCoursePage() {
               </section>
             ) : null}
 
-            {activeTab === "tests" ? (
+            {activeTab === "practice" ? (
               <CoursePracticePanel active subjectId={subjectId} />
+            ) : null}
+
+            {activeTab === "exams" ? (
+              <CourseExamCatalogPanel
+                active
+                courseTitle={subject?.title}
+                subjectId={subjectId}
+              />
             ) : null}
           </div>
 

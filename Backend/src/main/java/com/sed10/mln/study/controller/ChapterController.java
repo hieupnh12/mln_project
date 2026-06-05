@@ -68,7 +68,13 @@ public class ChapterController {
                 .code(1013)
                 .build();
     }
-    
 
-    
+    @GetMapping("/detail/{chapterId:\\d+}")
+    public ApiResponse<ChapterResponse> getChapterById(@PathVariable Long chapterId) {
+        return ApiResponse.<ChapterResponse>builder()
+                .result(chapterSer.getChapterById(chapterId))
+                .message("Get chapter by id successfully")
+                .code(1015)
+                .build();
+    }
 }

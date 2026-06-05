@@ -22,13 +22,13 @@ public class LessonController {
 
     final LessonService lessonSer;
 
-    @PostMapping("/chapter/{chapterId:\\d+}/teacher/{teacherId:\\d+}")
+    @PostMapping("/chapter/{chapterId:\\d+}")
     public ApiResponse<LessonResponse> createLesson(
         @RequestBody LessonRequest lessonRequest,
-            @PathVariable Long chapterId,
-            @PathVariable Long teacherId) {
+        @PathVariable Long chapterId) {
+        com.sed10.mln.study.entity.User currentUser = com.sed10.mln.study.security.SecurityUtils.getCurrentUser();
         return ApiResponse.<LessonResponse>builder()
-                .result(lessonSer.createLesson(lessonRequest, chapterId, teacherId))
+                .result(lessonSer.createLesson(lessonRequest, chapterId, currentUser.getId()))
                 .message("Create lesson successfully")
                 .code(1010)
                 .build();

@@ -6,6 +6,7 @@ import type {
   ApiErrorPayload,
 } from "../types/api.types";
 import { getAccessToken } from "./auth-token.service";
+import { clearAuthSession } from "./auth-session.service";
 
 const DEFAULT_API_ERROR_MESSAGE = "Khong the ket noi API. Vui long thu lai.";
 
@@ -56,18 +57,10 @@ export function normalizeApiError(error: unknown) {
   return new ApiRequestError({ message: DEFAULT_API_ERROR_MESSAGE });
 }
 
-function shouldAttachAuthorization(token: string | undefined) {
-  if (!token) {
-    return false;
-  }
-  // Demo session token from frontend auth — backend has no JWT yet.
-  return !token.startsWith("frontend-");
-}
-
 apiClient.interceptors.request.use((config) => {
   const accessToken = getAccessToken();
 
-  if (shouldAttachAuthorization(accessToken ?? undefined)) {
+  if (accessToken) {
     config.headers.Authorization = `Bearer ${accessToken}`;
   }
 
@@ -76,5 +69,18 @@ apiClient.interceptors.request.use((config) => {
 
 apiClient.interceptors.response.use(
   (response) => response,
-  (error: unknown) => Promise.reject(normalizeApiError(error)),
+  (error: unknown) => {
+    const apiError = normalizeApiError(error);
+    
+    // Xử lý lỗi bảo mật: 401 (Hết hạn token) hoặc 403 (Không đủ quyền)
+    if (apiError.status === 401 || apiError.status === 403) {
+      clearAuthSession();
+      // Chuyển hướng người dùng về trang đăng nhập
+      if (typeof window !== "undefined" && !window.location.pathname.includes("/login")) {
+        window.location.href = "/login?error=session_expired";
+      }
+    }
+    
+    return Promise.reject(apiError);
+  },
 );

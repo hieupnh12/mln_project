@@ -56,11 +56,16 @@ function getRoleFromJwt(token: string): AppUserRole | null {
 }
 
 function resolveSessionRole(token: string, storedRole: string | null): AppUserRole {
+  const jwtRole = getRoleFromJwt(token);
+  if (jwtRole) {
+    return jwtRole;
+  }
+
   if (isAppUserRole(storedRole)) {
     return storedRole;
   }
 
-  return getRoleFromJwt(token) ?? "student";
+  return "student";
 }
 
 function getStoredUser(token: string): AuthSessionUser | undefined {

@@ -3,7 +3,7 @@ import { useState } from "react";
 import {
   useCreateFlashcard,
   useDeleteFlashcard,
-  useFlashcardsByLesson,
+  useFlashcardsByChapter,
   useUpdateFlashcard,
 } from "../hooks/use-flashcards";
 import type { Flashcard, FlashcardSet } from "../types/flashcard.types";
@@ -21,7 +21,7 @@ export function FlashcardListDialog({
   onClose,
   set,
 }: FlashcardListDialogProps) {
-  const lessonId = set?.id ?? 0;
+  const chapterId = set?.id ?? 0;
 
   // React Query hooks for API integrations
   const {
@@ -30,11 +30,11 @@ export function FlashcardListDialog({
     isError,
     error,
     refetch,
-  } = useFlashcardsByLesson(lessonId, isOpen);
+  } = useFlashcardsByChapter(chapterId, isOpen);
 
-  const createMutation = useCreateFlashcard(lessonId);
-  const updateMutation = useUpdateFlashcard(lessonId);
-  const deleteMutation = useDeleteFlashcard(lessonId);
+  const createMutation = useCreateFlashcard(chapterId);
+  const updateMutation = useUpdateFlashcard(chapterId);
+  const deleteMutation = useDeleteFlashcard(chapterId);
 
   // States for nested Form Dialog
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -97,7 +97,7 @@ export function FlashcardListDialog({
               Soạn thẻ: {set.title}
             </h4>
             <p className="mt-1 text-sm text-on-surface-variant">
-              Bài học liên kết: {set.title} • {flashcards.length} thẻ
+              Chương liên kết: {set.title} • {flashcards.length} thẻ
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -154,7 +154,7 @@ export function FlashcardListDialog({
               <div className="space-y-1">
                 <p className="font-semibold text-primary">Không có thẻ nào</p>
                 <p className="text-sm text-on-surface-variant">
-                  Chưa có thẻ ghi nhớ nào được tạo cho bài học này.
+                  Chưa có thẻ ghi nhớ nào được tạo cho chương này.
                 </p>
               </div>
               <button
@@ -168,7 +168,7 @@ export function FlashcardListDialog({
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              {flashcards.map((card, index) => (
+              {flashcards.map((card: Flashcard, index: number) => (
                 <article
                   className="group relative flex flex-col justify-between rounded-xl border border-outline-variant/30 bg-white p-5 shadow-[0_4px_20px_rgba(35,39,51,0.02)] transition-all hover:border-outline"
                   key={card.id}

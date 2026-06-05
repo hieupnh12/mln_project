@@ -1,7 +1,6 @@
 import { Link, NavLink } from "react-router";
 
 import { useAuthUser } from "~/features/auth/hooks/use-auth-user";
-
 import {
   TEACHER_ROUTES,
   teacherNavItems,

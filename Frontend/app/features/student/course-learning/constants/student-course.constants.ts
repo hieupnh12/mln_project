@@ -11,10 +11,17 @@ export const studentCourseProfile = {
     "https://lh3.googleusercontent.com/aida-public/AB6AXuBmgAhUdjynIgoYXjFQKl6-QVgquMDt6-XNmSn5I-pchog6m0f7d2qIeDCmq14SAIXIDE9hu4GL3BZca0xuDBQevwNkMR6a86kLQ_Fve6xOglFT_jXZWd0r1zPy3y8RFzJBLw27WqRBirNueH7xS_Qv1OTsJ5JzMftijJiyYUAUvIRtnK9vEcMPiQJHwlgArKajFsvIK5j-2f1mWtpLc48CsWtJV7_LqZoXrL69fLWjLWHWKNp85Voh2YOUJ6YpR-2EWlRnOv1wyIXB",
 };
 
+export const studentCourseFeaturedQuote = {
+  quote:
+    "Triết học không treo lơ lửng ngoài thế giới, cũng như bộ óc không treo lơ lửng ngoài cơ thể con người...",
+  author: "Các Mác",
+};
+
 export const studentCourseTabs: Array<{ id: LearningTab; label: string }> = [
   { id: "lectures", label: "Bài giảng" },
   { id: "flashcards", label: "Flashcard" },
-  { id: "tests", label: "Kiểm tra" },
+  { id: "practice", label: "Luyện tập" },
+  { id: "exams", label: "Kiểm tra" },
 ];
 
 export const studentCourseFlashcards: StudentFlashcard[] = [

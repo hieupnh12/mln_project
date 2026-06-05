@@ -8,16 +8,22 @@ import {
   STUDENT_ROUTES,
 } from "../../constants/student-routes.constants";
 import { useCourseSubjectQuery } from "../../course-learning/hooks/use-course-learning-queries";
+import { PracticeSessionFeedback } from "../components/practice-session-feedback";
 import { PracticeSessionView } from "../components/practice-session-view";
 import { PracticeSetupPanel } from "../components/practice-setup-panel";
 import { PracticeTestsSidebar } from "../components/practice-tests-sidebar";
 import {
+  DEFAULT_PRACTICE_QUESTION_BATCH_SIZE,
   DEFAULT_PRACTICE_SETTINGS,
   PRACTICE_QUERY_KEYS,
+  PRACTICE_QUERY_STALE_TIME_MS,
 } from "../constants/practice.constants";
 import { usePracticeScope } from "../hooks/use-practice-scope";
 import { usePracticeSession } from "../hooks/use-practice-session";
-import { getPracticeQuestions } from "../services/practice.service";
+import {
+  getPracticeQuestionCount,
+  getPracticeQuestions,
+} from "../services/practice.service";
 import type { PracticeModeSettings, PracticeScope } from "../types/practice.types";
 import { showInfoToast } from "../../../../shared/utils/toast";
 
@@ -38,20 +44,44 @@ export function StudentPracticePage() {
   const [phase, setPhase] = useState<PracticePhase>("setup");
   const [scope, setScope] = useState<PracticeScope>({ chapterId: null, lessonId: null });
   const [settings, setSettings] = useState<PracticeModeSettings>(DEFAULT_PRACTICE_SETTINGS);
+  const [shouldLoadQuestions, setShouldLoadQuestions] = useState(false);
 
   const subjectQuery = useCourseSubjectQuery(subjectId);
   const { chaptersQuery, lessonsQuery } = usePracticeScope(subjectId, scope);
+
+  const questionCountQuery = useQuery({
+    queryKey:
+      subjectId == null
+        ? PRACTICE_QUERY_KEYS.root
+        : PRACTICE_QUERY_KEYS.count(subjectId, scope.chapterId, scope.lessonId),
+    queryFn: () => getPracticeQuestionCount(subjectId as number, scope),
+    enabled: subjectId != null,
+    staleTime: PRACTICE_QUERY_STALE_TIME_MS,
+  });
 
   const questionsQuery = useQuery({
     queryKey:
       subjectId == null
         ? PRACTICE_QUERY_KEYS.root
-        : PRACTICE_QUERY_KEYS.questions(subjectId, scope.chapterId, scope.lessonId),
-    queryFn: () => getPracticeQuestions(subjectId as number, scope),
-    enabled: subjectId != null,
+        : PRACTICE_QUERY_KEYS.questions(
+            subjectId,
+            scope.chapterId,
+            scope.lessonId,
+            DEFAULT_PRACTICE_QUESTION_BATCH_SIZE,
+          ),
+    queryFn: () =>
+      getPracticeQuestions(
+        subjectId as number,
+        scope,
+        DEFAULT_PRACTICE_QUESTION_BATCH_SIZE,
+      ),
+    enabled: subjectId != null && shouldLoadQuestions,
+    staleTime: PRACTICE_QUERY_STALE_TIME_MS,
+    placeholderData: (previousData) => previousData,
   });
 
   const questions = questionsQuery.data ?? [];
+  const practiceQuestionCount = questionCountQuery.data ?? 0;
 
   const session = usePracticeSession({
     questions,
@@ -63,12 +93,18 @@ export function StudentPracticePage() {
   const exitHref = subjectId == null ? STUDENT_ROUTES.dashboard : getStudentCoursePath(String(subjectId));
 
   const handleStart = useCallback(() => {
-    if (questions.length === 0) {
+    if (practiceQuestionCount === 0) {
       showInfoToast("Chưa có câu hỏi trong phạm vi đã chọn.");
       return;
     }
+    setShouldLoadQuestions(true);
     setPhase("session");
-  }, [questions.length]);
+  }, [practiceQuestionCount]);
+
+  const handleScopeChange = useCallback((nextScope: PracticeScope) => {
+    setScope(nextScope);
+    setShouldLoadQuestions(false);
+  }, []);
 
   useEffect(() => {
     if (
@@ -91,7 +127,13 @@ export function StudentPracticePage() {
 
   const handleEnd = useCallback(() => {
     setPhase("setup");
+    setShouldLoadQuestions(false);
     showInfoToast("Đã kết thúc phiên luyện tập.");
+  }, []);
+
+  const handleBackToSetup = useCallback(() => {
+    setPhase("setup");
+    setShouldLoadQuestions(false);
   }, []);
 
   if (subjectId == null) {
@@ -136,19 +178,19 @@ export function StudentPracticePage() {
         <div className={phase === "session" ? "min-w-0 flex-1" : "min-w-0 flex-1"}>
           {phase === "setup" ? (
             <div className="space-y-4">
-              {questionsQuery.isLoading ? (
+              {questionCountQuery.isLoading ? (
                 <div className="space-y-4 rounded-xl border border-outline-variant/20 bg-white p-gutter">
                   <div className="h-8 w-56 animate-pulse rounded-lg bg-surface-container" />
                   <div className="h-40 animate-pulse rounded-xl bg-surface-container-low" />
                 </div>
               ) : null}
 
-              {questionsQuery.isError ? (
+              {questionCountQuery.isError ? (
                 <div className="rounded-xl border border-error/30 bg-error-container/20 p-gutter text-center">
                   <p className="text-body-md text-error">Không tải được câu hỏi luyện tập.</p>
                   <button
                     className="mt-3 text-label-md font-medium text-primary underline"
-                    onClick={() => questionsQuery.refetch()}
+                    onClick={() => questionCountQuery.refetch()}
                     type="button"
                   >
                     Thử lại
@@ -156,27 +198,48 @@ export function StudentPracticePage() {
                 </div>
               ) : null}
 
-              {!questionsQuery.isLoading && !questionsQuery.isError && questions.length === 0 ? (
+              {!questionCountQuery.isLoading && !questionCountQuery.isError && practiceQuestionCount === 0 ? (
                 <p className="rounded-xl border border-outline-variant/20 bg-white p-gutter text-center text-on-surface-variant">
                   Chưa có câu hỏi trắc nghiệm trong phạm vi đã chọn.
                 </p>
               ) : null}
 
-              {!questionsQuery.isLoading && !questionsQuery.isError ? (
+              {!questionCountQuery.isLoading && !questionCountQuery.isError ? (
                 <PracticeSetupPanel
-                  canStart={!questionsQuery.isFetching && questions.length > 0}
+                  canStart={!questionCountQuery.isFetching && practiceQuestionCount > 0}
                   chapters={chaptersQuery.data}
                   chaptersLoading={chaptersQuery.isLoading}
                   lessons={lessonsQuery.data}
                   lessonsLoading={lessonsQuery.isLoading}
-                  onScopeChange={setScope}
+                  onScopeChange={handleScopeChange}
                   onSettingsChange={setSettings}
                   onStart={handleStart}
+                  questionCount={practiceQuestionCount}
+                  questionCountLoading={questionCountQuery.isFetching}
                   scope={scope}
                   settings={settings}
                 />
               ) : null}
             </div>
+          ) : null}
+
+          {phase === "session" && questionsQuery.isLoading ? (
+            <PracticeSessionFeedback
+              courseTitle={courseTitle}
+              exitHref={exitHref}
+              onBackToSetup={handleBackToSetup}
+              state="loading"
+            />
+          ) : null}
+
+          {phase === "session" && questionsQuery.isError ? (
+            <PracticeSessionFeedback
+              courseTitle={courseTitle}
+              exitHref={exitHref}
+              onBackToSetup={handleBackToSetup}
+              onRetry={() => questionsQuery.refetch()}
+              state="error"
+            />
           ) : null}
 
           {phase === "session" && session.currentQuestion ? (
@@ -197,10 +260,13 @@ export function StudentPracticePage() {
             />
           ) : null}
 
-          {phase === "session" && session.poolEmpty ? (
-            <p className="py-12 text-center text-on-surface-variant">
-              Không có câu hỏi trắc nghiệm.
-            </p>
+          {phase === "session" && questionsQuery.isSuccess && session.poolEmpty ? (
+            <PracticeSessionFeedback
+              courseTitle={courseTitle}
+              exitHref={exitHref}
+              onBackToSetup={handleBackToSetup}
+              state="empty"
+            />
           ) : null}
         </div>
 

@@ -1,8 +1,8 @@
 package com.sed10.mln.study.controller;
 
 import com.sed10.mln.study.dto.response.ApiResponse;
+import com.sed10.mln.study.entity.Chapter;
 import com.sed10.mln.study.entity.Flashcard;
-import com.sed10.mln.study.entity.Lesson;
 import com.sed10.mln.study.service.FlashcardService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -25,28 +25,28 @@ public class TeacherFlashcardController {
     public record FlashcardSetResponse(Long id, String title, long cards, String status, int accuracy) {}
 
     // DTO for Flashcard details mapping
-    public record FlashcardResponse(Long id, Long lessonId, String term, String definition) {}
+    public record FlashcardResponse(Long id, Long chapterId, String term, String definition) {}
 
     // Request body DTO
     public record FlashcardRequest(String term, String definition) {}
 
-    @GetMapping("/lessons")
+    @GetMapping("/chapters")
     public ApiResponse<List<FlashcardSetResponse>> getFlashcardSets() {
         // Mock teacherId as 1 for simplicity of this implementation
         Long teacherId = 1L;
-        List<Lesson> lessons = flashcardService.getAllLessonsForTeacher(teacherId);
+        List<Chapter> chapters = flashcardService.getAllChaptersForTeacher(teacherId);
         
         List<FlashcardSetResponse> response = new ArrayList<>();
-        for (Lesson lesson : lessons) {
-            long cardsCount = flashcardService.countFlashcardsInLesson(lesson.getId());
+        for (Chapter chapter : chapters) {
+            long cardsCount = flashcardService.countFlashcardsInChapter(chapter.getId());
             String status = cardsCount > 0 ? "Đã xuất bản" : "Bản nháp";
             
-            // Generate stable mock accuracy based on lesson ID for UI visual richness
-            int accuracy = 60 + (int) (lesson.getId() * 7) % 31;
+            // Generate stable mock accuracy based on chapter ID for UI visual richness
+            int accuracy = 60 + (int) (chapter.getId() * 7) % 31;
             
             response.add(new FlashcardSetResponse(
-                    lesson.getId(),
-                    lesson.getTitle(),
+                    chapter.getId(),
+                    chapter.getTitle(),
                     cardsCount,
                     status,
                     accuracy
@@ -60,13 +60,13 @@ public class TeacherFlashcardController {
                 .build();
     }
 
-    @GetMapping("/lessons/{lessonId}/flashcards")
-    public ApiResponse<List<FlashcardResponse>> getFlashcards(@PathVariable Long lessonId) {
-        List<Flashcard> flashcards = flashcardService.getFlashcardsByLesson(lessonId);
+    @GetMapping("/chapters/{chapterId}/flashcards")
+    public ApiResponse<List<FlashcardResponse>> getFlashcards(@PathVariable Long chapterId) {
+        List<Flashcard> flashcards = flashcardService.getFlashcardsByChapter(chapterId);
         List<FlashcardResponse> response = flashcards.stream()
                 .map(fc -> new FlashcardResponse(
                         fc.getId(),
-                        fc.getLesson().getId(),
+                        fc.getChapter().getId(),
                         fc.getTerm(),
                         fc.getDefinition()
                 ))
@@ -79,9 +79,9 @@ public class TeacherFlashcardController {
                 .build();
     }
 
-    @PostMapping("/lessons/{lessonId}/flashcards")
+    @PostMapping("/chapters/{chapterId}/flashcards")
     public ApiResponse<FlashcardResponse> createFlashcard(
-            @PathVariable Long lessonId,
+            @PathVariable Long chapterId,
             @RequestBody FlashcardRequest request) {
         
         Flashcard flashcard = Flashcard.builder()
@@ -89,10 +89,10 @@ public class TeacherFlashcardController {
                 .definition(request.definition())
                 .build();
 
-        Flashcard saved = flashcardService.createFlashcard(lessonId, flashcard);
+        Flashcard saved = flashcardService.createFlashcard(chapterId, flashcard);
         FlashcardResponse response = new FlashcardResponse(
                 saved.getId(),
-                saved.getLesson().getId(),
+                saved.getChapter().getId(),
                 saved.getTerm(),
                 saved.getDefinition()
         );
@@ -104,9 +104,9 @@ public class TeacherFlashcardController {
                 .build();
     }
 
-    @PostMapping("/lessons/{lessonId}/flashcards/bulk")
+    @PostMapping("/chapters/{chapterId}/flashcards/bulk")
     public ApiResponse<List<FlashcardResponse>> createFlashcardsBulk(
-            @PathVariable Long lessonId,
+            @PathVariable Long chapterId,
             @RequestBody List<FlashcardRequest> requests) {
         
         List<Flashcard> flashcards = requests.stream()
@@ -116,12 +116,12 @@ public class TeacherFlashcardController {
                         .build())
                 .toList();
 
-        List<Flashcard> savedList = flashcardService.createFlashcardsBulk(lessonId, flashcards);
+        List<Flashcard> savedList = flashcardService.createFlashcardsBulk(chapterId, flashcards);
         
         List<FlashcardResponse> response = savedList.stream()
                 .map(saved -> new FlashcardResponse(
                         saved.getId(),
-                        saved.getLesson().getId(),
+                        saved.getChapter().getId(),
                         saved.getTerm(),
                         saved.getDefinition()
                 ))
@@ -147,7 +147,7 @@ public class TeacherFlashcardController {
         Flashcard updated = flashcardService.updateFlashcard(id, details);
         FlashcardResponse response = new FlashcardResponse(
                 updated.getId(),
-                updated.getLesson().getId(),
+                updated.getChapter().getId(),
                 updated.getTerm(),
                 updated.getDefinition()
         );

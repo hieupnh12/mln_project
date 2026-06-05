@@ -57,26 +57,24 @@ export default function CustomEntityNode({ id, data, selected, isConnectable }: 
     }
   };
 
+  const bgColor = (data as any).branchColor || 'var(--color-surface-container-highest)';
+  const textColor = (data as any).branchColor ? '#ffffff' : 'var(--color-on-surface)';
+
   return (
     <div 
       className={`
-        relative px-4 py-3 min-w-[180px] rounded-[var(--radius-lg)] 
-        transition-all duration-200 
-        ${selected ? 'ring-2 ring-[var(--color-secondary)] ring-offset-2' : ''}
+        relative px-5 py-3 w-[280px] rounded-full
+        transition-all duration-200 flex items-center justify-center
+        ${selected ? 'ring-4 ring-white/50 ring-offset-2 ring-offset-black/10' : ''}
       `}
       style={{
-        backgroundColor: 'var(--color-surface-container-highest)',
-        border: '1px solid var(--color-outline-variant)',
-        boxShadow: selected ? '0 10px 25px rgba(35, 39, 51, 0.1)' : '0 4px 6px rgba(35, 39, 51, 0.05)',
+        backgroundColor: bgColor,
+        boxShadow: selected ? '0 10px 25px rgba(0,0,0,0.2)' : '0 4px 15px rgba(0,0,0,0.1)',
+        color: textColor,
       }}
       onDoubleClick={handleDoubleClick}
     >
-      {/* Top Handle for incoming connections */}
-      <Handle 
-        type="target" 
-        position={Position.Top} 
-        className="w-3 h-3 border-2 border-white bg-[var(--color-secondary)]" 
-      />
+      {/* Handles for connections are now hidden at the bottom */}
 
       <div className="flex items-center gap-3">
         <div 
@@ -91,8 +89,7 @@ export default function CustomEntityNode({ id, data, selected, isConnectable }: 
         
         <div className="flex flex-col flex-1 min-w-0">
           <span 
-            className="text-[10px] uppercase font-bold tracking-wider"
-            style={{ color: 'var(--color-outline)' }}
+            className="text-[10px] uppercase font-bold tracking-wider opacity-80"
           >
             {isChapter ? 'Chương' : 'Bài học'}
           </span>
@@ -109,7 +106,6 @@ export default function CustomEntityNode({ id, data, selected, isConnectable }: 
           ) : (
             <span 
               className="font-medium text-[var(--text-label-md)] leading-tight mt-0.5 line-clamp-2"
-              style={{ color: 'var(--color-on-surface)' }}
               title={data.title}
             >
               {data.title || 'Chưa có tiêu đề'}
@@ -118,12 +114,16 @@ export default function CustomEntityNode({ id, data, selected, isConnectable }: 
         </div>
       </div>
 
-      {/* Bottom Handle for outgoing connections */}
-      <Handle 
-        type="source" 
-        position={Position.Bottom} 
-        className="w-3 h-3 border-2 border-white bg-[var(--color-secondary)]" 
-      />
+      {/* Handles with IDs for precise edge routing */}
+      <Handle id="target-left" type="target" position={Position.Left} className="opacity-0 w-0 h-0" />
+      <Handle id="source-left" type="source" position={Position.Left} className="opacity-0 w-0 h-0" />
+      <Handle id="target-right" type="target" position={Position.Right} className="opacity-0 w-0 h-0" />
+      <Handle id="source-right" type="source" position={Position.Right} className="opacity-0 w-0 h-0" />
+      
+      <Handle id="target-top" type="target" position={Position.Top} className="opacity-0 w-0 h-0" />
+      <Handle id="source-top" type="source" position={Position.Top} className="opacity-0 w-0 h-0" />
+      <Handle id="target-bottom" type="target" position={Position.Bottom} className="opacity-0 w-0 h-0" />
+      <Handle id="source-bottom" type="source" position={Position.Bottom} className="opacity-0 w-0 h-0" />
     </div>
   );
 }
