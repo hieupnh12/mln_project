@@ -54,11 +54,10 @@ export async function deleteChapterApi(chapterId: number) {
 
 export async function createLessonApi(
   chapterId: number,
-  teacherId: number,
   payload: CreateLessonPayload,
 ) {
   const response = await apiClient.post(
-    COURSE_STRUCTURE_ENDPOINTS.createLesson(chapterId, teacherId),
+    COURSE_STRUCTURE_ENDPOINTS.createLesson(chapterId),
     payload,
   );
   return response.data;
@@ -80,8 +79,7 @@ export async function fetchLessonDetailApi(lessonId: number): Promise<LessonDeta
 
 export async function fetchChapterDetailApi(chapterId: number): Promise<ChapterDto> {
   const response = await apiClient.get<BackendApiResponse<ChapterDto>>(
-    `/chapters/detail/${chapterId}`,
-    rootRequestConfig(),
+    `/chapters/detail/${chapterId}`
   );
   return unwrap(response);
 }

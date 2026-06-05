@@ -53,7 +53,7 @@ export function deleteChapter(chapterId: number) {
 }
 
 export function createLesson(chapterId: number, payload: CreateLessonPayload) {
-  return createLessonApi(chapterId, DEFAULT_TEACHER_ID, payload);
+  return createLessonApi(chapterId, payload);
 }
 
 export function updateLesson(lessonId: number, payload: UpdateLessonPayload) {

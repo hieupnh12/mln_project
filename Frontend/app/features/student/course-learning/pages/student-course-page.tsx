@@ -175,15 +175,6 @@ export function StudentCoursePage() {
               <CourseSubjectHeading code={subject.code} title={subject.title} />
             ) : null}
 
-            {subject ? (
-              <Link
-                className="flex shrink-0 items-center justify-center gap-2 rounded-lg bg-secondary-container px-4 py-2.5 text-label-md font-semibold text-secondary transition-colors hover:bg-secondary/10"
-                to={`/student/mindmap-preview?courseId=${subjectId}`}
-              >
-                <MaterialIcon>hub</MaterialIcon>
-                <span>Mindmap Học Phần</span>
-              </Link>
-            ) : null}
           </div>
         </section>
 

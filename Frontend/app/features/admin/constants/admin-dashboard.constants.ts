@@ -13,4 +13,5 @@ export const ADMIN_ROUTES = {
 
 export const adminNavItems: AdminNavItem[] = [
   { label: "Quản lý người dùng", icon: "manage_accounts", to: ADMIN_ROUTES.dashboard },
+  { label: "Khu vực Giảng viên", icon: "school", to: "/teacher/courses" },
 ];
