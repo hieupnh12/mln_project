@@ -1,6 +1,13 @@
+import { useCallback, useRef } from "react";
 import type { SubjectListItem } from "../../types/student.types";
+import { useYoutubeLessonProgress } from "../../student-progress/hooks/use-youtube-lesson-progress";
+import { useSubjectLessonProgressQuery } from "../../student-progress/hooks/use-student-progress-queries";
+import { buildLessonProgressMap } from "../../student-progress/utils/student-progress-resume.util";
 import { studentCourseFeaturedQuote } from "../constants/student-course.constants";
-import { useMaterialDetailQuery } from "../hooks/use-course-learning-queries";
+import {
+  useChapterLessonsQuery,
+  useMaterialDetailQuery,
+} from "../hooks/use-course-learning-queries";
 import { resolveCourseCoverImage } from "../utils/resolve-course-cover-image";
 import { CourseCoverPanel } from "./course-cover-panel";
 import { CourseQuotePanel } from "./course-quote-panel";
@@ -8,8 +15,11 @@ import { CourseSlideViewer } from "./course-slide-viewer";
 import { CourseYoutubeViewer } from "./course-youtube-viewer";
 
 type CourseMaterialViewerProps = {
+  subjectId: number;
   subject: SubjectListItem | undefined;
+  expandedChapterId: number | null;
   selectedMaterialId: number | null;
+  onLessonCompleted?: (lessonId: number) => void;
 };
 
 function MaterialViewerSkeleton() {
@@ -19,11 +29,37 @@ function MaterialViewerSkeleton() {
 }
 
 export function CourseMaterialViewer({
+  subjectId,
   subject,
+  expandedChapterId,
   selectedMaterialId,
+  onLessonCompleted,
 }: CourseMaterialViewerProps) {
   const materialQuery = useMaterialDetailQuery(selectedMaterialId);
+  const lessonsQuery = useChapterLessonsQuery(expandedChapterId);
+  const progressQuery = useSubjectLessonProgressQuery(subjectId);
   const coverImageUrl = resolveCourseCoverImage(subject?.title ?? "Môn học");
+
+  const material = materialQuery.data;
+  const lesson = lessonsQuery.data?.find((item) => item.id === material?.lessonId);
+  const progressMap = buildLessonProgressMap(progressQuery.data ?? []);
+  const lessonProgress = material ? progressMap.get(material.lessonId) : undefined;
+  const onLessonCompletedRef = useRef(onLessonCompleted);
+  onLessonCompletedRef.current = onLessonCompleted;
+
+  const handleLessonCompleted = useCallback(() => {
+    if (material) {
+      onLessonCompletedRef.current?.(material.lessonId);
+    }
+  }, [material]);
+
+  useYoutubeLessonProgress({
+    subjectId,
+    lessonId: material?.lessonId ?? 0,
+    currentStatus: lessonProgress?.status,
+    enabled: material?.contentType === "YOUTUBE" && material.lessonId != null,
+    onLessonCompleted: material ? handleLessonCompleted : undefined,
+  });
 
   if (selectedMaterialId == null) {
     return (
@@ -67,8 +103,6 @@ export function CourseMaterialViewer({
     );
   }
 
-  const material = materialQuery.data;
-
   if (!material) {
     return null;
   }
@@ -76,9 +110,18 @@ export function CourseMaterialViewer({
   return (
     <div className="space-y-md">
       {material.contentType === "YOUTUBE" ? (
-        <CourseYoutubeViewer material={material} />
+        <CourseYoutubeViewer
+          lessonTitle={lesson?.title || "Bài học chưa đặt tên"}
+          material={material}
+        />
       ) : (
-        <CourseSlideViewer material={material} />
+        <CourseSlideViewer
+          lessonStatus={lessonProgress?.status}
+          lessonTitle={lesson?.title || "Bài học chưa đặt tên"}
+          material={material}
+          onLessonCompleted={handleLessonCompleted}
+          subjectId={subjectId}
+        />
       )}
 
       <CourseQuotePanel

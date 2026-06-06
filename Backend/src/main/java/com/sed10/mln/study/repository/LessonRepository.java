@@ -5,8 +5,10 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import com.sed10.mln.study.entity.Lesson;
+import java.util.Optional;
 @Repository
 public interface LessonRepository extends JpaRepository<Lesson, Long> {
     
@@ -24,4 +26,9 @@ List<Lesson> findAllWithChapterAndSubject();
     List<Lesson> listlessonAndMaterialByChapterId(Long chapterId);
 
     List<Lesson> findByTeacherId(Long teacherId);
+
+    List<Lesson> findByChapter_IdOrderByIdAsc(Long chapterId);
+
+    @Query("SELECT l FROM Lesson l LEFT JOIN FETCH l.chapter WHERE l.id = :lessonId")
+    java.util.Optional<Lesson> findByIdWithChapter(@Param("lessonId") Long lessonId);
 }

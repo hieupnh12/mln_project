@@ -1,8 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router";
 
 import { StudentMaterialIcon as MaterialIcon } from "../../components/student-material-icon";
 import type { StudentChapterState } from "../../types/student.types";
+import { LessonProgressStatusBadge } from "../../student-progress/components/lesson-progress-status-badge";
+import { useSubjectLessonProgressQuery } from "../../student-progress/hooks/use-student-progress-queries";
+import type { StudentLessonProgress } from "../../student-progress/types/student-progress.types";
+import { getChapterVisualStateFromProgress } from "../../student-progress/utils/chapter-progress-visual-state.util";
+import { buildLessonProgressMap } from "../../student-progress/utils/student-progress-resume.util";
 import { showInfoToast } from "../../../../shared/utils/toast";
 import {
   useChapterLessonsQuery,
@@ -10,16 +15,17 @@ import {
   useMaterialDetailQuery,
 } from "../hooks/use-course-learning-queries";
 import type { CourseChapterItem, CourseMaterialSummary } from "../types/course-learning.types";
-import { getChapterVisualState } from "../utils/get-chapter-visual-state";
 import { getMaterialTypeLabel } from "../utils/resolve-course-cover-image";
 import { CourseMaterialThumbnail } from "./course-material-thumbnail";
 
 type CourseCurriculumSidebarProps = {
   subjectId: number;
   expandedChapterId: number | null;
+  expandedLessonId: number | null;
   selectedMaterialId: number | null;
   onToggleChapter: (chapterId: number) => void;
-  onSelectMaterial: (material: CourseMaterialSummary) => void;
+  onToggleLesson: (chapterId: number, lessonId: number) => void;
+  onSelectMaterial: (material: CourseMaterialSummary, chapterId: number) => void;
 };
 
 function ChapterSkeleton() {
@@ -38,25 +44,51 @@ function ChapterSkeleton() {
 type ChapterLessonsBlockProps = {
   chapterId: number;
   isExpanded: boolean;
+  expandedLessonId: number | null;
   selectedMaterialId: number | null;
-  onSelectMaterial: (material: CourseMaterialSummary) => void;
+  lessonProgressMap: Map<number, StudentLessonProgress>;
+  onToggleLesson: (chapterId: number, lessonId: number) => void;
+  onSelectMaterial: (material: CourseMaterialSummary, chapterId: number) => void;
 };
 
 function ChapterLessonsBlock({
   chapterId,
   isExpanded,
+  expandedLessonId,
   selectedMaterialId,
+  lessonProgressMap,
+  onToggleLesson,
   onSelectMaterial,
 }: ChapterLessonsBlockProps) {
   const navigate = useNavigate();
-  const [expandedLessonId, setExpandedLessonId] = useState<number | null>(null);
   const lessonsQuery = useChapterLessonsQuery(isExpanded ? chapterId : null);
+  const onSelectMaterialRef = useRef(onSelectMaterial);
+  const autoSelectedLessonRef = useRef<number | null>(null);
+
+  onSelectMaterialRef.current = onSelectMaterial;
 
   useEffect(() => {
-    if (!isExpanded) {
-      setExpandedLessonId(null);
+    autoSelectedLessonRef.current = null;
+  }, [expandedLessonId]);
+
+  useEffect(() => {
+    if (!isExpanded || selectedMaterialId != null || expandedLessonId == null) {
+      return;
     }
-  }, [isExpanded]);
+
+    if (autoSelectedLessonRef.current === expandedLessonId) {
+      return;
+    }
+
+    const lessons = lessonsQuery.data ?? [];
+    const targetLesson = lessons.find((lesson) => lesson.id === expandedLessonId);
+    const firstMaterial = targetLesson?.materials[0];
+
+    if (firstMaterial) {
+      autoSelectedLessonRef.current = expandedLessonId;
+      onSelectMaterialRef.current(firstMaterial, chapterId);
+    }
+  }, [chapterId, expandedLessonId, isExpanded, lessonsQuery.data, selectedMaterialId]);
 
   if (!isExpanded) {
     return null;
@@ -99,7 +131,6 @@ function ChapterLessonsBlock({
 
   return (
     <div className="ml-3 space-y-2 border-l border-outline-variant/30 py-2 pl-3">
-      {/* Thẻ ghi nhớ (Flashcards) Chương */}
       <button
         className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left transition hover:bg-surface-container-low"
         onClick={() => navigate(`/student/chapters/${chapterId}/flashcards`)}
@@ -121,23 +152,22 @@ function ChapterLessonsBlock({
       {lessons.map((lesson) => {
         const isLessonExpanded = expandedLessonId === lesson.id;
         const materialCount = lesson.materials.length;
+        const lessonStatus = lessonProgressMap.get(lesson.id)?.status ?? "NOT_STARTED";
 
         return (
-          <div
-            className={getLessonCardClassName(isLessonExpanded)}
-            key={lesson.id}
-          >
+          <div className={getLessonCardClassName(isLessonExpanded)} key={lesson.id}>
             <button
               aria-expanded={isLessonExpanded}
               className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left transition hover:bg-surface-container-low/50"
-              onClick={() =>
-                setExpandedLessonId((current) => (current === lesson.id ? null : lesson.id))
-              }
+              onClick={() => onToggleLesson(chapterId, lesson.id)}
               type="button"
             >
               <span className="min-w-0">
-                <span className="block truncate text-label-md font-semibold text-primary">
-                  {lesson.title || "Bài học chưa đặt tên"}
+                <span className="flex items-center gap-2">
+                  <span className="block truncate text-label-md font-semibold text-primary">
+                    {lesson.title || "Bài học chưa đặt tên"}
+                  </span>
+                  <LessonProgressStatusBadge status={lessonStatus} />
                 </span>
                 <span className="text-label-sm text-on-surface-variant">
                   {materialCount > 0
@@ -174,7 +204,6 @@ function ChapterLessonsBlock({
                   </span>
                 </button>
 
-
                 {materialCount > 0 ? (
                   <ul className="space-y-1">
                     {lesson.materials.map((material) => {
@@ -188,7 +217,7 @@ function ChapterLessonsBlock({
                                 ? "flex w-full items-center gap-2 rounded-lg bg-secondary-container/40 px-3 py-2 text-left"
                                 : "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left transition hover:bg-surface-container-low"
                             }
-                            onClick={() => onSelectMaterial(material)}
+                            onClick={() => onSelectMaterial(material, chapterId)}
                             type="button"
                           >
                             <CourseMaterialThumbnail
@@ -346,12 +375,20 @@ function DownloadMaterialButton({ selectedMaterialId }: DownloadMaterialButtonPr
 export function CourseCurriculumSidebar({
   subjectId,
   expandedChapterId,
+  expandedLessonId,
   selectedMaterialId,
   onToggleChapter,
+  onToggleLesson,
   onSelectMaterial,
 }: CourseCurriculumSidebarProps) {
   const chaptersQuery = useCourseChaptersQuery(subjectId);
+  const progressQuery = useSubjectLessonProgressQuery(subjectId);
   const chapters = chaptersQuery.data ?? [];
+  const subjectProgress = progressQuery.data ?? [];
+  const lessonProgressMap = useMemo(
+    () => buildLessonProgressMap(subjectProgress),
+    [subjectProgress],
+  );
 
   return (
     <aside className="flex h-full max-h-150 flex-col rounded-xl border border-outline-variant/30 bg-white p-md shadow-[0_4px_20px_rgba(35,39,51,0.04)] lg:max-h-[600px]">
@@ -379,7 +416,11 @@ export function CourseCurriculumSidebar({
         {!chaptersQuery.isLoading && !chaptersQuery.isError
           ? chapters.map((chapter) => {
               const isExpanded = expandedChapterId === chapter.id;
-              const state = getChapterVisualState(chapter, expandedChapterId, chapters);
+              const state = getChapterVisualStateFromProgress(
+                chapter,
+                subjectProgress,
+                chapters,
+              );
 
               return (
                 <div key={chapter.id}>
@@ -391,8 +432,11 @@ export function CourseCurriculumSidebar({
                   />
                   <ChapterLessonsBlock
                     chapterId={chapter.id}
+                    expandedLessonId={expandedLessonId}
                     isExpanded={isExpanded}
+                    lessonProgressMap={lessonProgressMap}
                     onSelectMaterial={onSelectMaterial}
+                    onToggleLesson={onToggleLesson}
                     selectedMaterialId={selectedMaterialId}
                   />
                 </div>
