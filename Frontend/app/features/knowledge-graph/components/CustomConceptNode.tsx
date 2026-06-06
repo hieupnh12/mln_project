@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Handle, Position } from '@xyflow/react';
 import type { NodeProps } from '@xyflow/react';
-import { Check, ChevronRight, ChevronLeft } from 'lucide-react';
+import { ChevronRight, ChevronLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function CustomConceptNode({ id, data, selected }: NodeProps) {
@@ -10,7 +10,6 @@ export default function CustomConceptNode({ id, data, selected }: NodeProps) {
   const cluster = (data?.cluster as number) !== undefined ? (data?.cluster as number) : -1;
   const hasChildren = !!data?.hasChildren;
   const isCollapsed = !!data?.isCollapsed;
-  const isCompleted = !!data?.isCompleted;
 
   const isEditing = !!data?.isEditing;
   const onSaveEdit = data?.onSaveEdit as ((label: string) => void) | undefined;
@@ -23,6 +22,8 @@ export default function CustomConceptNode({ id, data, selected }: NodeProps) {
   }, [isEditing, label]);
   const nodeRole = data?.nodeRole as string | undefined;
   const onToggleCollapse = data?.onToggleCollapse as ((id: string) => void) | undefined;
+  const direction = (data?.direction as 'left' | 'right' | undefined) || 'right';
+  const isLeft = direction === 'left';
 
   // Determine styling based on Cluster & Level
 
@@ -191,6 +192,7 @@ export default function CustomConceptNode({ id, data, selected }: NodeProps) {
   };
 
   const theme = getRoleBasedStyles();
+  const branchColor = data?.branchColor as string | undefined;
 
   return (
     <motion.div
@@ -203,64 +205,56 @@ export default function CustomConceptNode({ id, data, selected }: NodeProps) {
         onDoubleClickEdit?.();
       }}
       className={`
-        relative px-4 py-3 min-w-[180px] max-w-[260px] 
-        ${theme.isPill ? 'rounded-full px-6 py-2' : 'rounded-[var(--radius-lg)]'}
-        ${theme.bg}
-        ${selected ? 'ring-2 ring-[var(--color-secondary)] ring-offset-2' : ''}
-        ${isCompleted ? 'ring-2 ring-emerald-500 border-emerald-500' : ''}
+        relative flex items-center justify-center
+        ${level === 0 ? 'aspect-square min-w-[96px] max-w-[180px] rounded-full p-4' : 'px-5 py-2 min-w-[60px] max-w-[300px] rounded-full'}
+        ${branchColor ? '' : theme.bg}
+        ${selected ? 'ring-4 ring-white/50 ring-offset-2 ring-offset-black/10' : ''}
       `}
+      style={{
+        backgroundColor: branchColor || undefined,
+        color: branchColor ? '#111827' : undefined,
+        boxShadow: selected ? '6px 6px 16px rgba(0,0,0,0.5)' : '4px 4px 8px rgba(0,0,0,0.4)',
+      }}
     >
-      {/* Left Handle for incoming connections */}
-      {level > 0 && (
-        <Handle
-          type="target"
-          position={Position.Left}
-          className={`w-3 h-3 border-2 border-white ${theme.handlesColor}`}
-        />
-      )}
+      {/* Handles with IDs for precise edge routing */}
+      <Handle id="target-left" type="target" position={Position.Left} className="opacity-0 w-0 h-0" />
+      <Handle id="source-left" type="source" position={Position.Left} className="opacity-0 w-0 h-0" />
+      <Handle id="target-right" type="target" position={Position.Right} className="opacity-0 w-0 h-0" />
+      <Handle id="source-right" type="source" position={Position.Right} className="opacity-0 w-0 h-0" />
+      
+      <Handle id="target-top" type="target" position={Position.Top} className="opacity-0 w-0 h-0" />
+      <Handle id="source-top" type="source" position={Position.Top} className="opacity-0 w-0 h-0" />
+      <Handle id="target-bottom" type="target" position={Position.Bottom} className="opacity-0 w-0 h-0" />
+      <Handle id="source-bottom" type="source" position={Position.Bottom} className="opacity-0 w-0 h-0" />
 
-      {/* Completion checkmark */}
-      {isCompleted && (
-        <div className="absolute -top-2 -left-2 bg-emerald-500 text-white rounded-full p-0.5 shadow-sm flex items-center justify-center w-5 h-5 z-10 animate-fade-up">
-          <Check size={12} strokeWidth={3} />
-        </div>
-      )}
-
-      <div className="flex flex-col gap-1.5">
-        <div className="flex items-center justify-between gap-2">
-          <span className={`text-[9px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded-full ${theme.badge}`}>
-            {theme.badgeText}
-          </span>
-          {level > 0 && (
-            <span className="text-[9px] opacity-75 font-semibold">
-              Cấp {level}
-            </span>
-          )}
-        </div>
-
+      <div className="flex flex-col gap-1.5 w-full">
         {isEditing ? (
-          <input
+          <textarea
             autoFocus
             value={localEditValue}
             onChange={(e) => setLocalEditValue(e.target.value)}
             onBlur={() => onSaveEdit?.(localEditValue)}
             onKeyDown={(e) => {
               e.stopPropagation();
-              if (e.key === 'Enter') onSaveEdit?.(localEditValue);
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                onSaveEdit?.(localEditValue);
+              }
               if (e.key === 'Escape') onCancelEdit?.();
             }}
-            className="w-full text-gray-900 px-1 py-0.5 rounded text-xs outline-none border border-blue-400 focus:border-blue-600 shadow-inner nodrag"
+            rows={Math.max(2, Math.min(5, Math.ceil(localEditValue.length / 35)))}
+            className="w-full bg-white/95 text-gray-900 px-2.5 py-1.5 rounded-md font-semibold outline-none ring-2 ring-blue-500/70 focus:ring-blue-600 border-none shadow-inner nodrag resize-none leading-snug text-sm"
           />
         ) : (
-          <p className="leading-snug break-words font-medium">
+          <p className="leading-snug break-words font-semibold text-center">
             {label}
           </p>
         )}
       </div>
 
-      {/* Right Toggle Collapse/Expand Button */}
+      {/* Toggle Collapse/Expand Button */}
       {hasChildren && onToggleCollapse && (
-        <div className="absolute -right-3 top-1/2 -translate-y-1/2 z-10 nodrag">
+        <div className={`absolute ${isLeft ? '-left-3' : '-right-3'} top-1/2 -translate-y-1/2 z-10 nodrag`}>
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -270,17 +264,14 @@ export default function CustomConceptNode({ id, data, selected }: NodeProps) {
             type="button"
             title={isCollapsed ? 'Mở rộng' : 'Thu gọn'}
           >
-            {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+            {isLeft ? (
+              isCollapsed ? <ChevronLeft size={14} /> : <ChevronRight size={14} />
+            ) : (
+              isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />
+            )}
           </button>
         </div>
       )}
-
-      {/* Right Handle for outgoing connections */}
-      <Handle
-        type="source"
-        position={Position.Right}
-        className={`w-3 h-3 border-2 border-white ${theme.handlesColor}`}
-      />
     </motion.div>
   );
 }

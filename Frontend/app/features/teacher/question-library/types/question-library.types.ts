@@ -21,6 +21,13 @@ export type QuestionListItem = {
   lesson: string;
 };
 
+export type QuestionListResult = {
+  items: QuestionListItem[];
+  total: number;
+  page: number;
+  size: number;
+};
+
 export type QuestionItem = QuestionListItem & {
   lessonId?: number;
   answer: string;

@@ -71,6 +71,9 @@ public class ChapterService {
         chapterRepo.delete(chapter);
     }
     
-
+    public ChapterResponse getChapterById(Long id) {
+        Chapter chapter = chapterRepo.findById(id).orElseThrow(() -> new AppException(ErrorCode.CHAPTER_NOT_FOUND));
+        return chapterMap.toChapterResponse(chapter);
+    }
     
 }

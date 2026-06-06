@@ -45,6 +45,12 @@ public class LessonService {
     
     public void deleteLesson(Long lessonId) {
         Lesson lesson = lessonRepo.findById(lessonId).orElseThrow(() -> new AppException(ErrorCode.LESSON_NOT_FOUND));
+        
+        User currentUser = com.sed10.mln.study.security.SecurityUtils.getCurrentUser();
+        if (!lesson.getTeacher().getId().equals(currentUser.getId()) && !currentUser.getRole().equalsIgnoreCase("admin")) {
+            throw new AppException(ErrorCode.UNAUTHORIZED_ACCESS);
+        }
+
         materialRepo.findByLessonId(lessonId).forEach(material -> materialSer.deleteMaterial(material.getId()));
         lessonRepo.delete(lesson);
     }
@@ -53,6 +59,12 @@ public class LessonService {
 
     public void updateLesson(Long lessonId, LessonRequest lessonRequest) {
         Lesson lesson = lessonRepo.findById(lessonId).orElseThrow(() -> new AppException(ErrorCode.LESSON_NOT_FOUND));
+        
+        User currentUser = com.sed10.mln.study.security.SecurityUtils.getCurrentUser();
+        if (!lesson.getTeacher().getId().equals(currentUser.getId()) && !currentUser.getRole().equalsIgnoreCase("admin")) {
+            throw new AppException(ErrorCode.UNAUTHORIZED_ACCESS);
+        }
+
         if (lessonRequest.getTitle() != null) {
             lesson.setTitle(lessonRequest.getTitle());
         }

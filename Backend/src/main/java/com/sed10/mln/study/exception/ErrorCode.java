@@ -25,6 +25,7 @@ public enum ErrorCode {
     USER_NOT_FOUND(1004, "User not found", HttpStatus.NOT_FOUND),
     LESSON_CREATE_FAILED(1005, "Lesson create failed", HttpStatus.BAD_REQUEST),
     INVALID_FILE_UPLOAD(1006, "File upload is empty or invalid", HttpStatus.BAD_REQUEST),
+    UNAUTHORIZED_ACCESS(1020, "Bạn không có quyền thực hiện hành động này", HttpStatus.FORBIDDEN),
 
     UNSUPPORTED_FILE_TYPE(1007, "Unsupported file type. Use PNG, JPG, WEBP, PDF or PPTX", HttpStatus.BAD_REQUEST),
     SLIDE_PROCESSING_FAILED(1008, "Failed to process slide files", HttpStatus.BAD_REQUEST),

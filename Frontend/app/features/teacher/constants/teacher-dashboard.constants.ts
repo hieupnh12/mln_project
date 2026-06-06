@@ -4,7 +4,6 @@ export const TEACHER_ROUTES = {
   dashboard: "/teacher",
   courses: "/teacher/courses",
   pdfs: "/teacher/pdfs",
-  mindmaps: "/teacher/mindmap-preview",
   flashcards: "/teacher/flashcards",
   questions: "/teacher/questions",
   quizzes: "/teacher/quizzes",
@@ -18,7 +17,6 @@ export const teacherNavItems: TeacherNavItem[] = [
     to: TEACHER_ROUTES.courses,
   },
   { label: "Tài liệu PDF", icon: "picture_as_pdf", to: TEACHER_ROUTES.pdfs },
-  { label: "Mindmap", icon: "hub", to: TEACHER_ROUTES.mindmaps },
   { label: "Flashcard", icon: "quiz", to: TEACHER_ROUTES.flashcards },
   {
     label: "Ngân hàng câu hỏi",

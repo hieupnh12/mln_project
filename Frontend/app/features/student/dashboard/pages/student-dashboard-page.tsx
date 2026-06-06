@@ -1,8 +1,9 @@
-﻿import { Link } from "react-router";
+import { Link } from "react-router";
 
 import { useSubjects } from "../hooks/dashboard.hooks";
 import { useAuthUser } from "~/features/auth/hooks/use-auth-user";
 
+import { useLogout } from "../../../auth/hooks/use-logout";
 import { StudentMaterialIcon as MaterialIcon } from "../../components/student-material-icon";
 import { getStudentCoursePath, STUDENT_ROUTES } from "../../constants/student-routes.constants";
 import { StudentAccountMenu } from "../components/student-account-menu";
@@ -13,6 +14,7 @@ import {
 } from "../constants/student-dashboard.constants";
 
 export function StudentDashboardPage() {
+  const logout = useLogout();
   const { data: subjects } = useSubjects();
   const authUser = useAuthUser();
   const featuredCoursePath = subjects?.[0]

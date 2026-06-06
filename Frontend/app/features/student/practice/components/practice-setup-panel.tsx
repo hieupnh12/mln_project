@@ -10,6 +10,8 @@ type PracticeSetupPanelProps = {
   lessons: CourseLessonItem[] | undefined;
   chaptersLoading: boolean;
   lessonsLoading: boolean;
+  questionCount: number;
+  questionCountLoading: boolean;
   onScopeChange: (scope: PracticeScope) => void;
   onSettingsChange: (settings: PracticeModeSettings) => void;
   onStart: () => void;
@@ -23,11 +25,19 @@ export function PracticeSetupPanel({
   lessons,
   chaptersLoading,
   lessonsLoading,
+  questionCount,
+  questionCountLoading,
   onScopeChange,
   onSettingsChange,
   onStart,
   canStart,
 }: PracticeSetupPanelProps) {
+  const startLabel = questionCountLoading
+    ? "Đang kiểm tra câu hỏi..."
+    : questionCount === 0
+      ? "Chưa có câu hỏi để luyện"
+      : "Bắt đầu luyện tập";
+
   return (
     <section className="rounded-xl border border-outline-variant/20 bg-surface-container-lowest p-gutter shadow-sm">
       <h2 className="text-headline-md font-semibold text-primary">Thiết lập luyện tập</h2>
@@ -36,11 +46,23 @@ export function PracticeSetupPanel({
         ngân hàng, hết câu này sẽ chuyển sang câu khác.
       </p>
 
+      <div className="mt-4 flex flex-col gap-sm rounded-lg bg-surface-container-low px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <p className="text-label-md font-semibold text-primary">Sẵn sàng luyện tập</p>
+          <p className="text-label-sm text-on-surface-variant">
+            Hệ thống chỉ tải bộ câu hỏi khi bạn bắt đầu phiên.
+          </p>
+        </div>
+        <span className="shrink-0 rounded-lg bg-secondary-container px-3 py-1 text-label-md font-semibold text-primary">
+          {questionCountLoading ? "Đang kiểm tra..." : `${questionCount} câu khả dụng`}
+        </span>
+      </div>
+
       <div className="mt-6 grid gap-4 md:grid-cols-2">
         <label className="flex flex-col gap-2">
           <span className="text-label-md font-medium text-primary">Chương</span>
           <select
-            className="rounded-lg border border-outline-variant bg-white px-4 py-3 text-body-md"
+            className="rounded-lg border border-outline-variant bg-white px-4 py-3 text-body-md disabled:cursor-not-allowed disabled:bg-surface-container-high disabled:text-on-surface-variant"
             disabled={chaptersLoading}
             onChange={(event) => {
               const value = event.target.value;
@@ -63,7 +85,7 @@ export function PracticeSetupPanel({
         <label className="flex flex-col gap-2">
           <span className="text-label-md font-medium text-primary">Bài học</span>
           <select
-            className="rounded-lg border border-outline-variant bg-white px-4 py-3 text-body-md"
+            className="rounded-lg border border-outline-variant bg-white px-4 py-3 text-body-md disabled:cursor-not-allowed disabled:bg-surface-container-high disabled:text-on-surface-variant"
             disabled={scope.chapterId == null || lessonsLoading}
             onChange={(event) => {
               const value = event.target.value;
@@ -142,8 +164,10 @@ export function PracticeSetupPanel({
         onClick={onStart}
         type="button"
       >
-        Bắt đầu luyện tập
-        <MaterialIcon>play_arrow</MaterialIcon>
+        {startLabel}
+        <MaterialIcon className={questionCountLoading ? "animate-spin" : ""}>
+          {questionCountLoading ? "sync" : "play_arrow"}
+        </MaterialIcon>
       </button>
     </section>
   );

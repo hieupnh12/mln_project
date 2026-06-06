@@ -11,6 +11,7 @@ type QuestionTableProps = {
   allSelected: boolean;
   isInitialLoading?: boolean;
   isPageLoading?: boolean;
+  deletingQuestionId?: string | null;
   isSelected: (id: string) => boolean;
   onToggleAll: () => void;
   onToggleOne: (id: string) => void;
@@ -25,6 +26,7 @@ export function QuestionTable({
   allSelected,
   isInitialLoading = false,
   isPageLoading = false,
+  deletingQuestionId = null,
   isSelected,
   onToggleAll,
   onToggleOne,
@@ -106,6 +108,7 @@ export function QuestionTable({
               questions.map((question) => (
                 <QuestionRow
                   isSelected={isSelected(question.id)}
+                  isDeleting={deletingQuestionId === question.id}
                   key={question.id}
                   onDelete={() => onDelete(question.id)}
                   onEdit={() => onEdit(question.id)}
@@ -126,6 +129,7 @@ export function QuestionTable({
 function QuestionRow({
   question,
   isSelected,
+  isDeleting,
   onToggle,
   onDelete,
   onEdit,
@@ -133,6 +137,7 @@ function QuestionRow({
 }: {
   question: QuestionListItem;
   isSelected: boolean;
+  isDeleting: boolean;
   onToggle: () => void;
   onDelete: () => void;
   onEdit: () => void;
@@ -220,9 +225,10 @@ function QuestionRow({
             />
           )}
           <RowIconButton
-            ariaLabel="Xóa"
+            ariaLabel={isDeleting ? "Đang xóa" : "Xóa"}
             className="text-error hover:bg-error-container"
-            icon="delete"
+            disabled={isDeleting}
+            icon={isDeleting ? "sync" : "delete"}
             onClick={onDelete}
           />
         </div>

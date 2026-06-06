@@ -7,8 +7,8 @@ export const COURSE_STRUCTURE_ENDPOINTS = {
   updateChapter: (chapterId: number) => `/chapters/${chapterId}`,
   deleteChapter: (chapterId: number) => `/chapters/${chapterId}`,
   lessonsByChapter: (chapterId: number) => `/lessons/chapter/${chapterId}`,
-  createLesson: (chapterId: number, teacherId: number) =>
-    `/lessons/chapter/${chapterId}/teacher/${teacherId}`,
+  createLesson: (chapterId: number) =>
+    `/lessons/chapter/${chapterId}`,
   updateLesson: (lessonId: number) => `/lessons/${lessonId}`,
   deleteLesson: (lessonId: number) => `/lessons/${lessonId}`,
   lessonDetail: (lessonId: number) => `/lessons/${lessonId}`,

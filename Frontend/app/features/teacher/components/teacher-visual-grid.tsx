@@ -1,6 +1,7 @@
 import { teacherVisualCards } from "../course-structure/constants/course-structure.constants";
 
 export function TeacherVisualGrid() {
+  return null;
   // return (
   //   <div className="mt-xl grid grid-cols-1 gap-md sm:grid-cols-2">
   //     {teacherVisualCards.map((card) => (

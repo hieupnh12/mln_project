@@ -99,6 +99,25 @@ function ChapterLessonsBlock({
 
   return (
     <div className="ml-3 space-y-2 border-l border-outline-variant/30 py-2 pl-3">
+      {/* Thẻ ghi nhớ (Flashcards) Chương */}
+      <button
+        className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left transition hover:bg-surface-container-low"
+        onClick={() => navigate(`/student/chapters/${chapterId}/flashcards`)}
+        type="button"
+      >
+        <div className="flex h-10 w-14 items-center justify-center rounded bg-secondary-container/30 text-secondary">
+          <MaterialIcon>style</MaterialIcon>
+        </div>
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-label-md font-semibold text-primary">
+            Thẻ ghi nhớ Chương
+          </span>
+          <span className="text-label-sm text-on-surface-variant">
+            Học bằng thẻ ghi nhớ (Quizlet)
+          </span>
+        </span>
+      </button>
+
       {lessons.map((lesson) => {
         const isLessonExpanded = expandedLessonId === lesson.id;
         const materialCount = lesson.materials.length;
@@ -154,6 +173,7 @@ function ChapterLessonsBlock({
                     </span>
                   </span>
                 </button>
+
 
                 {materialCount > 0 ? (
                   <ul className="space-y-1">

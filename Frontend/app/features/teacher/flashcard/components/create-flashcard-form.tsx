@@ -11,7 +11,7 @@ type CardItem = {
 
 export function CreateFlashcardForm() {
   const navigate = useNavigate();
-  const [selectedLessonId, setSelectedLessonId] = useState<number>(0);
+  const [selectedChapterId, setSelectedChapterId] = useState<number>(0);
   const [cards, setCards] = useState<CardItem[]>([
     { id: "1", term: "", definition: "" },
     { id: "2", term: "", definition: "" },
@@ -19,11 +19,11 @@ export function CreateFlashcardForm() {
   ]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Fetch dynamic lessons for the dropdown
-  const { data: lessons, isLoading: isLoadingLessons } = useTeacherFlashcardSets();
+  // Fetch dynamic chapters for the dropdown
+  const { data: chapters, isLoading: isLoadingChapters } = useTeacherFlashcardSets();
 
   // Mutation for bulk creation
-  const createBulkMutation = useCreateFlashcardsBulk(selectedLessonId);
+  const createBulkMutation = useCreateFlashcardsBulk(selectedChapterId);
 
   // Generate unique ID for new local cards
   const generateId = () => Math.random().toString(36).substring(2, 9);
@@ -55,8 +55,8 @@ export function CreateFlashcardForm() {
     e.preventDefault();
     setErrorMessage(null);
 
-    if (selectedLessonId === 0) {
-      setErrorMessage("Vui lòng chọn bài học liên kết cho bộ thẻ này!");
+    if (selectedChapterId === 0) {
+      setErrorMessage("Vui lòng chọn chương liên kết cho bộ thẻ này!");
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
@@ -155,36 +155,45 @@ export function CreateFlashcardForm() {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-lg">
-        {/* Lesson selection card */}
+        {/* Chapter selection card */}
         <section className="rounded-2xl border border-outline-variant/30 bg-white p-gutter shadow-[0_4px_20px_rgba(35,39,51,0.02)]">
           <div className="space-y-sm">
             <label className="block text-headline-sm font-semibold text-primary">
-              1. Chọn bài học liên kết
+              1. Chọn chương liên kết
             </label>
             <p className="text-body-sm text-on-surface-variant">
-              Bộ thẻ ghi nhớ sẽ được phân phối trực tiếp vào bài học này để sinh viên ôn luyện.
+              Bộ thẻ ghi nhớ sẽ được phân phối trực tiếp vào chương này để sinh viên ôn luyện.
             </p>
-            <div className="relative mt-sm max-w-md">
+            <div className="mt-sm" style={{ maxWidth: "28rem" }}>
               <select
-                value={selectedLessonId}
-                onChange={(e) => setSelectedLessonId(Number(e.target.value))}
-                className="w-full appearance-none rounded-xl border border-outline-variant bg-surface-container-lowest px-md py-md pr-10 text-body-md text-primary font-medium focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all cursor-pointer"
-                disabled={isLoadingLessons}
+                value={selectedChapterId}
+                onChange={(e) => setSelectedChapterId(Number(e.target.value))}
+                disabled={isLoadingChapters}
+                style={{
+                  width: "100%",
+                  height: "48px",
+                  padding: "0 16px",
+                  fontSize: "16px",
+                  fontWeight: 500,
+                  color: "#0e121e",
+                  backgroundColor: "#ffffff",
+                  border: "1px solid #c6c6cc",
+                  borderRadius: "12px",
+                  cursor: "pointer",
+                  outline: "none",
+                }}
               >
-                <option value={0}>-- Chọn Bài Học --</option>
-                {isLoadingLessons ? (
-                  <option disabled>Đang tải danh sách bài học...</option>
+                <option value={0}>-- Chọn Chương --</option>
+                {isLoadingChapters ? (
+                  <option disabled>Đang tải danh sách chương...</option>
                 ) : (
-                  lessons?.map((set) => (
+                  chapters?.map((set) => (
                     <option key={set.id} value={set.id}>
                       {set.title}
                     </option>
                   ))
                 )}
               </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-md text-on-surface-variant">
-                <MaterialIcon>arrow_drop_down</MaterialIcon>
-              </div>
             </div>
           </div>
         </section>

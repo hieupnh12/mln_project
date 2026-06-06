@@ -40,4 +40,13 @@ public class StudentPracticeService {
                 .map(questionMapper::toResponse)
                 .toList();
     }
+
+    @Transactional(readOnly = true)
+    public long countPracticeQuestions(Long subjectId, Long chapterId, Long lessonId) {
+        return questionRepository.countPracticeQuestions(
+                subjectId,
+                chapterId,
+                lessonId,
+                QuestionConstant.PUBLISHED);
+    }
 }

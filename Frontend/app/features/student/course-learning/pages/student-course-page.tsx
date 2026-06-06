@@ -1,6 +1,7 @@
-﻿import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router";
 
+import { useLogout } from "../../../auth/hooks/use-logout";
 import { StudentMaterialIcon as MaterialIcon } from "../../components/student-material-icon";
 import { STUDENT_ROUTES } from "../../constants/student-routes.constants";
 import type { LearningTab } from "../../types/student.types";
@@ -41,6 +42,7 @@ function parseTabParam(value: string | null): LearningTab {
 }
 
 export function StudentCoursePage() {
+  const logout = useLogout();
   const { courseId } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const subjectId = useMemo(() => parseSubjectId(courseId), [courseId]);
@@ -51,7 +53,12 @@ export function StudentCoursePage() {
 
   function handleTabChange(tab: LearningTab) {
     setActiveTab(tab);
-    setSearchParams(tab === "lectures" ? {} : { tab }, { replace: true });
+    if (tab === "lectures") {
+      searchParams.delete("tab");
+    } else {
+      searchParams.set("tab", tab);
+    }
+    setSearchParams(searchParams, { replace: true });
   }
 
   useEffect(() => {
@@ -61,7 +68,8 @@ export function StudentCoursePage() {
     }
     setActiveTab(parseTabParam(searchParams.get("tab")));
   }, [searchParams, setSearchParams]);
-  const [expandedChapterId, setExpandedChapterId] = useState<number | null>(null);
+  const chapterParam = searchParams.get("chapter");
+  const expandedChapterId = chapterParam ? Number(chapterParam) : null;
   const [selectedMaterialId, setSelectedMaterialId] = useState<number | null>(null);
 
   const needsCurriculum = activeTab === "lectures";
@@ -71,7 +79,12 @@ export function StudentCoursePage() {
   const subject = subjectQuery.data;
 
   function handleToggleChapter(chapterId: number) {
-    setExpandedChapterId((current) => (current === chapterId ? null : chapterId));
+    if (expandedChapterId === chapterId) {
+      searchParams.delete("chapter");
+    } else {
+      searchParams.set("chapter", String(chapterId));
+    }
+    setSearchParams(searchParams, { replace: true });
     setSelectedMaterialId(null);
   }
 
@@ -126,6 +139,13 @@ export function StudentCoursePage() {
                 src={studentCourseProfile.avatarUrl}
               />
             </div>
+            <button
+              onClick={logout}
+              title="Đăng xuất"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-error transition hover:bg-error-container/50 active:scale-95"
+            >
+              <MaterialIcon>logout</MaterialIcon>
+            </button>
           </div>
         </div>
       </header>
@@ -155,15 +175,6 @@ export function StudentCoursePage() {
               <CourseSubjectHeading code={subject.code} title={subject.title} />
             ) : null}
 
-            {subject ? (
-              <Link
-                className="flex shrink-0 items-center justify-center gap-2 rounded-lg bg-secondary-container px-4 py-2.5 text-label-md font-semibold text-secondary transition-colors hover:bg-secondary/10"
-                to={`/student/mindmap-preview?courseId=${subjectId}`}
-              >
-                <MaterialIcon>hub</MaterialIcon>
-                <span>Mindmap Học Phần</span>
-              </Link>
-            ) : null}
           </div>
         </section>
 

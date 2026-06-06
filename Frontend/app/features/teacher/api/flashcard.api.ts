@@ -16,26 +16,26 @@ export type SpringBootResponse<T> = {
 
 export async function fetchFlashcardSets(): Promise<FlashcardSet[]> {
   const response = await apiClient.get<SpringBootResponse<FlashcardSet[]>>(
-    FLASHCARD_ENDPOINTS.lessons,
+    FLASHCARD_ENDPOINTS.chapters,
   );
   return response.data.result;
 }
 
-export async function fetchFlashcardsByLesson(
-  lessonId: number,
+export async function fetchFlashcardsByChapter(
+  chapterId: number,
 ): Promise<Flashcard[]> {
   const response = await apiClient.get<SpringBootResponse<Flashcard[]>>(
-    FLASHCARD_ENDPOINTS.lessonFlashcards(lessonId),
+    FLASHCARD_ENDPOINTS.chapterFlashcards(chapterId),
   );
   return response.data.result;
 }
 
 export async function createFlashcard(
-  lessonId: number,
+  chapterId: number,
   request: CreateFlashcardRequest,
 ): Promise<Flashcard> {
   const response = await apiClient.post<SpringBootResponse<Flashcard>>(
-    FLASHCARD_ENDPOINTS.lessonFlashcards(lessonId),
+    FLASHCARD_ENDPOINTS.chapterFlashcards(chapterId),
     request,
   );
   return response.data.result;
@@ -59,11 +59,11 @@ export async function deleteFlashcard(id: number): Promise<void> {
 }
 
 export async function createFlashcardsBulk(
-  lessonId: number,
+  chapterId: number,
   request: CreateFlashcardRequest[],
 ): Promise<Flashcard[]> {
   const response = await apiClient.post<SpringBootResponse<Flashcard[]>>(
-    FLASHCARD_ENDPOINTS.lessonFlashcardsBulk(lessonId),
+    FLASHCARD_ENDPOINTS.chapterFlashcardsBulk(chapterId),
     request,
   );
   return response.data.result;
