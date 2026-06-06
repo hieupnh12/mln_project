@@ -1,3 +1,22 @@
+export type SubjectDto = {
+  subjectId: number;
+  subjectCode: string;
+  title: string;
+  description: string;
+};
+
+export type CreateSubjectPayload = {
+  subjectCode: string;
+  title: string;
+  description?: string;
+};
+
+export type UpdateSubjectPayload = {
+  subjectCode: string;
+  title: string;
+  description?: string;
+};
+
 export type ChapterDto = {
   chapterId: number;
   subjectId: number;

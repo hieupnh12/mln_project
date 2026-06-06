@@ -15,10 +15,12 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.function.Predicate;
 
 @Service
 @RequiredArgsConstructor
@@ -50,9 +52,20 @@ public class SlideProcessorService {
             if (isPptx(file)) {
                 return processPptx(materialId, file);
             }
+            return processImages(materialId, files);
         }
 
-        return processImages(materialId, files);
+        if (allMatch(files, this::isPdf)) {
+            return processMultiplePdfs(materialId, files);
+        }
+        if (allMatch(files, this::isPptx)) {
+            return processMultiplePptx(materialId, files);
+        }
+        if (allMatch(files, this::isImage)) {
+            return processImages(materialId, files);
+        }
+
+        throw new AppException(ErrorCode.UNSUPPORTED_FILE_TYPE);
     }
 
     private ProcessedSlides processPdf(Long materialId, MultipartFile pdfFile) {
@@ -64,7 +77,7 @@ public class SlideProcessorService {
 
             String originalUrl = fileStorageService.storeOriginalFile(
                     materialId, pdfFile.getOriginalFilename(), pdfBytes);
-            List<StoredSlide> storedSlides = renderPdfToSlides(materialId, pdfBytes);
+            List<StoredSlide> storedSlides = renderPdfToSlides(materialId, pdfBytes, 1);
 
             if (storedSlides.isEmpty()) {
                 throw new AppException(ErrorCode.SLIDE_PROCESSING_FAILED);
@@ -79,6 +92,53 @@ public class SlideProcessorService {
         }
     }
 
+    private ProcessedSlides processMultiplePdfs(Long materialId, MultipartFile[] files) {
+        List<MultipartFile> sortedFiles = sortedCopy(files);
+        List<StoredSlide> storedSlides = new ArrayList<>();
+        String firstOriginalUrl = null;
+        int nextSlideIndex = 1;
+
+        try {
+            for (int fileIndex = 0; fileIndex < sortedFiles.size(); fileIndex++) {
+                MultipartFile pdfFile = sortedFiles.get(fileIndex);
+                validatePdf(pdfFile);
+
+                byte[] pdfBytes = pdfFile.getBytes();
+                log.info(
+                        "Processing PDF {}/{} for material {}, size={} bytes",
+                        fileIndex + 1,
+                        sortedFiles.size(),
+                        materialId,
+                        pdfBytes.length);
+
+                String originalUrl = fileStorageService.storeOriginalFile(
+                        materialId, pdfFile.getOriginalFilename(), pdfBytes, fileIndex + 1);
+                if (firstOriginalUrl == null) {
+                    firstOriginalUrl = originalUrl;
+                }
+
+                List<StoredSlide> pdfSlides = renderPdfToSlides(materialId, pdfBytes, nextSlideIndex);
+                if (pdfSlides.isEmpty()) {
+                    throw new AppException(ErrorCode.SLIDE_PROCESSING_FAILED);
+                }
+
+                nextSlideIndex += pdfSlides.size();
+                storedSlides.addAll(pdfSlides);
+            }
+        } catch (AppException exception) {
+            throw exception;
+        } catch (Exception exception) {
+            log.error("Failed to process multiple PDFs for material {}", materialId, exception);
+            throw new AppException(ErrorCode.SLIDE_PROCESSING_FAILED);
+        }
+
+        if (storedSlides.isEmpty()) {
+            throw new AppException(ErrorCode.SLIDE_PROCESSING_FAILED);
+        }
+
+        return new ProcessedSlides(storedSlides, firstOriginalUrl);
+    }
+
     private ProcessedSlides processPptx(Long materialId, MultipartFile pptxFile) {
         validatePptx(pptxFile);
 
@@ -87,7 +147,7 @@ public class SlideProcessorService {
             String originalUrl = fileStorageService.storeOriginalFile(
                     materialId, pptxFile.getOriginalFilename(), pptxBytes);
             byte[] pdfBytes = pptxConverterService.convertToPdf(pptxFile);
-            List<StoredSlide> storedSlides = renderPdfToSlides(materialId, pdfBytes);
+            List<StoredSlide> storedSlides = renderPdfToSlides(materialId, pdfBytes, 1);
 
             if (storedSlides.isEmpty()) {
                 throw new AppException(ErrorCode.SLIDE_PROCESSING_FAILED);
@@ -102,7 +162,49 @@ public class SlideProcessorService {
         }
     }
 
-    private List<StoredSlide> renderPdfToSlides(Long materialId, byte[] pdfBytes) throws IOException {
+    private ProcessedSlides processMultiplePptx(Long materialId, MultipartFile[] files) {
+        List<MultipartFile> sortedFiles = sortedCopy(files);
+        List<StoredSlide> storedSlides = new ArrayList<>();
+        String firstOriginalUrl = null;
+        int nextSlideIndex = 1;
+
+        try {
+            for (int fileIndex = 0; fileIndex < sortedFiles.size(); fileIndex++) {
+                MultipartFile pptxFile = sortedFiles.get(fileIndex);
+                validatePptx(pptxFile);
+
+                byte[] pptxBytes = pptxFile.getBytes();
+                String originalUrl = fileStorageService.storeOriginalFile(
+                        materialId, pptxFile.getOriginalFilename(), pptxBytes, fileIndex + 1);
+                if (firstOriginalUrl == null) {
+                    firstOriginalUrl = originalUrl;
+                }
+
+                byte[] pdfBytes = pptxConverterService.convertToPdf(pptxFile);
+                List<StoredSlide> pptxSlides = renderPdfToSlides(materialId, pdfBytes, nextSlideIndex);
+                if (pptxSlides.isEmpty()) {
+                    throw new AppException(ErrorCode.SLIDE_PROCESSING_FAILED);
+                }
+
+                nextSlideIndex += pptxSlides.size();
+                storedSlides.addAll(pptxSlides);
+            }
+        } catch (AppException exception) {
+            throw exception;
+        } catch (Exception exception) {
+            log.error("Failed to process multiple PPTX files for material {}", materialId, exception);
+            throw new AppException(ErrorCode.SLIDE_PROCESSING_FAILED);
+        }
+
+        if (storedSlides.isEmpty()) {
+            throw new AppException(ErrorCode.SLIDE_PROCESSING_FAILED);
+        }
+
+        return new ProcessedSlides(storedSlides, firstOriginalUrl);
+    }
+
+    private List<StoredSlide> renderPdfToSlides(Long materialId, byte[] pdfBytes, int startSlideIndex)
+            throws IOException {
         List<StoredSlide> storedSlides = new ArrayList<>();
 
         try (PDDocument document = Loader.loadPDF(pdfBytes)) {
@@ -119,7 +221,7 @@ public class SlideProcessorService {
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                 ImageIO.write(image, "png", outputStream);
 
-                int slideIndex = pageIndex + 1;
+                int slideIndex = startSlideIndex + pageIndex;
                 String imageUrl = fileStorageService.storeSlideImage(
                         materialId, slideIndex, outputStream.toByteArray());
                 storedSlides.add(new StoredSlide(slideIndex, imageUrl));
@@ -130,9 +232,7 @@ public class SlideProcessorService {
     }
 
     private ProcessedSlides processImages(Long materialId, MultipartFile[] files) {
-        List<MultipartFile> sortedFiles = new ArrayList<>(List.of(files));
-        sortedFiles.sort(Comparator.comparing(
-                file -> file.getOriginalFilename(), Comparator.nullsLast(String::compareToIgnoreCase)));
+        List<MultipartFile> sortedFiles = sortedCopy(files);
 
         List<StoredSlide> storedSlides = new ArrayList<>();
 
@@ -161,6 +261,16 @@ public class SlideProcessorService {
             throw new AppException(ErrorCode.INVALID_FILE_UPLOAD);
         }
 
+        if (!isImage(file)) {
+            throw new AppException(ErrorCode.UNSUPPORTED_FILE_TYPE);
+        }
+    }
+
+    private boolean isImage(MultipartFile file) {
+        if (file.isEmpty()) {
+            return false;
+        }
+
         String contentType = file.getContentType();
         String extension = fileStorageService.getExtension(file.getOriginalFilename());
 
@@ -168,9 +278,18 @@ public class SlideProcessorService {
                 && IMAGE_CONTENT_TYPES.contains(contentType.toLowerCase(Locale.ROOT));
         boolean validExtension = IMAGE_EXTENSIONS.contains(extension);
 
-        if (!validContentType && !validExtension) {
-            throw new AppException(ErrorCode.UNSUPPORTED_FILE_TYPE);
-        }
+        return validContentType || validExtension;
+    }
+
+    private boolean allMatch(MultipartFile[] files, Predicate<MultipartFile> matcher) {
+        return Arrays.stream(files).allMatch(matcher);
+    }
+
+    private List<MultipartFile> sortedCopy(MultipartFile[] files) {
+        List<MultipartFile> sortedFiles = new ArrayList<>(List.of(files));
+        sortedFiles.sort(Comparator.comparing(
+                file -> file.getOriginalFilename(), Comparator.nullsLast(String::compareToIgnoreCase)));
+        return sortedFiles;
     }
 
     private void validatePdf(MultipartFile file) {

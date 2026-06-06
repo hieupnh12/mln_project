@@ -1,7 +1,10 @@
 import { apiClient } from "~/shared/services/api-client";
 import type { BackendApiResponse } from "~/shared/types/api.types";
 
-import { COURSE_STRUCTURE_ENDPOINTS } from "../constants/course-structure-api.constants";
+import {
+  COURSE_STRUCTURE_ENDPOINTS,
+  MATERIAL_UPLOAD_TIMEOUT_MS,
+} from "../constants/course-structure-api.constants";
 import type {
   ChapterDto,
   CreateChapterPayload,
@@ -99,6 +102,7 @@ export async function createMaterialApi(lessonId: number, payload: CreateMateria
     formData,
     {
       headers: { "Content-Type": "multipart/form-data" },
+      timeout: MATERIAL_UPLOAD_TIMEOUT_MS,
     },
   );
   return response.data;
