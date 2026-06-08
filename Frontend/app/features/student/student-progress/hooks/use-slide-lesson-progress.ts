@@ -9,7 +9,6 @@ type UseSlideLessonProgressOptions = {
   activeSlideIndex: number;
   totalSlides: number;
   currentStatus: StudentProgressStatus | undefined;
-  onLessonCompleted?: () => void;
   enabled?: boolean;
 };
 
@@ -19,7 +18,6 @@ export function useSlideLessonProgress({
   activeSlideIndex,
   totalSlides,
   currentStatus,
-  onLessonCompleted,
   enabled = true,
 }: UseSlideLessonProgressOptions) {
   const { mutate, mutateAsync } = useUpdateLessonProgressMutation();
@@ -27,11 +25,9 @@ export function useSlideLessonProgress({
   const mutateAsyncRef = useRef(mutateAsync);
   const inProgressSentRef = useRef(false);
   const completedSentRef = useRef(false);
-  const onLessonCompletedRef = useRef(onLessonCompleted);
 
   mutateRef.current = mutate;
   mutateAsyncRef.current = mutateAsync;
-  onLessonCompletedRef.current = onLessonCompleted;
 
   useEffect(() => {
     inProgressSentRef.current = false;
@@ -58,7 +54,6 @@ export function useSlideLessonProgress({
           lessonId,
           status: "COMPLETED",
         })
-        .then(() => onLessonCompletedRef.current?.())
         .catch(() => {
           // Giữ completedSentRef = true — tránh spam API khi backend lỗi.
         });

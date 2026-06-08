@@ -7,7 +7,6 @@ type UseYoutubeLessonProgressOptions = {
   subjectId: number;
   lessonId: number;
   currentStatus: StudentProgressStatus | undefined;
-  onLessonCompleted?: () => void;
   enabled?: boolean;
 };
 
@@ -16,16 +15,13 @@ export function useYoutubeLessonProgress({
   subjectId,
   lessonId,
   currentStatus,
-  onLessonCompleted,
   enabled = true,
 }: UseYoutubeLessonProgressOptions) {
   const { mutateAsync } = useUpdateLessonProgressMutation();
   const mutateAsyncRef = useRef(mutateAsync);
   const completedSentRef = useRef(false);
-  const onLessonCompletedRef = useRef(onLessonCompleted);
 
   mutateAsyncRef.current = mutateAsync;
-  onLessonCompletedRef.current = onLessonCompleted;
 
   useEffect(() => {
     completedSentRef.current = false;
@@ -43,7 +39,6 @@ export function useYoutubeLessonProgress({
         lessonId,
         status: "COMPLETED",
       })
-      .then(() => onLessonCompletedRef.current?.())
       .catch(() => {
         // Giữ completedSentRef = true — tránh spam API khi backend lỗi.
       });

@@ -26,3 +26,9 @@ export type StudentResumePoint = {
   lessonId: number;
   materialId: number | null;
 };
+
+export type StudentResumePointDto = {
+  subjectId: number;
+  chapterId: number;
+  lessonId: number;
+};

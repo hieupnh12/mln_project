@@ -22,7 +22,7 @@ export function StudentDashboardPage() {
   const logout = useLogout();
   const { data: subjects } = useSubjects();
   const authUser = useAuthUser();
-  const resumeQuery = useStudentResumeQuery(subjects);
+  const resumeQuery = useStudentResumeQuery();
 
   const featuredCoursePath = resumeQuery.data
     ? getStudentCourseResumePath(String(resumeQuery.data.subjectId), {
