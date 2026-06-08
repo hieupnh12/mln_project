@@ -237,13 +237,13 @@ export function CreateFlashcardForm() {
                 {/* Term / Front side */}
                 <div className="space-y-xs">
                   <div className="relative">
-                    <input
-                      type="text"
+                    <textarea
                       value={card.term}
                       onChange={(e) => handleInputChange(card.id, "term", e.target.value)}
                       placeholder="Nhập thuật ngữ / câu hỏi (Mặt trước)..."
-                      className="w-full border-b border-outline-variant py-md px-1 bg-transparent text-body-md text-primary font-medium placeholder:text-on-surface-variant/40 focus:border-primary focus:outline-none transition-colors"
+                      className="w-full border-b border-outline-variant py-md px-1 bg-transparent text-body-md text-primary font-medium placeholder:text-on-surface-variant/40 focus:border-primary focus:outline-none transition-colors resize-none min-h-[80px]"
                       required
+                      rows={2}
                     />
                     <span className="absolute bottom-0 left-0 h-0.5 w-0 bg-primary group-focus-within:w-full transition-all duration-300" />
                   </div>
@@ -255,13 +255,13 @@ export function CreateFlashcardForm() {
                 {/* Definition / Back side */}
                 <div className="space-y-xs">
                   <div className="relative">
-                    <input
-                      type="text"
+                    <textarea
                       value={card.definition}
                       onChange={(e) => handleInputChange(card.id, "definition", e.target.value)}
                       placeholder="Nhập định nghĩa / câu trả lời (Mặt sau)..."
-                      className="w-full border-b border-outline-variant py-md px-1 bg-transparent text-body-md text-primary font-medium placeholder:text-on-surface-variant/40 focus:border-primary focus:outline-none transition-colors"
+                      className="w-full border-b border-outline-variant py-md px-1 bg-transparent text-body-md text-primary font-medium placeholder:text-on-surface-variant/40 focus:border-primary focus:outline-none transition-colors resize-none min-h-[80px]"
                       required
+                      rows={2}
                     />
                     <span className="absolute bottom-0 left-0 h-0.5 w-0 bg-primary group-focus-within:w-full transition-all duration-300" />
                   </div>
