@@ -1,11 +1,17 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
+
+import { FlashcardFormDialog } from "../../components/flashcard-form-dialog";
 import { MaterialIcon } from "../../components/teacher-icons";
 import {
   useTeacherFlashcardSets,
   useFlashcardsByChapter,
+  useCreateFlashcard,
+  useUpdateFlashcard,
   useDeleteFlashcard,
 } from "../../hooks/use-flashcards";
+import type { Flashcard } from "../../types/flashcard.types";
+import { showSuccessToast, showErrorToast } from "~/shared/utils/toast";
 
 export function FlashcardManager() {
   const navigate = useNavigate();
@@ -13,6 +19,10 @@ export function FlashcardManager() {
   // Selected state
   const [selectedChapterId, setSelectedChapterId] = useState<number>(0);
   const [selectedChapterTitle, setSelectedChapterTitle] = useState<string>("");
+
+  // Form dialog state
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [selectedCard, setSelectedCard] = useState<Flashcard | null>(null);
 
   // Fetch flashcard sets (chapters)
   const { data: flashcardSets, isLoading: isLoadingSets, isError: isErrorSets } = useTeacherFlashcardSets();
@@ -24,16 +34,51 @@ export function FlashcardManager() {
   );
 
   // Mutations
+  const createMutation = useCreateFlashcard(selectedChapterId);
+  const updateMutation = useUpdateFlashcard(selectedChapterId);
   const deleteMutation = useDeleteFlashcard(selectedChapterId);
 
+  const isSaving = createMutation.isPending || updateMutation.isPending;
+
+  // Handle Add Card
+  const handleAddClick = () => {
+    setSelectedCard(null);
+    setIsFormOpen(true);
+  };
+
+  // Handle Edit Card
+  const handleEditClick = (card: Flashcard) => {
+    setSelectedCard(card);
+    setIsFormOpen(true);
+  };
+
+  // Handle Form Submit (Create or Update)
+  const handleFormSubmit = async (formData: { term: string; definition: string }) => {
+    try {
+      if (selectedCard) {
+        await updateMutation.mutateAsync({
+          id: selectedCard.id,
+          request: formData,
+        });
+        showSuccessToast("Đã cập nhật thẻ ghi nhớ thành công!");
+      } else {
+        await createMutation.mutateAsync(formData);
+        showSuccessToast("Đã thêm thẻ ghi nhớ mới thành công!");
+      }
+      setIsFormOpen(false);
+    } catch {
+      showErrorToast("Lưu thẻ ghi nhớ thất bại. Vui lòng thử lại!");
+    }
+  };
 
   // Handle Delete Card
   const handleDeleteCard = async (cardId: number) => {
-    if (confirm("Bạn có chắc chắn muốn xóa thẻ ghi nhớ này không?")) {
+    if (window.confirm("Bạn có chắc chắn muốn xóa thẻ ghi nhớ này không?")) {
       try {
         await deleteMutation.mutateAsync(cardId);
-      } catch (err) {
-        alert("Không thể xóa thẻ ghi nhớ. Vui lòng thử lại!");
+        showSuccessToast("Đã xóa thẻ ghi nhớ thành công!");
+      } catch {
+        showErrorToast("Không thể xóa thẻ ghi nhớ. Vui lòng thử lại!");
       }
     }
   };
@@ -96,13 +141,22 @@ export function FlashcardManager() {
           </p>
         </div>
         
-        {selectedChapterId === 0 && (
+        {selectedChapterId === 0 ? (
           <button
             onClick={() => navigate("/teacher/flashcards/new")}
             className="flex w-full items-center justify-center gap-sm rounded-lg bg-secondary-container px-md py-sm font-semibold text-primary-container shadow-sm sm:w-auto hover:bg-secondary-container/90 transition-all duration-200"
           >
             <MaterialIcon>add_circle</MaterialIcon>
             <span className="text-label-md font-medium">Tạo bộ thẻ</span>
+          </button>
+        ) : (
+          <button
+            onClick={handleAddClick}
+            className="flex w-full items-center justify-center gap-sm rounded-lg bg-primary px-md py-sm font-semibold text-white shadow-sm sm:w-auto hover:bg-primary/90 active:scale-95 transition-all duration-200"
+            type="button"
+          >
+            <MaterialIcon>add</MaterialIcon>
+            <span className="text-label-md font-medium">Thêm thẻ mới</span>
           </button>
         )}
       </div>
@@ -215,13 +269,21 @@ export function FlashcardManager() {
                   <p className="text-body-sm text-on-surface-variant max-w-sm mt-xs mb-md">
                     Hãy bắt đầu thêm những thẻ ghi nhớ đầu tiên cho bài học ôn tập!
                   </p>
+                  <button
+                    onClick={handleAddClick}
+                    className="flex items-center gap-sm rounded-lg bg-primary px-md py-sm font-semibold text-white shadow-sm hover:bg-primary/95 active:scale-95 transition-all text-label-md"
+                    type="button"
+                  >
+                    <MaterialIcon>add</MaterialIcon>
+                    <span>Tạo thẻ đầu tiên</span>
+                  </button>
                 </div>
               ) : (
                 <div className="space-y-sm">
                   {flashcards.map((card, index) => (
                     <article
                       key={card.id}
-                      className="rounded-2xl border border-outline-variant/30 bg-white p-md shadow-[0_2px_12px_rgba(35,39,51,0.02)] hover:shadow-[0_4px_20px_rgba(35,39,51,0.05)] hover:border-primary/20 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4"
+                      className="group rounded-2xl border border-outline-variant/30 bg-white p-md shadow-[0_2px_12px_rgba(35,39,51,0.02)] hover:shadow-[0_4px_20px_rgba(35,39,51,0.05)] hover:border-primary/20 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4"
                     >
                       <div className="flex-1 min-w-0">
                         <div className="mb-2">
@@ -242,7 +304,15 @@ export function FlashcardManager() {
                         </div>
                       </div>
 
-                      <div className="flex items-center shrink-0 border-t border-outline-variant/10 pt-3 md:border-t-0 md:pt-0 justify-end">
+                      <div className="flex items-center gap-2 shrink-0 border-t border-outline-variant/10 pt-3 md:border-t-0 md:pt-0 justify-end">
+                        <button
+                          onClick={() => handleEditClick(card)}
+                          className="flex items-center gap-xs rounded-lg border border-primary/20 px-3 py-1.5 text-label-md font-medium text-primary hover:bg-primary/5 transition-colors"
+                          type="button"
+                        >
+                          <MaterialIcon className="text-sm">edit</MaterialIcon>
+                          <span>Sửa</span>
+                        </button>
                         <button
                           onClick={() => handleDeleteCard(card.id)}
                           className="flex items-center gap-xs rounded-lg border border-error/20 px-3 py-1.5 text-label-md font-medium text-error hover:bg-error-container/30 transition-colors"
@@ -260,6 +330,15 @@ export function FlashcardManager() {
           )}
         </div>
       </div>
+
+      {/* Form Dialog for Add/Edit Card */}
+      <FlashcardFormDialog
+        flashcard={selectedCard}
+        isOpen={isFormOpen}
+        isSaving={isSaving}
+        onClose={() => setIsFormOpen(false)}
+        onSubmit={handleFormSubmit}
+      />
     </div>
   );
 }
