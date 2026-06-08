@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useParams, useSearchParams } from "react-router";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router";
+import { useQuery } from "@tanstack/react-query";
+
+import { fetchFlashcardSets } from "~/features/teacher/api/flashcard.api";
 
 import { useLogout } from "../../../auth/hooks/use-logout";
 import { StudentMaterialIcon as MaterialIcon } from "../../components/student-material-icon";
@@ -43,6 +46,7 @@ function parseTabParam(value: string | null): LearningTab {
 
 export function StudentCoursePage() {
   const logout = useLogout();
+  const navigate = useNavigate();
   const { courseId } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const subjectId = useMemo(() => parseSubjectId(courseId), [courseId]);
@@ -72,11 +76,18 @@ export function StudentCoursePage() {
   const expandedChapterId = chapterParam ? Number(chapterParam) : null;
   const [selectedMaterialId, setSelectedMaterialId] = useState<number | null>(null);
 
-  const needsCurriculum = activeTab === "lectures";
+  const needsCurriculum = activeTab === "lectures" || activeTab === "flashcards";
 
   const subjectQuery = useCourseSubjectQuery(subjectId);
-  useCourseChaptersQuery(subjectId, { enabled: needsCurriculum });
+  const chaptersQuery = useCourseChaptersQuery(subjectId, { enabled: needsCurriculum });
   const subject = subjectQuery.data;
+  const chapters = chaptersQuery.data ?? [];
+
+  const { data: flashcardSets, isLoading: isFlashcardSetsLoading } = useQuery({
+    queryKey: ["student", "flashcard-sets"],
+    queryFn: fetchFlashcardSets,
+    enabled: activeTab === "flashcards",
+  });
 
   function handleToggleChapter(chapterId: number) {
     if (expandedChapterId === chapterId) {
@@ -219,22 +230,84 @@ export function StudentCoursePage() {
             ) : null}
 
             {activeTab === "flashcards" ? (
-              <section className="grid grid-cols-1 gap-gutter md:grid-cols-3">
-                {studentCourseFlashcards.map((card, index) => (
-                  <article
-                    className="flex min-h-56 flex-col justify-between rounded-xl border border-outline-variant/30 bg-white p-gutter shadow-[0_4px_20px_rgba(35,39,51,0.04)]"
-                    key={card.front}
-                  >
-                    <span className="w-fit rounded-full bg-secondary-container px-3 py-1 text-label-sm font-semibold text-secondary">
-                      Thẻ {index + 1}
-                    </span>
-                    <h3 className="mt-6 text-headline-md font-semibold text-primary">
-                      {card.front}
-                    </h3>
-                    <p className="mt-4 text-body-md text-on-surface-variant">{card.back}</p>
-                  </article>
-                ))}
-              </section>
+              chaptersQuery.isLoading || isFlashcardSetsLoading ? (
+                <div className="grid grid-cols-1 gap-gutter md:grid-cols-2 lg:grid-cols-3">
+                  {Array.from({ length: 3 }).map((_, index) => (
+                    <div className="h-44 animate-pulse rounded-xl bg-surface-container" key={index} />
+                  ))}
+                </div>
+              ) : chapters.length === 0 ? (
+                <div className="flex flex-col items-center justify-center min-h-[300px] bg-white border border-outline-variant/60 rounded-xl p-md text-center shadow-[0_4px_20px_rgba(35,39,51,0.04)]">
+                  <MaterialIcon className="text-secondary text-5xl mb-3 opacity-60">style</MaterialIcon>
+                  <h3 className="text-headline-md font-semibold text-primary">Chưa có thẻ ghi nhớ</h3>
+                  <p className="text-body-md text-on-surface-variant mt-1">
+                    Môn học này hiện chưa có chương học nào để hiển thị thẻ ghi nhớ.
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 gap-gutter md:grid-cols-2 lg:grid-cols-3">
+                  {chapters.map((chapter) => {
+                    const matchedSet = flashcardSets?.find((set) => set.id === chapter.id);
+                    const cardsCount = matchedSet?.cards ?? 0;
+
+                    return (
+                      <article
+                        className="flex flex-col justify-between rounded-xl border border-outline-variant/30 bg-white p-gutter shadow-[0_4px_20px_rgba(35,39,51,0.04)] transition hover:shadow-[0_8px_30px_rgba(35,39,51,0.08)]"
+                        key={chapter.id}
+                      >
+                        <div>
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="w-fit rounded-full bg-secondary-container/40 px-3 py-1 text-label-sm font-bold text-secondary">
+                              Chương {chapter.orderIndex}
+                            </span>
+                            <span className="text-body-sm font-semibold text-on-surface-variant flex items-center gap-1">
+                              <MaterialIcon className="text-lg">style</MaterialIcon>
+                              {cardsCount} thẻ
+                            </span>
+                          </div>
+                          <h3 className="mt-4 text-headline-md font-semibold text-primary line-clamp-2 min-h-14">
+                            {chapter.title}
+                          </h3>
+                        </div>
+
+                        <div className="mt-6 flex items-center justify-between gap-4 border-t border-outline-variant/40 pt-4">
+                          <span className="text-body-sm text-on-surface-variant">
+                            {cardsCount > 0 ? (
+                              <span className="flex items-center gap-1 text-emerald-600 font-medium">
+                                <span className="h-2 w-2 rounded-full bg-emerald-500"></span>
+                                Đã sẵn sàng
+                              </span>
+                            ) : (
+                              <span className="flex items-center gap-1 text-on-surface-variant/60 italic">
+                                <span className="h-2 w-2 rounded-full bg-slate-400"></span>
+                                Trống
+                              </span>
+                            )}
+                          </span>
+                          
+                          <button
+                            onClick={() => {
+                              if (cardsCount > 0) {
+                                navigate(`/student/chapters/${chapter.id}/flashcards`);
+                              }
+                            }}
+                            disabled={cardsCount === 0}
+                            className={`rounded-lg px-4 py-2 text-label-md font-bold transition-all active:scale-95 flex items-center gap-1.5 ${
+                              cardsCount > 0
+                                ? "bg-primary text-white hover:bg-primary-container/90 cursor-pointer"
+                                : "bg-outline-variant/30 text-on-surface-variant/40 cursor-not-allowed"
+                            }`}
+                            type="button"
+                          >
+                            <span>Học ngay</span>
+                            <MaterialIcon className="text-lg font-bold">arrow_forward</MaterialIcon>
+                          </button>
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
+              )
             ) : null}
 
             {activeTab === "practice" ? (

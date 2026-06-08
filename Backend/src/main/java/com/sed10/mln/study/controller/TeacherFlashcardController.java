@@ -32,9 +32,8 @@ public class TeacherFlashcardController {
 
     @GetMapping("/chapters")
     public ApiResponse<List<FlashcardSetResponse>> getFlashcardSets() {
-        // Mock teacherId as 1 for simplicity of this implementation
-        Long teacherId = 1L;
-        List<Chapter> chapters = flashcardService.getAllChaptersForTeacher(teacherId);
+        Long teacherId = com.sed10.mln.study.security.SecurityUtils.getCurrentUser().getId();
+        List<Chapter> chapters = flashcardService.getAllChapters();
         
         List<FlashcardSetResponse> response = new ArrayList<>();
         for (Chapter chapter : chapters) {

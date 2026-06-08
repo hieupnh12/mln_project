@@ -33,7 +33,6 @@ import java.util.Objects;
 @Service
 @RequiredArgsConstructor
 public class QuizManagementService {
-    private static final long DEFAULT_TEACHER_ID = 1L;
     private static final int MAX_PAGE_SIZE = 100;
 
     private final QuizRepository quizRepository;
@@ -146,9 +145,7 @@ public class QuizManagementService {
 
     @Transactional
     public QuizDetailResponse createQuiz(SaveQuizRequest request) {
-        User teacher = userRepository
-                .findById(DEFAULT_TEACHER_ID)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        User teacher = com.sed10.mln.study.security.SecurityUtils.getCurrentUser();
         QuizScope scope = resolveScope(request.getCourse(), request.getChapter(), request.getLesson());
         LocalDateTime now = LocalDateTime.now();
 
@@ -209,11 +206,7 @@ public class QuizManagementService {
     @Transactional
     public QuizDetailResponse duplicateQuiz(Long id) {
         Quiz source = getQuizEntity(id);
-        User teacher = source.getCreatedBy() != null
-                ? source.getCreatedBy()
-                : userRepository
-                        .findById(DEFAULT_TEACHER_ID)
-                        .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        User teacher = com.sed10.mln.study.security.SecurityUtils.getCurrentUser();
         LocalDateTime now = LocalDateTime.now();
 
         Quiz copy = Quiz.builder()
