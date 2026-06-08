@@ -1,4 +1,7 @@
 export const COURSE_STRUCTURE_ENDPOINTS = {
+  createSubject: "/subjects/create",
+  updateSubject: (subjectId: number) => `/subjects/${subjectId}`,
+  deleteSubject: (subjectId: number) => `/subjects/${subjectId}`,
   chaptersBySubject: (subjectId: number) => `/chapters/${subjectId}`,
   createChapter: (subjectId: number) => `/chapters/create/${subjectId}`,
   updateChapter: (chapterId: number) => `/chapters/${chapterId}`,
@@ -28,3 +31,6 @@ export const COURSE_STRUCTURE_QUERY_KEYS = {
 
 /** Dev: backend chưa có JWT — dùng teacher mặc định giống question-library. */
 export const DEFAULT_TEACHER_ID = 1;
+
+/** Khớp backend LibreOffice (120s) + buffer render PDF / upload file. */
+export const MATERIAL_UPLOAD_TIMEOUT_MS = 180_000;

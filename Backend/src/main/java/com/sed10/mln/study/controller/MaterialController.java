@@ -28,7 +28,7 @@ public class MaterialController {
 
     /**
      * Tạo material — bắt buộc một trong hai:
-     * - files: nhiều ảnh PNG/JPG/WEBP, hoặc 1 file PDF/PPTX (slide deck)
+     * - files: nhiều ảnh PNG/JPG/WEBP, nhiều PDF, nhiều PPTX (cùng loại), hoặc 1 file đơn lẻ
      * - youtubeUrl: link video YouTube
      */
     @PostMapping(value = "/lesson/{lessonId:\\d+}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

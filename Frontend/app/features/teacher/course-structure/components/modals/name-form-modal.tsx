@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
-import { ModalOverlay } from "../../../question-library/components/modals/modal-overlay";
 import { MaterialIcon } from "../../../components/teacher-icons";
+import { CourseStructureModalOverlay } from "./course-structure-modal-overlay";
 import { CourseStructureModalPanel } from "./course-structure-modal-panel";
 
 type NameFormModalProps = {
@@ -46,7 +46,14 @@ export function NameFormModal({
   const trimmedValue = (value ?? "").trim();
 
   return (
-    <ModalOverlay labelledBy="name-form-title" onClose={onClose} open={open}>
+    <CourseStructureModalOverlay
+      backdropBlur={false}
+      labelledBy="name-form-title"
+      onClose={onClose}
+      open={open}
+      overlayClassName="bg-primary/40"
+      size="compact"
+    >
       <CourseStructureModalPanel>
         <form className="p-gutter" onSubmit={handleSubmit}>
           <div className="mb-md flex items-center justify-between gap-sm">
@@ -92,6 +99,6 @@ export function NameFormModal({
           </div>
         </form>
       </CourseStructureModalPanel>
-    </ModalOverlay>
+    </CourseStructureModalOverlay>
   );
 }

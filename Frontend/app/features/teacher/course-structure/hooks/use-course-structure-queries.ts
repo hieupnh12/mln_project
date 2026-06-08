@@ -39,6 +39,8 @@ export function useStructureChaptersQuery(subjectId: number | null) {
         : COURSE_STRUCTURE_QUERY_KEYS.chapters(subjectId),
     queryFn: () => getStructureChapters(subjectId as number),
     enabled: isBrowser && subjectId != null,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
   });
 }
 
@@ -50,6 +52,8 @@ export function useStructureLessonsQuery(chapterId: number | null) {
         : COURSE_STRUCTURE_QUERY_KEYS.lessons(chapterId),
     queryFn: () => getStructureLessons(chapterId as number),
     enabled: isBrowser && chapterId != null,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
   });
 }
 

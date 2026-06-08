@@ -41,7 +41,6 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class QuestionLibraryService {
-    private static final long DEFAULT_TEACHER_ID = 1L;
     private static final int MAX_PAGE_SIZE = 100;
 
     private final QuestionRepository questionRepository;
@@ -250,7 +249,7 @@ public class QuestionLibraryService {
             throw new AppException(ErrorCode.QUESTION_DUPLICATE_EXACT);
         }
 
-        User teacher = userRepository.findById(DEFAULT_TEACHER_ID).orElse(null);
+        User teacher = com.sed10.mln.study.security.SecurityUtils.getCurrentUser();
         LocalDateTime now = LocalDateTime.now();
         String statusCode = resolveNewQuestionStatus(request.getStatus());
 
@@ -397,7 +396,7 @@ public class QuestionLibraryService {
 
     private Question persistImportedQuestion(CreateQuestionRequest request, DuplicateCheckResult duplicate) {
         Lesson lesson = lessonRepository.findById(request.getLessonId()).orElseThrow();
-        User teacher = userRepository.findById(DEFAULT_TEACHER_ID).orElse(null);
+        User teacher = com.sed10.mln.study.security.SecurityUtils.getCurrentUser();
         LocalDateTime now = LocalDateTime.now();
         String statusCode = QuestionConstant.fromLabel(request.getStatus());
         String content = request.getQuestion().trim();
@@ -464,7 +463,7 @@ public class QuestionLibraryService {
             throw new AppException(ErrorCode.QUESTION_DUPLICATE_EXACT);
         }
 
-        User teacher = userRepository.findById(DEFAULT_TEACHER_ID).orElse(null);
+        User teacher = com.sed10.mln.study.security.SecurityUtils.getCurrentUser();
         LocalDateTime now = LocalDateTime.now();
         String statusCode = QuestionConstant.fromLabel(request.getStatus());
         if (QuestionConstant.PUBLISHED.equals(statusCode) && question.getPublishedAt() == null) {

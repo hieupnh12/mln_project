@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { showErrorToast, showSuccessToast } from "~/shared/utils/toast";
 import { AdminUserFormModal } from "../components/admin-user-form-modal";
@@ -34,6 +34,13 @@ export function AdminUserManagementPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
 
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
+
+  useEffect(() => {
+    setPage(1);
+  }, [keyword, roleFilter]);
+
   const filteredUsers = useMemo(() => {
     const users = usersQuery.data ?? [];
     const normalizedKeyword = keyword.trim().toLowerCase();
@@ -55,6 +62,17 @@ export function AdminUserManagementPage() {
       return searchableContent.includes(normalizedKeyword);
     });
   }, [keyword, roleFilter, usersQuery.data]);
+
+  const totalItems = filteredUsers.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+
+  const paginatedUsers = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return filteredUsers.slice(start, start + pageSize);
+  }, [filteredUsers, page, pageSize]);
+
+  const rangeStart = totalItems === 0 ? 0 : (page - 1) * pageSize + 1;
+  const rangeEnd = Math.min(page * pageSize, totalItems);
 
   const openCreateModal = () => {
     setEditingUser(null);
@@ -121,14 +139,6 @@ export function AdminUserManagementPage() {
   return (
     <>
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-5">
-            <section className="rounded-xl border border-outline-variant/20 bg-surface-container-low p-4 sm:p-6">
-              <h2 className="text-xl font-semibold text-primary">CRUD người dùng</h2>
-              <p className="mt-1 text-sm text-on-surface-variant">
-                Quản trị viên có thể tạo, xem, chỉnh sửa và xóa tài khoản trong hệ
-                thống.
-              </p>
-            </section>
-
             <AdminUsersToolbar
               keyword={keyword}
               roleFilter={roleFilter}
@@ -159,10 +169,16 @@ export function AdminUserManagementPage() {
 
             {!usersQuery.isLoading && !usersQuery.isError && filteredUsers.length > 0 ? (
               <AdminUsersTable
-                users={filteredUsers}
+                users={paginatedUsers}
                 deletingUserId={deleteUserMutation.variables ?? null}
                 onEdit={openEditModal}
                 onDelete={handleDeleteUser}
+                totalItems={totalItems}
+                rangeStart={rangeStart}
+                rangeEnd={rangeEnd}
+                page={page}
+                totalPages={totalPages}
+                onPageChange={setPage}
               />
             ) : null}
           </div>

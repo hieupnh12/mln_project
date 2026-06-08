@@ -37,6 +37,7 @@ public enum ErrorCode {
     CLOUDINARY_UPLOAD_FAILED(1014, "Failed to upload file to Cloudinary", HttpStatus.BAD_REQUEST),
     LIBREOFFICE_NOT_AVAILABLE(1015, "LibreOffice is required to convert PPTX. Install LibreOffice or export slides as PDF", HttpStatus.BAD_REQUEST),
     PPTX_CONVERSION_FAILED(1016, "Failed to convert PPTX to slides", HttpStatus.BAD_REQUEST),
+    INVALID_PROGRESS_STATUS(1017, "Trạng thái tiến độ không hợp lệ", HttpStatus.BAD_REQUEST),
     ;
 
 

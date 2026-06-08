@@ -8,7 +8,7 @@ import { MaterialIcon } from "./teacher-icons";
 
 export function TeacherMobileNav() {
   return (
-    <nav className="mb-md flex gap-sm overflow-x-auto lg:hidden">
+    <nav className="mb-md flex gap-sm overflow-x-auto scroll-hide lg:hidden">
       {teacherNavItems.map((item) => (
         <NavLink
           className={({ isActive }) =>

@@ -6,7 +6,10 @@ type CourseStructureModalOverlayProps = {
   onClose: () => void;
   children: ReactNode;
   labelledBy?: string;
-  size?: "default" | "wide";
+  size?: "default" | "wide" | "compact";
+  overlayClassName?: string;
+  backdropBlur?: boolean;
+  scrollable?: boolean;
 };
 
 export function CourseStructureModalOverlay({
@@ -15,6 +18,9 @@ export function CourseStructureModalOverlay({
   children,
   labelledBy,
   size = "default",
+  overlayClassName = "bg-black/50",
+  backdropBlur = true,
+  scrollable = true,
 }: CourseStructureModalOverlayProps) {
   useEffect(() => {
     if (!open) return;
@@ -39,13 +45,19 @@ export function CourseStructureModalOverlay({
     <div
       aria-labelledby={labelledBy}
       aria-modal="true"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      className={`fixed inset-0 z-50 flex items-center justify-center p-md ${backdropBlur ? "backdrop-blur-sm" : ""} ${overlayClassName}`}
       onClick={onClose}
       role="dialog"
     >
       <div
-        className={`mx-auto w-full max-h-[90vh] overflow-y-auto ${
-          size === "wide" ? "max-w-5xl" : "max-w-2xl"
+        className={`mx-auto w-full shrink-0 ${
+          scrollable ? "max-h-[90vh] overflow-y-auto" : "overflow-hidden"
+        } ${
+          size === "wide"
+            ? "max-w-[64rem]"
+            : size === "compact"
+              ? "max-w-[36rem]"
+              : "max-w-[42rem]"
         }`}
         onClick={(event) => event.stopPropagation()}
       >

@@ -1,11 +1,18 @@
 import { ADMIN_USER_ROLE_OPTIONS } from "../constants/admin-user.constants";
 import type { AdminUser } from "../types/admin-user.types";
+import { AdminUsersPagination } from "./admin-users-pagination";
 
 type AdminUsersTableProps = {
   users: AdminUser[];
   deletingUserId: number | null;
   onEdit: (user: AdminUser) => void;
   onDelete: (user: AdminUser) => void;
+  totalItems: number;
+  rangeStart: number;
+  rangeEnd: number;
+  page: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
 };
 
 function getRoleLabel(role: AdminUser["role"]) {
@@ -20,6 +27,12 @@ export function AdminUsersTable({
   deletingUserId,
   onEdit,
   onDelete,
+  totalItems,
+  rangeStart,
+  rangeEnd,
+  page,
+  totalPages,
+  onPageChange,
 }: AdminUsersTableProps) {
   return (
     <div className="overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-lowest">
@@ -79,6 +92,14 @@ export function AdminUsersTable({
           </tbody>
         </table>
       </div>
+      <AdminUsersPagination
+        totalItems={totalItems}
+        rangeStart={rangeStart}
+        rangeEnd={rangeEnd}
+        page={page}
+        totalPages={totalPages}
+        onPageChange={onPageChange}
+      />
     </div>
   );
 }

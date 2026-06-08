@@ -16,6 +16,8 @@ export function useQuestionMetadataQuery() {
     queryKey: QUESTION_LIBRARY_QUERY_KEYS.metadata,
     queryFn: getQuestionMetadata,
     enabled: isBrowser,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
   });
 }
 
@@ -25,6 +27,8 @@ export function useQuestionsQuery(filters: QuestionFilters, page: number, size: 
     queryFn: () => getQuestions(filters, page, size),
     enabled: isBrowser,
     placeholderData: (previousData) => previousData,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
   });
 }
 
@@ -33,6 +37,8 @@ export function useQuestionQuery(id: string | null) {
     queryKey: QUESTION_LIBRARY_QUERY_KEYS.question(id ?? ""),
     queryFn: () => getQuestion(id ?? ""),
     enabled: isBrowser && Boolean(id),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
   });
 }
 
@@ -41,5 +47,7 @@ export function useQuestionStatsQuery() {
     queryKey: QUESTION_LIBRARY_QUERY_KEYS.stats,
     queryFn: getQuestionStats,
     enabled: isBrowser,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
   });
 }

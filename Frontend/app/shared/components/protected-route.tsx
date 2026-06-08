@@ -47,12 +47,13 @@ export function ProtectedRoute({
 }: ProtectedRouteProps) {
   const navigate = useNavigate();
   const location = useLocation();
-  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [isAuthorized, setIsAuthorized] = useState(true);
 
   useEffect(() => {
     const session = getAuthSession();
 
     if (!session) {
+      setIsAuthorized(false);
       navigate(redirectTo, {
         replace: true,
         state: { from: location.pathname + location.search },
@@ -61,6 +62,7 @@ export function ProtectedRoute({
     }
 
     if (!isAllowedRole(session, allowedRoles)) {
+      setIsAuthorized(false);
       const returnPath = getSafeReturnPath(session, location.state);
       const roleLabel =
         session.role === "teacher"

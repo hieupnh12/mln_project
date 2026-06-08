@@ -261,9 +261,6 @@ public class MaterialService {
     }
 
     private void checkLessonOwnership(Lesson lesson) {
-        com.sed10.mln.study.entity.User currentUser = com.sed10.mln.study.security.SecurityUtils.getCurrentUser();
-        if (!lesson.getTeacher().getId().equals(currentUser.getId()) && !currentUser.getRole().equalsIgnoreCase("admin")) {
-            throw new AppException(ErrorCode.UNAUTHORIZED_ACCESS);
-        }
+        // Ownership check removed: all teachers share resources
     }
 }

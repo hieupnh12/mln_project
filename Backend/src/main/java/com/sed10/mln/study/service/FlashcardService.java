@@ -25,8 +25,8 @@ public class FlashcardService {
     FlashcardRepository flashcardRepository;
     LessonRepository lessonRepository;
 
-    public List<Chapter> getAllChaptersForTeacher(Long teacherId) {
-        List<Lesson> lessons = lessonRepository.findByTeacherId(teacherId);
+    public List<Chapter> getAllChapters() {
+        List<Lesson> lessons = lessonRepository.findAllWithChapterAndSubject();
         return lessons.stream()
                 .map(Lesson::getChapter)
                 .filter(java.util.Objects::nonNull)

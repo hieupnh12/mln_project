@@ -3,8 +3,16 @@ import { Link } from "react-router";
 import { useSubjects } from "../hooks/dashboard.hooks";
 
 import { StudentMaterialIcon as MaterialIcon } from "../../components/student-material-icon";
-import { getStudentCoursePath } from "../../constants/student-routes.constants";
+import {
+  getStudentCoursePath,
+  getStudentCourseResumePath,
+} from "../../constants/student-routes.constants";
 import { courseToneClass } from "../constants/student-dashboard.constants";
+import { useSubjectLessonProgressQuery } from "../../student-progress/hooks/use-student-progress-queries";
+import {
+  computeProgressPercent,
+  findResumeInProgressList,
+} from "../../student-progress/utils/student-progress-resume.util";
 import { mapSubjectToCourseCard } from "../utils/map-subject-to-course-card";
 
 function CurriculumSkeleton() {
@@ -24,13 +32,77 @@ function CurriculumSkeleton() {
   );
 }
 
+type SubjectCourseCardProps = {
+  subjectId: number;
+  index: number;
+};
+
+function SubjectCourseCard({ subjectId, index }: SubjectCourseCardProps) {
+  const { data: subjects } = useSubjects();
+  const subject = subjects?.find((item) => item.id === subjectId);
+  const progressQuery = useSubjectLessonProgressQuery(subjectId);
+
+  if (!subject) {
+    return null;
+  }
+
+  const course = mapSubjectToCourseCard(subject, index);
+  const progressItems = progressQuery.data ?? [];
+  const progressPercent = computeProgressPercent(progressItems);
+  const resumePoint = findResumeInProgressList(subjectId, progressItems);
+  const coursePath = resumePoint
+    ? getStudentCourseResumePath(String(subjectId), {
+        chapterId: resumePoint.chapterId,
+        lessonId: resumePoint.lessonId,
+        materialId: resumePoint.materialId ?? undefined,
+      })
+    : getStudentCoursePath(course.slug);
+  const actionLabel = resumePoint?.lessonId ? "Học tiếp" : "Vào học";
+  const tone = courseToneClass[course.tone as keyof typeof courseToneClass];
+
+  return (
+    <Link
+      className={`group flex min-h-64 cursor-pointer flex-col justify-between rounded-xl border p-gutter shadow-[0_4px_20px_rgba(35,39,51,0.04)] transition duration-300 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(35,39,51,0.08)] ${tone.card} ${tone.border}`}
+      to={coursePath}
+    >
+      <div>
+        <div className="mb-4 flex items-start justify-between gap-4">
+          <span
+            className={`rounded-full bg-white/50 px-3 py-1 text-label-sm font-semibold ${tone.text}`}
+          >
+            {course.status}
+          </span>
+          <MaterialIcon className={tone.text}>{course.icon}</MaterialIcon>
+        </div>
+        <h3 className="text-headline-md font-semibold leading-snug text-primary">
+          {course.title}
+        </h3>
+        <p className="mt-2 line-clamp-2 text-label-md text-on-surface-variant">
+          {course.lessons}
+        </p>
+      </div>
+
+      <div className="space-y-4">
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/40">
+          <div
+            className="h-full rounded-full bg-primary transition-all duration-500"
+            style={{ width: `${progressPercent}%` }}
+          />
+        </div>
+        <div
+          className={`flex justify-between gap-4 text-label-sm font-semibold ${tone.text}`}
+        >
+          <span>{progressQuery.isLoading ? "..." : `${progressPercent}% Hoàn thành`}</span>
+          <span>{actionLabel}</span>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
 export function StudentCurriculumSection() {
   const { data: subjects, isLoading, isError, error, refetch, isFetching } =
     useSubjects();
-
-  const courses = (subjects ?? []).map((subject, index) =>
-    mapSubjectToCourseCard(subject, index),
-  );
 
   return (
     <section className="space-y-md" id="curriculum">
@@ -43,9 +115,9 @@ export function StudentCurriculumSection() {
             Các khóa học lý luận chính trị trọng tâm cho học kỳ này.
           </p>
         </div>
-        {!isLoading && courses.length > 0 ? (
+        {!isLoading && (subjects?.length ?? 0) > 0 ? (
           <span className="flex w-fit items-center gap-1 text-label-md font-medium text-on-surface-variant">
-            {courses.length} khóa học
+            {subjects?.length} khóa học
             {isFetching ? (
               <MaterialIcon className="h-[18px] w-[18px] animate-spin text-[18px]">
                 progress_activity
@@ -79,7 +151,7 @@ export function StudentCurriculumSection() {
         </div>
       ) : null}
 
-      {!isLoading && !isError && courses.length === 0 ? (
+      {!isLoading && !isError && (subjects?.length ?? 0) === 0 ? (
         <div className="rounded-xl border border-outline-variant bg-white p-gutter text-center shadow-[0_4px_20px_rgba(35,39,51,0.04)]">
           <MaterialIcon className="mx-auto mb-3 text-[40px] text-on-surface-variant">
             menu_book
@@ -93,54 +165,11 @@ export function StudentCurriculumSection() {
         </div>
       ) : null}
 
-      {!isLoading && !isError && courses.length > 0 ? (
+      {!isLoading && !isError && (subjects?.length ?? 0) > 0 ? (
         <div className="grid grid-cols-1 gap-gutter md:grid-cols-2 lg:grid-cols-3">
-          {courses.map((course) => {
-            const tone =
-              courseToneClass[course.tone as keyof typeof courseToneClass];
-
-            return (
-              <Link
-                className={`group flex min-h-64 cursor-pointer flex-col justify-between rounded-xl border p-gutter shadow-[0_4px_20px_rgba(35,39,51,0.04)] transition duration-300 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(35,39,51,0.08)] ${tone.card} ${tone.border}`}
-                key={course.slug}
-                to={getStudentCoursePath(course.slug)}
-              >
-                <div>
-                  <div className="mb-4 flex items-start justify-between gap-4">
-                    <span
-                      className={`rounded-full bg-white/50 px-3 py-1 text-label-sm font-semibold ${tone.text}`}
-                    >
-                      {course.status}
-                    </span>
-                    <MaterialIcon className={tone.text}>
-                      {course.icon}
-                    </MaterialIcon>
-                  </div>
-                  <h3 className="text-headline-md font-semibold leading-snug text-primary">
-                    {course.title}
-                  </h3>
-                  <p className="mt-2 line-clamp-2 text-label-md text-on-surface-variant">
-                    {course.lessons}
-                  </p>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/40">
-                    <div
-                      className="h-full rounded-full bg-primary"
-                      style={{ width: `${course.progress}%` }}
-                    />
-                  </div>
-                  <div
-                    className={`flex justify-between gap-4 text-label-sm font-semibold ${tone.text}`}
-                  >
-                    <span>{course.progress}% Hoàn thành</span>
-                    <span>Vào học</span>
-                  </div>
-                </div>
-              </Link>
-            );
-          })}
+          {subjects?.map((subject, index) => (
+            <SubjectCourseCard index={index} key={subject.id} subjectId={subject.id} />
+          ))}
         </div>
       ) : null}
     </section>

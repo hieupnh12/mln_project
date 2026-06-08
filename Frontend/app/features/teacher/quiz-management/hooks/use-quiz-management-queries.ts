@@ -20,6 +20,8 @@ export function useQuizListQuery(filters: QuizFilters) {
     queryFn: () => getQuizList(filters),
     enabled: isBrowser,
     placeholderData: (previous) => previous,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
   });
 }
 
@@ -28,6 +30,8 @@ export function useQuizStatsQuery() {
     queryKey: QUIZ_MANAGEMENT_QUERY_KEYS.stats,
     queryFn: getQuizStats,
     enabled: isBrowser,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
   });
 }
 
@@ -36,6 +40,8 @@ export function useQuizDetailQuery(quizId: string | null) {
     queryKey: QUIZ_MANAGEMENT_QUERY_KEYS.detail(quizId ?? ""),
     queryFn: () => getQuizDetail(quizId ?? ""),
     enabled: isBrowser && Boolean(quizId),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
   });
 }
 
@@ -70,5 +76,7 @@ export function useQuizCandidateQuestionsQuery(scope: CandidateScope, enabled: b
       }),
     enabled: isBrowser && enabled && Boolean(scope.course) && Boolean(scope.chapter),
     placeholderData: (previous) => previous,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
   });
 }

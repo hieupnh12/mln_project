@@ -1,5 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { COURSE_STRUCTURE_QUERY_KEYS } from "../constants/course-structure-api.constants";
+import { getStructureLessons } from "../services/course-structure.service";
 
 import { showErrorToast, showSuccessToast } from "~/shared/utils/toast";
 
@@ -82,6 +85,20 @@ export function CourseStructureManager({ subjectId }: CourseStructureManagerProp
 
   const subject = subjectQuery.data;
   const chapters = chaptersQuery.data ?? [];
+
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (chapters.length > 0) {
+      chapters.forEach((chapter) => {
+        queryClient.prefetchQuery({
+          queryKey: COURSE_STRUCTURE_QUERY_KEYS.lessons(chapter.id),
+          queryFn: () => getStructureLessons(chapter.id),
+          staleTime: 5 * 60 * 1000,
+        });
+      });
+    }
+  }, [chapters, queryClient]);
 
   return (
     <div className="mx-auto max-w-5xl" id="course-structure">

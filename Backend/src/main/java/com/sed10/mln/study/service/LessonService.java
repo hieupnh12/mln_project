@@ -13,6 +13,9 @@ import com.sed10.mln.study.entity.*;
 import com.sed10.mln.study.exception.AppException;
 import com.sed10.mln.study.exception.ErrorCode;
 import com.sed10.mln.study.mapper.LessonMapper;
+import com.sed10.mln.study.mapper.MaterialMapper;
+import com.sed10.mln.study.dto.response.MaterialResponse;
+import com.sed10.mln.study.enums.ContentType;
 import com.sed10.mln.study.repository.*;
 
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +35,8 @@ public class LessonService {
     final UserRepository userRepo;
     final MaterialRepository materialRepo;
     final MaterialService materialSer;
+    final SlideRepository slideRepo;
+    final MaterialMapper materialMapper;
 
 
     public LessonResponse createLesson(LessonRequest lessonRequest, Long chapterId, Long teacherId) {
@@ -46,10 +51,7 @@ public class LessonService {
     public void deleteLesson(Long lessonId) {
         Lesson lesson = lessonRepo.findById(lessonId).orElseThrow(() -> new AppException(ErrorCode.LESSON_NOT_FOUND));
         
-        User currentUser = com.sed10.mln.study.security.SecurityUtils.getCurrentUser();
-        if (!lesson.getTeacher().getId().equals(currentUser.getId()) && !currentUser.getRole().equalsIgnoreCase("admin")) {
-            throw new AppException(ErrorCode.UNAUTHORIZED_ACCESS);
-        }
+        // Ownership check removed: all teachers share resources
 
         materialRepo.findByLessonId(lessonId).forEach(material -> materialSer.deleteMaterial(material.getId()));
         lessonRepo.delete(lesson);
@@ -60,10 +62,7 @@ public class LessonService {
     public void updateLesson(Long lessonId, LessonRequest lessonRequest) {
         Lesson lesson = lessonRepo.findById(lessonId).orElseThrow(() -> new AppException(ErrorCode.LESSON_NOT_FOUND));
         
-        User currentUser = com.sed10.mln.study.security.SecurityUtils.getCurrentUser();
-        if (!lesson.getTeacher().getId().equals(currentUser.getId()) && !currentUser.getRole().equalsIgnoreCase("admin")) {
-            throw new AppException(ErrorCode.UNAUTHORIZED_ACCESS);
-        }
+        // Ownership check removed: all teachers share resources
 
         if (lessonRequest.getTitle() != null) {
             lesson.setTitle(lessonRequest.getTitle());
@@ -81,11 +80,37 @@ public class LessonService {
     
     public List<LessonListResponse> listlessonAndMaterialByChapterId(Long chapterId) {
         List<Lesson> lessons = lessonRepo.listlessonAndMaterialByChapterId(chapterId);
+        
+        List<Long> slideDeckMaterialIds = lessons.stream()
+                .filter(lesson -> lesson.getMaterials() != null)
+                .flatMap(lesson -> lesson.getMaterials().stream())
+                .filter(material -> ContentType.SLIDE_DECK.name().equals(material.getContentType()))
+                .map(Material::getId)
+                .toList();
+
+        java.util.Map<Long, String> previewImageMap = new java.util.HashMap<>();
+        if (!slideDeckMaterialIds.isEmpty()) {
+            List<Object[]> rows = slideRepo.findFirstSlideImagesByMaterialIds(slideDeckMaterialIds);
+            for (Object[] row : rows) {
+                Long materialId = (Long) row[0];
+                String imageUrl = (String) row[1];
+                previewImageMap.put(materialId, imageUrl);
+            }
+        }
+
         return lessons.stream().map(lesson -> {
             LessonListResponse response = lessonMap.toLessonListResponse(lesson);
             if (lesson.getMaterials() != null && !lesson.getMaterials().isEmpty()) {
                 response.setMaterials(lesson.getMaterials().stream()
-                        .map(materialSer::toMaterialResponseWithPreview)
+                        .map(material -> {
+                            MaterialResponse materialResp = materialMapper.toMaterialResponse(material);
+                            if (ContentType.YOUTUBE.name().equals(material.getContentType())) {
+                                materialResp.setPreviewImageUrl(materialSer.resolvePreviewImageUrl(material));
+                            } else {
+                                materialResp.setPreviewImageUrl(previewImageMap.get(material.getId()));
+                            }
+                            return materialResp;
+                        })
                         .toList());
             }
             return response;
