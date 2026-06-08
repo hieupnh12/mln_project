@@ -36,6 +36,8 @@ export function useCourseChaptersQuery(
         : COURSE_LEARNING_QUERY_KEYS.chapters(subjectId),
     queryFn: () => getChaptersBySubjectId(subjectId as number),
     enabled: enabled && isBrowser && subjectId != null && !Number.isNaN(subjectId),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
   });
 }
 
@@ -47,6 +49,8 @@ export function useChapterLessonsQuery(chapterId: number | null) {
         : COURSE_LEARNING_QUERY_KEYS.lessons(chapterId),
     queryFn: () => getLessonsByChapterId(chapterId as number),
     enabled: isBrowser && chapterId != null,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
   });
 }
 

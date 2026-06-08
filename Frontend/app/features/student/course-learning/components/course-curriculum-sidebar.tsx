@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { COURSE_LEARNING_QUERY_KEYS } from "../constants/course-learning-api.constants";
+import { getLessonsByChapterId } from "../services/course-learning.service";
 
 import { StudentMaterialIcon as MaterialIcon } from "../../components/student-material-icon";
 import type { StudentChapterState } from "../../types/student.types";
@@ -389,6 +392,20 @@ export function CourseCurriculumSidebar({
     () => buildLessonProgressMap(subjectProgress),
     [subjectProgress],
   );
+
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (chapters.length > 0) {
+      chapters.forEach((chapter) => {
+        queryClient.prefetchQuery({
+          queryKey: COURSE_LEARNING_QUERY_KEYS.lessons(chapter.id),
+          queryFn: () => getLessonsByChapterId(chapter.id),
+          staleTime: 5 * 60 * 1000,
+        });
+      });
+    }
+  }, [chapters, queryClient]);
 
   return (
     <aside className="flex h-full max-h-150 flex-col rounded-xl border border-outline-variant/30 bg-white p-md shadow-[0_4px_20px_rgba(35,39,51,0.04)] lg:max-h-[600px]">

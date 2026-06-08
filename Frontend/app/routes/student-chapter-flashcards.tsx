@@ -8,7 +8,6 @@ import { showErrorToast, showSuccessToast } from "~/shared/utils/toast";
 import {
   ArrowLeft,
   Volume2,
-  CheckCircle,
   HelpCircle,
   Shuffle,
   RotateCcw,
@@ -209,6 +208,7 @@ export default function StudentChapterFlashcardsPage() {
     }
   }, [saveProgress]);
 
+
   // TTS text reader
   const handleSpeak = useCallback((e: React.MouseEvent, text: string) => {
     e.stopPropagation(); // Avoid flipping the card
@@ -266,23 +266,35 @@ export default function StudentChapterFlashcardsPage() {
   return (
     <div className="bg-[#F4F1EA] text-on-surface font-body-md min-h-screen pb-24 md:pb-12 transition-colors duration-300">
       
-      {/* 3D Y-axis flip card CSS classes inlined for absolute rendering safety */}
+      {/* 3D X-axis flip card CSS classes inlined for absolute rendering safety */}
       <style dangerouslySetInnerHTML={{__html: `
-        .perspective { perspective: 1000px; }
+        .perspective {
+          perspective: 1200px;
+          -webkit-perspective: 1200px;
+        }
         .card-inner {
           transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+          -webkit-transition: -webkit-transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
           transform-style: preserve-3d;
+          -webkit-transform-style: preserve-3d;
         }
-        .card-inner.is-flipped { transform: rotateY(180deg); }
+        .card-inner.is-flipped {
+          transform: rotateX(180deg);
+          -webkit-transform: rotateX(180deg);
+        }
         .card-front, .card-back {
           backface-visibility: hidden;
+          -webkit-backface-visibility: hidden;
           position: absolute;
           top: 0;
           left: 0;
           width: 100%;
           height: 100%;
         }
-        .card-back { transform: rotateY(180deg); }
+        .card-back {
+          transform: rotateX(180deg);
+          -webkit-transform: rotateX(180deg);
+        }
       `}} />
 
       {/* Top Navigation Bar */}
@@ -405,37 +417,38 @@ export default function StudentChapterFlashcardsPage() {
                 <div className="perspective w-full max-w-5xl h-[560px] md:h-[620px] cursor-pointer" onClick={toggleFlip}>
                   <div className={`card-inner relative w-full h-full shadow-[0_12px_40px_rgba(14,18,30,0.06)] ${isFlipped ? "is-flipped" : ""}`} id="flashcard">
                     
-                    {/* Front State: Soothing teal background */}
-                    <div className="card-front bg-[#80D0CD] rounded-xl flex flex-col items-center justify-between p-gutter text-center border border-[#4DBFBA] relative">
+                    {/* Front State: Clean white background */}
+                    <div className="card-front bg-white rounded-[24px] flex flex-col items-center justify-between p-gutter text-center border border-outline-variant/60 relative shadow-[0_8px_30px_rgb(0,0,0,0.03)]">
                       
-                      {/* Speaker and Master actions */}
-                      <div className="absolute top-6 right-6 flex items-center gap-2">
+                      {/* Speaker and Star actions */}
+                      <div className="absolute top-6 right-6 flex items-center gap-3">
                         <button
                           onClick={(e) => handleSpeak(e, currentCard.term)}
-                          className="h-9 w-9 rounded-full bg-white/60 hover:bg-white text-secondary flex items-center justify-center transition-colors"
+                          className="h-9 w-9 rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-container-low flex items-center justify-center transition-colors"
                           title="Đọc thuật ngữ"
                           type="button"
                         >
-                          <Volume2 size={16} />
+                          <Volume2 size={18} />
                         </button>
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             handleToggleMaster(currentCard.id);
                           }}
-                          className={`h-9 w-9 rounded-full border transition-all flex items-center justify-center bg-white ${masteredCardIds.has(currentCard.id)
-                            ? "border-emerald-500 text-emerald-500 shadow-xs"
-                            : "border-slate-200 text-slate-400 hover:text-emerald-500"
-                            }`}
+                          className={`h-9 w-9 rounded-full transition-colors flex items-center justify-center hover:bg-surface-container-low ${
+                            masteredCardIds.has(currentCard.id)
+                              ? "text-yellow-500 fill-yellow-500"
+                              : "text-on-surface-variant hover:text-yellow-500"
+                          }`}
                           title={masteredCardIds.has(currentCard.id) ? "Đã thuộc" : "Đánh dấu đã thuộc"}
                           type="button"
                         >
-                          <CheckCircle size={16} />
+                          <Star size={18} />
                         </button>
                       </div>
 
-                      <span className="flex items-center gap-1.5 text-secondary scale-110 font-semibold mt-12">
-                        <HelpCircle size={20} />
+                      <span className="flex items-center gap-1.5 text-on-surface-variant/60 font-semibold mt-12">
+                        <HelpCircle size={16} />
                         <span className="text-xs uppercase tracking-widest font-bold">Thuật ngữ</span>
                       </span>
                       
@@ -443,55 +456,57 @@ export default function StudentChapterFlashcardsPage() {
                         {currentCard.term}
                       </h2>
                       
-                      <p className="text-label-sm font-label-sm text-secondary/80 mb-2">Nhấp chuột hoặc phím Space để lật</p>
+                      <p className="text-label-sm font-label-sm text-on-surface-variant/50 mb-2">Nhấp chuột hoặc phím Space để lật</p>
                     </div>
 
-                    {/* Back State: Dark deep brand container */}
-                    <div className="card-back bg-primary-container rounded-xl flex flex-col items-center justify-between p-gutter text-center border-l-4 border-secondary-container relative">
+                    {/* Back State: Clean white background */}
+                    <div className="card-back bg-white rounded-[24px] flex flex-col items-center justify-between p-gutter text-center border border-outline-variant/60 relative shadow-[0_8px_30px_rgb(0,0,0,0.03)]">
                       
-                      {/* Speaker and Master actions */}
-                      <div className="absolute top-6 right-6 flex items-center gap-2">
+                      {/* Speaker and Star actions */}
+                      <div className="absolute top-6 right-6 flex items-center gap-3">
                         <button
                           onClick={(e) => handleSpeak(e, currentCard.definition)}
-                          className="h-9 w-9 rounded-full bg-white/10 hover:bg-white/20 text-secondary-fixed flex items-center justify-center transition-colors"
+                          className="h-9 w-9 rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-container-low flex items-center justify-center transition-colors"
                           title="Đọc định nghĩa"
                           type="button"
                         >
-                          <Volume2 size={16} />
+                          <Volume2 size={18} />
                         </button>
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             handleToggleMaster(currentCard.id);
                           }}
-                          className={`h-9 w-9 rounded-full border transition-all flex items-center justify-center ${masteredCardIds.has(currentCard.id)
-                            ? "bg-emerald-500 border-emerald-500 text-white shadow-xs"
-                            : "border-white/20 text-white/40 hover:text-emerald-400 hover:border-emerald-400 bg-white/5"
-                            }`}
+                          className={`h-9 w-9 rounded-full transition-colors flex items-center justify-center hover:bg-surface-container-low ${
+                            masteredCardIds.has(currentCard.id)
+                              ? "text-yellow-500 fill-yellow-500"
+                              : "text-on-surface-variant hover:text-yellow-500"
+                          }`}
                           title={masteredCardIds.has(currentCard.id) ? "Đã thuộc" : "Đánh dấu đã thuộc"}
                           type="button"
                         >
-                          <CheckCircle size={16} />
+                          <Star size={18} />
                         </button>
                       </div>
 
-                      <span className="text-label-sm font-label-sm text-secondary-fixed uppercase tracking-widest mt-12">
-                        Định nghĩa
+                      <span className="flex items-center gap-1.5 text-on-surface-variant/60 font-semibold mt-12">
+                        <Brain size={16} className="text-secondary" />
+                        <span className="text-xs uppercase tracking-widest font-bold">Định nghĩa</span>
                       </span>
 
-                      <div className="px-12 my-auto max-h-[70%] overflow-y-auto pr-2">
-                        <p className="text-[20px] md:text-[28px] font-medium text-white leading-relaxed font-sans">
+                      <div className="px-12 my-auto max-h-[70%] overflow-y-auto pr-2 custom-scrollbar">
+                        <p className="text-[20px] md:text-[28px] font-medium text-primary leading-relaxed font-sans">
                           {currentCard.definition}
                         </p>
                       </div>
 
-                      <p className="text-label-sm font-label-sm text-on-primary-container mb-2">Nhấp chuột để ẩn định nghĩa</p>
+                      <p className="text-label-sm font-label-sm text-on-surface-variant/50 mb-2">Nhấp chuột để ẩn định nghĩa</p>
                     </div>
 
                   </div>
                 </div>
 
-                {/* Card Controls Panel - Aligned with larger card */}
+                {/* Card Controls Panel */}
                 <div className="mt-6 flex items-center justify-between bg-white p-4 rounded-2xl border-2 border-outline-variant/80 shadow-sm w-full max-w-5xl mx-auto">
                   <button
                     onClick={handleToggleShuffle}
@@ -504,29 +519,25 @@ export default function StudentChapterFlashcardsPage() {
                     <span>{isShuffled ? "Đang Trộn" : "Xáo trộn"}</span>
                   </button>
 
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-4 bg-surface-container-low/60 px-2 py-2 rounded-full border border-outline-variant/40">
                     <button
                       onClick={handlePrev}
-                      className="w-12 h-12 rounded-xl flex items-center justify-center bg-surface-container-high text-on-surface hover:scale-95 transition-transform border border-outline-variant/20 shadow-2xs"
+                      className="w-11 h-11 rounded-full flex items-center justify-center bg-surface-container-high/70 text-on-surface-variant hover:bg-surface-container-high transition-colors active:scale-95"
                       title="Thẻ trước"
                     >
-                      <ChevronLeft size={18} />
+                      <ChevronLeft size={20} />
                     </button>
                     
-                    <button
-                      onClick={toggleFlip}
-                      className="px-6 h-12 rounded-xl flex items-center justify-center bg-secondary-container text-on-secondary-container hover:bg-secondary-container/90 border border-secondary/20 shadow-2xs font-semibold text-label-md transition-all active:scale-95"
-                      title="Lật thẻ"
-                    >
-                      Lật thẻ (Space)
-                    </button>
+                    <span className="text-label-md font-semibold text-on-surface-variant min-w-[60px] text-center tabular-nums">
+                      {currentIndex + 1} / {cards.length}
+                    </span>
 
                     <button
                       onClick={handleNext}
-                      className="w-12 h-12 rounded-xl flex items-center justify-center bg-primary text-white shadow-md hover:scale-105 active:scale-95 transition-all"
+                      className="w-11 h-11 rounded-full flex items-center justify-center bg-surface-container-high/70 text-on-surface-variant hover:bg-surface-container-high transition-colors active:scale-95"
                       title="Thẻ sau"
                     >
-                      <ChevronRight size={18} />
+                      <ChevronRight size={20} />
                     </button>
                   </div>
 
@@ -650,41 +661,41 @@ export default function StudentChapterFlashcardsPage() {
                   return (
                     <article
                       key={card.id}
-                      className="grid grid-cols-1 md:grid-cols-[60px_1.2fr_2fr_90px] items-center gap-4 p-6 rounded-2xl transition duration-300 border bg-primary-container/95 border-outline/20 hover:border-outline/40 shadow-[0_4px_24px_rgba(14,18,30,0.15)]"
+                      className="grid grid-cols-1 md:grid-cols-[60px_1.2fr_2fr_90px] items-center gap-4 p-6 rounded-2xl transition duration-300 border bg-white border-outline-variant/60 hover:border-outline-variant hover:shadow-md"
                     >
                       {/* Index */}
-                      <span className="text-xs font-black tracking-widest text-slate-500">
+                      <span className="text-xs font-black tracking-widest text-on-surface-variant/50">
                         #{String(idx + 1).padStart(2, '0')}
                       </span>
 
                       {/* Term */}
-                      <div className="font-bold text-white font-serif text-lg md:pr-4 tracking-wide leading-snug">
+                      <div className="font-bold text-primary font-serif text-lg md:pr-4 tracking-wide leading-snug">
                         {card.term}
                       </div>
 
                       {/* Definition */}
-                      <div className="text-[15px] leading-relaxed md:border-l md:border-white/10 md:pl-6 py-2 md:py-1 text-slate-300">
+                      <div className="text-[15px] leading-relaxed md:border-l md:border-outline-variant/30 md:pl-6 py-2 md:py-1 text-on-surface-variant">
                         {card.definition}
                       </div>
 
-                      {/* Speaker and check circle toggler */}
+                      {/* Speaker and star toggler */}
                       <div className="flex items-center justify-end gap-3 pr-1">
                         <button
                           onClick={(e) => handleSpeak(e, card.term + ". " + card.definition)}
-                          className="h-9 w-9 rounded-full flex items-center justify-center transition-colors bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white"
+                          className="h-9 w-9 rounded-full flex items-center justify-center transition-colors text-on-surface-variant hover:text-primary hover:bg-surface-container-low"
                           title="Đọc thẻ"
                         >
                           <Volume2 size={16} />
                         </button>
                         <button
                           onClick={() => handleToggleMaster(card.id)}
-                          className={`h-9 w-9 rounded-full border transition-all flex items-center justify-center ${isMastered
-                            ? "bg-emerald-500 border-emerald-500 text-white shadow-md shadow-emerald-500/20"
-                            : "border-white/20 text-slate-400 hover:border-emerald-500 hover:text-emerald-500 bg-white/5"
+                          className={`h-9 w-9 rounded-full transition-all flex items-center justify-center hover:bg-surface-container-low ${isMastered
+                            ? "text-yellow-500 fill-yellow-500"
+                            : "text-on-surface-variant hover:text-yellow-500"
                             }`}
                           title={isMastered ? "Đã thuộc" : "Đánh dấu đã thuộc"}
                         >
-                          <CheckCircle size={16} />
+                          <Star size={16} />
                         </button>
                       </div>
                     </article>

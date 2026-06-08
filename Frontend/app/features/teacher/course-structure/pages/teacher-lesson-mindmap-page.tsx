@@ -475,7 +475,7 @@ TỪ NỘI DUNG SAU:  [ ]`;
       </main>
 
       {/* Sidebar Wrapper Container */}
-      <div className="relative h-full flex z-10 shrink-0">
+      <div className="absolute right-0 top-0 h-full flex z-10 shrink-0 sm:relative">
         {/* Toggle Sidebar Button */}
         <button
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -489,9 +489,9 @@ TỪ NỘI DUNG SAU:  [ ]`;
 
         {/* Sidebar for AI Input */}
         <div
-          className={`bg-white border-l border-[var(--color-outline-variant)] shadow-[-4px_0_12px_rgba(0,0,0,0.05)] transition-all duration-300 ease-in-out overflow-hidden ${isSidebarOpen ? 'w-96' : 'w-0'}`}
+          className={`bg-white border-l border-[var(--color-outline-variant)] shadow-[-4px_0_12px_rgba(0,0,0,0.05)] transition-all duration-300 ease-in-out overflow-hidden ${isSidebarOpen ? 'w-[calc(100vw-24px)] sm:w-96' : 'w-0'}`}
         >
-          <div className="w-96 h-full flex flex-col overflow-hidden opacity-100 transition-opacity">
+          <div className="w-[calc(100vw-24px)] sm:w-96 h-full flex flex-col overflow-hidden opacity-100 transition-opacity">
           <aside className="h-full flex flex-col p-4 overflow-y-auto">
             <div className="flex items-center gap-3 mb-4">
               <button

@@ -8,7 +8,7 @@ import { MaterialIcon } from "./admin-icons";
 
 export function AdminMobileNav() {
   return (
-    <nav className="mb-md flex gap-sm overflow-x-auto lg:hidden">
+    <nav className="mb-md flex gap-sm overflow-x-auto scroll-hide lg:hidden">
       {adminNavItems.map((item) => (
         <NavLink
           className={({ isActive }) =>

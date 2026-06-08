@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.sed10.mln.study.entity.Slide;
@@ -24,5 +25,8 @@ public interface SlideRepository extends JpaRepository<Slide, Long> {
             WHERE m.id = :materialId
             ORDER BY s.slideIndex ASC
             """)
-    Optional<List<Slide>> findAllByMaterialIdWithMaterial(Long materialId);
+    Optional<List<Slide>> findAllByMaterialIdWithMaterial(@Param("materialId") Long materialId);
+
+    @Query("SELECT s.material.id, s.imageUrl FROM Slide s WHERE s.slideIndex = 0 AND s.material.id IN :materialIds")
+    List<Object[]> findFirstSlideImagesByMaterialIds(@Param("materialIds") List<Long> materialIds);
 }

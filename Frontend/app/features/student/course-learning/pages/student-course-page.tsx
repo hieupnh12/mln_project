@@ -1,8 +1,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { fetchFlashcardSets } from "~/features/teacher/api/flashcard.api";
+import { EXAMS_QUERY_KEYS } from "../../exams/constants/exams-api.constants";
+import { getExamCatalog } from "../../exams/services/exams.service";
+import {
+  PRACTICE_QUERY_KEYS,
+  DEFAULT_PRACTICE_QUESTION_BATCH_SIZE,
+} from "../../practice/constants/practice.constants";
+import { getPracticeQuestions } from "../../practice/services/practice.service";
 
 import { StudentMaterialIcon as MaterialIcon } from "../../components/student-material-icon";
 import { STUDENT_ROUTES } from "../../constants/student-routes.constants";
@@ -84,10 +91,49 @@ export function StudentCoursePage() {
       ? findResumeInProgressList(subjectId, progressQuery.data)
       : null;
 
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (subjectId != null && !Number.isNaN(subjectId)) {
+      // 1. Prefetch flashcard sets
+      queryClient.prefetchQuery({
+        queryKey: ["student", "flashcard-sets"],
+        queryFn: fetchFlashcardSets,
+        staleTime: 5 * 60 * 1000,
+      });
+
+      // 2. Prefetch student exams catalog
+      queryClient.prefetchQuery({
+        queryKey: EXAMS_QUERY_KEYS.catalog(subjectId),
+        queryFn: () => getExamCatalog(subjectId, 50),
+        staleTime: 5 * 60 * 1000,
+      });
+
+      // 3. Prefetch default practice questions (scope: null, null)
+      queryClient.prefetchQuery({
+        queryKey: PRACTICE_QUERY_KEYS.questions(
+          subjectId,
+          null,
+          null,
+          DEFAULT_PRACTICE_QUESTION_BATCH_SIZE,
+        ),
+        queryFn: () =>
+          getPracticeQuestions(
+            subjectId,
+            { chapterId: null, lessonId: null },
+            DEFAULT_PRACTICE_QUESTION_BATCH_SIZE,
+          ),
+        staleTime: 5 * 60 * 1000,
+      });
+    }
+  }, [subjectId, queryClient]);
+
   const { data: flashcardSets, isLoading: isFlashcardSetsLoading } = useQuery({
     queryKey: ["student", "flashcard-sets"],
     queryFn: fetchFlashcardSets,
     enabled: activeTab === "flashcards",
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
   });
 
   const handleTabChange = useCallback(
@@ -290,7 +336,7 @@ export function StudentCoursePage() {
         </section>
 
         <nav className="mb-md border-b border-outline-variant">
-          <div className="flex gap-gutter overflow-x-auto">
+          <div className="flex gap-gutter overflow-x-auto scroll-hide">
             {studentCourseTabs.map((tab) => (
               <button
                 className={
