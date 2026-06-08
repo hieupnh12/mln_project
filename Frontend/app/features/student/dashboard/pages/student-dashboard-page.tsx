@@ -5,7 +5,12 @@ import { useAuthUser } from "~/features/auth/hooks/use-auth-user";
 
 import { useLogout } from "../../../auth/hooks/use-logout";
 import { StudentMaterialIcon as MaterialIcon } from "../../components/student-material-icon";
-import { getStudentCoursePath, STUDENT_ROUTES } from "../../constants/student-routes.constants";
+import {
+  getStudentCoursePath,
+  getStudentCourseResumePath,
+  STUDENT_ROUTES,
+} from "../../constants/student-routes.constants";
+import { useStudentResumeQuery } from "../../student-progress/hooks/use-student-progress-queries";
 import { StudentAccountMenu } from "../components/student-account-menu";
 import { StudentCurriculumSection } from "../components/student-curriculum-section";
 import {
@@ -17,9 +22,18 @@ export function StudentDashboardPage() {
   const logout = useLogout();
   const { data: subjects } = useSubjects();
   const authUser = useAuthUser();
-  const featuredCoursePath = subjects?.[0]
-    ? getStudentCoursePath(String(subjects[0].id))
-    : "#curriculum";
+  const resumeQuery = useStudentResumeQuery(subjects);
+
+  const featuredCoursePath = resumeQuery.data
+    ? getStudentCourseResumePath(String(resumeQuery.data.subjectId), {
+        chapterId: resumeQuery.data.chapterId || undefined,
+        lessonId: resumeQuery.data.lessonId || undefined,
+        materialId: resumeQuery.data.materialId ?? undefined,
+      })
+    : subjects?.[0]
+      ? getStudentCoursePath(String(subjects[0].id))
+      : "#curriculum";
+
   return (
     <div className="min-h-svh bg-background pb-24 font-body-md text-on-surface md:pb-0">
       <header className="sticky top-0 z-50 border-b border-outline-variant/50 bg-surface/95 shadow-[0_4px_20px_rgba(35,39,51,0.04)] backdrop-blur">
@@ -113,49 +127,7 @@ export function StudentDashboardPage() {
           </div>
         </section>
 
-
-
-
-
         <StudentCurriculumSection />
-
-
-
-
-{/* 
-
-
-        <section className="space-y-md" id="resources">
-          <div className="space-y-xs">
-            <h2 className="text-headline-lg font-semibold text-primary">
-              Tài nguyên học tập
-            </h2>
-            <p className="text-body-md text-on-surface-variant">
-              Tài liệu, sơ đồ và bài luyện tập giúp bạn ôn nhanh từng chương.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 gap-gutter md:grid-cols-3">
-            {studentDashboardResources.map((resource) => (
-              <article
-                className="rounded-xl border border-outline-variant bg-white p-gutter shadow-[0_4px_20px_rgba(35,39,51,0.04)] transition hover:-translate-y-1 hover:shadow-[0_18px_34px_rgba(35,39,51,0.08)]"
-                key={resource.title}
-              >
-                <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-secondary-container text-primary">
-                  <MaterialIcon>{resource.icon}</MaterialIcon>
-                </div>
-                <h3 className="text-headline-md font-semibold text-primary">
-                  {resource.title}
-                </h3>
-                <p className="mt-2 text-label-md font-medium text-on-surface-variant">
-                  {resource.type}
-                </p>
-                <button className="mt-6 rounded-lg border border-outline-variant px-5 py-2 text-label-md font-medium text-primary transition hover:bg-surface-variant/30">
-                  Mở tài liệu
-                </button>
-              </article>
-            ))}
-          </div>
-        </section> */}
 
         <section className="grid grid-cols-1 gap-gutter md:grid-cols-4" id="analytics">
           <article className="flex items-center gap-6 rounded-xl border border-outline-variant bg-white p-gutter shadow-[0_4px_20px_rgba(35,39,51,0.04)] md:col-span-2">

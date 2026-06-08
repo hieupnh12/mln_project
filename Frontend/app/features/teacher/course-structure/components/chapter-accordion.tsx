@@ -150,7 +150,7 @@ function LessonBlock({
 
   return (
     <>
-      <div className="group rounded-xl border border-outline-variant/15 bg-surface-container-lowest/60 p-sm">
+      <div className="group rounded-xl border-2 border-outline-variant bg-surface-container-lowest p-md shadow-[0_2px_8px_rgba(35,39,51,0.06)]">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <button
             aria-expanded={isExpanded}
@@ -173,13 +173,6 @@ function LessonBlock({
                   : " · Chưa có tài liệu"}
               </p>
             </div>
-            <MaterialIcon
-              className={`shrink-0 text-on-surface-variant transition-transform ${
-                isExpanded ? "rotate-180" : ""
-              }`}
-            >
-              expand_more
-            </MaterialIcon>
           </button>
           <div className="flex flex-wrap items-center gap-base opacity-100 transition sm:opacity-0 sm:group-hover:opacity-100">
             <button
@@ -220,7 +213,7 @@ function LessonBlock({
 
         {isExpanded ? (
           materialCount > 0 ? (
-            <div className="mt-sm space-y-1 border-t border-outline-variant/15 pt-sm">
+            <div className="mt-sm space-y-1 border-t border-outline-variant/30 pt-sm pl-lg sm:pl-xl">
               {lesson.materials.map((material) => (
                 <MaterialRow
                   key={material.id}
@@ -238,7 +231,7 @@ function LessonBlock({
               ))}
             </div>
           ) : (
-            <p className="mt-sm border-t border-outline-variant/15 pt-sm text-label-sm italic text-on-surface-variant/70">
+            <p className="mt-sm border-t border-outline-variant/30 pt-sm pl-lg text-label-sm italic text-on-surface-variant/70 sm:pl-xl">
               Chưa có tài liệu. Nhấn &quot;Tài liệu&quot; để thêm slide hoặc YouTube.
             </p>
           )
@@ -372,7 +365,7 @@ function ChapterBlock({
 
             {!lessonsQuery.isLoading && !lessonsQuery.isError ? (
               (lessonsQuery.data?.length ?? 0) > 0 ? (
-                <div className="space-y-xs">
+                <div className="space-y-sm">
                   {(lessonsQuery.data ?? []).map((lesson) => (
                     <LessonBlock
                       chapterId={chapter.id}

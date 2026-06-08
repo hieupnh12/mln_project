@@ -12,7 +12,7 @@ export function CourseStructureModalPanel({
 }: CourseStructureModalPanelProps) {
   return (
     <div
-      className={`w-full min-w-0 overflow-hidden rounded-xl border border-outline-variant/20 bg-surface-container-lowest shadow-2xl ${className}`}
+      className={`w-full min-w-0 overflow-hidden rounded-2xl border border-outline-variant/20 bg-surface-container-lowest shadow-lg ${className}`}
     >
       {children}
     </div>

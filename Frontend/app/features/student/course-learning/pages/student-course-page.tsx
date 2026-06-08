@@ -1,26 +1,30 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 
 import { fetchFlashcardSets } from "~/features/teacher/api/flashcard.api";
 
-import { useLogout } from "../../../auth/hooks/use-logout";
 import { StudentMaterialIcon as MaterialIcon } from "../../components/student-material-icon";
 import { STUDENT_ROUTES } from "../../constants/student-routes.constants";
 import type { LearningTab } from "../../types/student.types";
 import { CourseCurriculumSidebar } from "../components/course-curriculum-sidebar";
+import { CourseLearningHeader } from "../components/course-learning-header";
 import { CourseMaterialViewer } from "../components/course-material-viewer";
 import { CoursePracticePanel } from "../components/course-practice-panel";
 import { CourseExamCatalogPanel } from "../../exams/components/course-exam-catalog-panel";
 import {
   studentCourseBottomNavItems,
   studentCourseFlashcards,
-  studentCourseProfile,
   studentCourseTabs,
 } from "../constants/student-course.constants";
 import { useCourseChaptersQuery, useCourseSubjectQuery } from "../hooks/use-course-learning-queries";
 import type { CourseMaterialSummary } from "../types/course-learning.types";
 import { CourseSubjectHeading } from "../components/course-subject-heading";
+import { useSubjectLessonProgressQuery } from "../../student-progress/hooks/use-student-progress-queries";
+import {
+  findNextLessonAfterComplete,
+  findResumeInProgressList,
+} from "../../student-progress/utils/student-progress-resume.util";
 
 function parseSubjectId(courseId: string | undefined) {
   if (!courseId) {
@@ -28,6 +32,15 @@ function parseSubjectId(courseId: string | undefined) {
   }
 
   const parsed = Number(courseId);
+  return Number.isNaN(parsed) ? null : parsed;
+}
+
+function parseOptionalId(value: string | null) {
+  if (!value) {
+    return null;
+  }
+
+  const parsed = Number(value);
   return Number.isNaN(parsed) ? null : parsed;
 }
 
@@ -45,25 +58,56 @@ function parseTabParam(value: string | null): LearningTab {
 }
 
 export function StudentCoursePage() {
-  const logout = useLogout();
   const navigate = useNavigate();
   const { courseId } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const subjectId = useMemo(() => parseSubjectId(courseId), [courseId]);
+  const hasAutoResumedRef = useRef(false);
 
   const [activeTab, setActiveTab] = useState<LearningTab>(() =>
     parseTabParam(searchParams.get("tab")),
   );
 
-  function handleTabChange(tab: LearningTab) {
-    setActiveTab(tab);
-    if (tab === "lectures") {
-      searchParams.delete("tab");
-    } else {
-      searchParams.set("tab", tab);
-    }
-    setSearchParams(searchParams, { replace: true });
-  }
+  const expandedChapterId = parseOptionalId(searchParams.get("chapter"));
+  const expandedLessonId = parseOptionalId(searchParams.get("lesson"));
+  const selectedMaterialId = parseOptionalId(searchParams.get("material"));
+
+  const needsCurriculum = activeTab === "lectures" || activeTab === "flashcards";
+
+  const subjectQuery = useCourseSubjectQuery(subjectId);
+  const chaptersQuery = useCourseChaptersQuery(subjectId, { enabled: needsCurriculum });
+  const progressQuery = useSubjectLessonProgressQuery(subjectId);
+  const subject = subjectQuery.data;
+  const chapters = chaptersQuery.data ?? [];
+  const resumePoint =
+    subjectId != null && progressQuery.data
+      ? findResumeInProgressList(subjectId, progressQuery.data)
+      : null;
+
+  const { data: flashcardSets, isLoading: isFlashcardSetsLoading } = useQuery({
+    queryKey: ["student", "flashcard-sets"],
+    queryFn: fetchFlashcardSets,
+    enabled: activeTab === "flashcards",
+  });
+
+  const handleTabChange = useCallback(
+    (tab: LearningTab) => {
+      setActiveTab(tab);
+      setSearchParams(
+        (current) => {
+          const next = new URLSearchParams(current);
+          if (tab === "lectures") {
+            next.delete("tab");
+          } else {
+            next.set("tab", tab);
+          }
+          return next;
+        },
+        { replace: true },
+      );
+    },
+    [setSearchParams],
+  );
 
   useEffect(() => {
     if (searchParams.get("tab") === "tests") {
@@ -72,36 +116,134 @@ export function StudentCoursePage() {
     }
     setActiveTab(parseTabParam(searchParams.get("tab")));
   }, [searchParams, setSearchParams]);
-  const chapterParam = searchParams.get("chapter");
-  const expandedChapterId = chapterParam ? Number(chapterParam) : null;
-  const [selectedMaterialId, setSelectedMaterialId] = useState<number | null>(null);
 
-  const needsCurriculum = activeTab === "lectures" || activeTab === "flashcards";
+  useEffect(() => {
+    hasAutoResumedRef.current = false;
+  }, [subjectId]);
 
-  const subjectQuery = useCourseSubjectQuery(subjectId);
-  const chaptersQuery = useCourseChaptersQuery(subjectId, { enabled: needsCurriculum });
-  const subject = subjectQuery.data;
-  const chapters = chaptersQuery.data ?? [];
-
-  const { data: flashcardSets, isLoading: isFlashcardSetsLoading } = useQuery({
-    queryKey: ["student", "flashcard-sets"],
-    queryFn: fetchFlashcardSets,
-    enabled: activeTab === "flashcards",
-  });
-
-  function handleToggleChapter(chapterId: number) {
-    if (expandedChapterId === chapterId) {
-      searchParams.delete("chapter");
-    } else {
-      searchParams.set("chapter", String(chapterId));
+  useEffect(() => {
+    if (
+      hasAutoResumedRef.current ||
+      !needsCurriculum ||
+      expandedChapterId != null ||
+      expandedLessonId != null
+    ) {
+      return;
     }
-    setSearchParams(searchParams, { replace: true });
-    setSelectedMaterialId(null);
-  }
 
-  function handleSelectMaterial(material: CourseMaterialSummary) {
-    setSelectedMaterialId(material.id);
-  }
+    if (!resumePoint || resumePoint.lessonId <= 0 || resumePoint.chapterId <= 0) {
+      return;
+    }
+
+    hasAutoResumedRef.current = true;
+    setSearchParams(
+      (current) => {
+        const next = new URLSearchParams(current);
+        next.set("chapter", String(resumePoint.chapterId));
+        next.set("lesson", String(resumePoint.lessonId));
+        return next;
+      },
+      { replace: true },
+    );
+  }, [
+    expandedChapterId,
+    expandedLessonId,
+    needsCurriculum,
+    resumePoint,
+    setSearchParams,
+  ]);
+
+  const handleToggleChapter = useCallback(
+    (chapterId: number) => {
+      setSearchParams(
+        (current) => {
+          const next = new URLSearchParams(current);
+          const isClosing = parseOptionalId(current.get("chapter")) === chapterId;
+
+          if (isClosing) {
+            next.delete("chapter");
+            next.delete("lesson");
+            next.delete("material");
+          } else {
+            next.set("chapter", String(chapterId));
+            next.delete("lesson");
+            next.delete("material");
+          }
+
+          return next;
+        },
+        { replace: true },
+      );
+    },
+    [setSearchParams],
+  );
+
+  const handleToggleLesson = useCallback(
+    (chapterId: number, lessonId: number) => {
+      setSearchParams(
+        (current) => {
+          const next = new URLSearchParams(current);
+          next.set("chapter", String(chapterId));
+
+          const isClosing = parseOptionalId(current.get("lesson")) === lessonId;
+          if (isClosing) {
+            next.delete("lesson");
+            next.delete("material");
+          } else {
+            next.set("lesson", String(lessonId));
+            next.delete("material");
+          }
+
+          return next;
+        },
+        { replace: true },
+      );
+    },
+    [setSearchParams],
+  );
+
+  const handleSelectMaterial = useCallback(
+    (material: CourseMaterialSummary, chapterId: number) => {
+      setSearchParams(
+        (current) => {
+          const next = new URLSearchParams(current);
+          next.set("chapter", String(chapterId));
+          next.set("lesson", String(material.lessonId));
+          next.set("material", String(material.id));
+          return next;
+        },
+        { replace: true },
+      );
+    },
+    [setSearchParams],
+  );
+
+  const handleLessonCompleted = useCallback(
+    (completedLessonId: number) => {
+      const items = (progressQuery.data ?? []).map((item) =>
+        item.lessonId === completedLessonId
+          ? { ...item, status: "COMPLETED" as const }
+          : item,
+      );
+
+      const nextLesson = findNextLessonAfterComplete(items, completedLessonId);
+      if (!nextLesson) {
+        return;
+      }
+
+      setSearchParams(
+        (current) => {
+          const next = new URLSearchParams(current);
+          next.set("chapter", String(nextLesson.chapterId));
+          next.set("lesson", String(nextLesson.lessonId));
+          next.delete("material");
+          return next;
+        },
+        { replace: true },
+      );
+    },
+    [progressQuery.data, setSearchParams],
+  );
 
   if (subjectId == null) {
     return (
@@ -121,54 +263,13 @@ export function StudentCoursePage() {
 
   return (
     <div className="min-h-svh bg-background pb-24 font-body-md text-on-surface md:pb-0">
-      <header className="sticky top-0 z-50 border-b border-outline-variant bg-surface shadow-sm">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-margin-mobile py-4 md:px-margin-desktop">
-          <Link
-            className="flex min-w-0 items-center gap-2 text-primary-container transition hover:opacity-70"
-            to={STUDENT_ROUTES.dashboard}
-          >
-            <MaterialIcon>arrow_back</MaterialIcon>
-            <span className="truncate text-label-md font-medium">Trở về Trang chủ</span>
-          </Link>
-
-          <h1 className="hidden text-headline-md font-bold text-primary md:block">
-            ML Learning
-          </h1>
-
-          <div className="flex shrink-0 items-center gap-3">
-            <button
-              aria-label="Thông báo"
-              className="rounded-full p-2 text-on-surface-variant transition hover:bg-surface-variant/50"
-              type="button"
-            >
-              <MaterialIcon>notifications</MaterialIcon>
-            </button>
-            <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-secondary-container">
-              <img
-                alt="Ảnh đại diện học sinh"
-                className="h-full w-full object-cover"
-                src={studentCourseProfile.avatarUrl}
-              />
-            </div>
-            <button
-              onClick={logout}
-              title="Đăng xuất"
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-error transition hover:bg-error-container/50 active:scale-95"
-            >
-              <MaterialIcon>logout</MaterialIcon>
-            </button>
-          </div>
-        </div>
-      </header>
+      <CourseLearningHeader />
 
       <main className="mx-auto w-full px-margin-mobile py-md md:px-margin-desktop">
         <section className="mb-md">
-          <div className="flex items-center justify-between gap-4">
+          <div>
             {subjectQuery.isLoading ? (
-              <div className="flex items-center gap-3">
-                <div className="h-8 w-56 max-w-full animate-pulse rounded-lg bg-surface-container" />
-                <div className="h-7 w-16 animate-pulse rounded-md bg-surface-container-low" />
-              </div>
+              <div className="h-8 w-56 max-w-full animate-pulse rounded-lg bg-surface-container" />
             ) : subjectQuery.isError ? (
               <div>
                 <h2 className="text-headline-md font-semibold text-primary">
@@ -185,7 +286,6 @@ export function StudentCoursePage() {
             ) : subject ? (
               <CourseSubjectHeading code={subject.code} title={subject.title} />
             ) : null}
-
           </div>
         </section>
 
@@ -212,7 +312,7 @@ export function StudentCoursePage() {
           className={
             activeTab === "practice" || activeTab === "exams"
               ? "min-w-0"
-              : "grid grid-cols-1 gap-gutter lg:grid-cols-12"
+              : "grid grid-cols-1 gap-gutter lg:grid-cols-12 lg:items-start"
           }
         >
           <div
@@ -224,8 +324,11 @@ export function StudentCoursePage() {
           >
             {activeTab === "lectures" ? (
               <CourseMaterialViewer
+                expandedChapterId={expandedChapterId}
+                onLessonCompleted={handleLessonCompleted}
                 selectedMaterialId={selectedMaterialId}
                 subject={subject}
+                subjectId={subjectId}
               />
             ) : null}
 
@@ -324,11 +427,13 @@ export function StudentCoursePage() {
           </div>
 
           {activeTab === "lectures" ? (
-            <div className="min-w-0 lg:col-span-3">
+            <div className="min-w-0 lg:sticky lg:top-24 lg:col-span-3 lg:self-start">
               <CourseCurriculumSidebar
                 expandedChapterId={expandedChapterId}
+                expandedLessonId={expandedLessonId}
                 onSelectMaterial={handleSelectMaterial}
                 onToggleChapter={handleToggleChapter}
+                onToggleLesson={handleToggleLesson}
                 selectedMaterialId={selectedMaterialId}
                 subjectId={subjectId}
               />

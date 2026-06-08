@@ -32,10 +32,17 @@ public class FileStorageService {
     }
 
     public String storeOriginalFile(Long materialId, String filename, byte[] fileBytes) {
+        return storeOriginalFile(materialId, filename, fileBytes, 1);
+    }
+
+    public String storeOriginalFile(Long materialId, String filename, byte[] fileBytes, int sequence) {
         String extension = getExtension(filename);
+        String publicId = sequence <= 1
+                ? "original." + extension
+                : "original-" + String.format("%03d", sequence) + "." + extension;
         Map<String, Object> params = ObjectUtils.asMap(
                 "folder", buildFolder(materialId),
-                "public_id", "original." + extension,
+                "public_id", publicId,
                 "overwrite", true,
                 "resource_type", "auto");
 

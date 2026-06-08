@@ -18,6 +18,37 @@ export function getStudentCourseExamsTabPath(courseId: string) {
   return `${getStudentCoursePath(courseId)}?tab=exams`;
 }
 
+type StudentCourseResumeOptions = {
+  chapterId?: number;
+  lessonId?: number;
+  materialId?: number;
+  tab?: "lectures" | "practice" | "exams" | "flashcards";
+};
+
+/** Deep link tới vị trí học dở (chapter / lesson / material). */
+export function getStudentCourseResumePath(
+  courseId: string,
+  options: StudentCourseResumeOptions = {},
+) {
+  const params = new URLSearchParams();
+
+  if (options.tab && options.tab !== "lectures") {
+    params.set("tab", options.tab);
+  }
+  if (options.chapterId != null) {
+    params.set("chapter", String(options.chapterId));
+  }
+  if (options.lessonId != null) {
+    params.set("lesson", String(options.lessonId));
+  }
+  if (options.materialId != null) {
+    params.set("material", String(options.materialId));
+  }
+
+  const query = params.toString();
+  return query ? `${getStudentCoursePath(courseId)}?${query}` : getStudentCoursePath(courseId);
+}
+
 /** Màn làm bài kiểm tra (quiz đã xuất bản). */
 export function getStudentExamSessionPath(courseId: string, quizId: string) {
   return `${STUDENT_ROUTES.courseDetail}/${courseId}/exams/${quizId}`;
