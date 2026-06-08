@@ -4,6 +4,7 @@ import type { BackendApiResponse } from "~/shared/types/api.types";
 import { STUDENT_PROGRESS_ENDPOINTS } from "../constants/student-progress-api.constants";
 import type {
   StudentLessonProgressDto,
+  StudentResumePointDto,
   UpdateLessonProgressPayload,
 } from "../types/student-progress.types";
 
@@ -32,6 +33,13 @@ export async function updateLessonProgressApi(
   const response = await apiClient.put<BackendApiResponse<StudentLessonProgressDto>>(
     STUDENT_PROGRESS_ENDPOINTS.lessonProgress(lessonId),
     payload,
+  );
+  return unwrap(response);
+}
+
+export async function fetchRecentResumePointApi() {
+  const response = await apiClient.get<BackendApiResponse<StudentResumePointDto | null>>(
+    STUDENT_PROGRESS_ENDPOINTS.resume,
   );
   return unwrap(response);
 }

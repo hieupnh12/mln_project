@@ -2,6 +2,7 @@ import { defaultQuizFilters, QUIZ_CANDIDATE_PAGE_SIZE } from "../constants/quiz-
 import { useQuizManagementController } from "../hooks/use-quiz-management-controller";
 import { QuizEditorView } from "./quiz-editor-view";
 import { QuizListView } from "./quiz-list-view";
+import { QuizListSummaryCards } from "./quiz-list-summary-cards";
 import { QuizManagementHeader } from "./quiz-management-header";
 
 export function QuizManagementManager() {
@@ -9,28 +10,34 @@ export function QuizManagementManager() {
 
   if (controller.view === "list") {
     return (
-      <div className="mx-auto max-w-7xl space-y-md">
-        <QuizManagementHeader
-          draftCount={controller.summary.draftCount}
-          onCreateQuiz={controller.openCreateQuiz}
-          publishedCount={controller.summary.publishedCount}
-          total={controller.summary.total}
-        />
-        <QuizListView
-          courseOptions={controller.courseOptions}
-          filters={controller.filters}
-          isError={controller.listQuery.isError}
-          isLoading={controller.listQuery.isLoading}
-          items={controller.listItems}
-          onCreateQuiz={controller.openCreateQuiz}
-          onDuplicate={controller.duplicateQuizById}
-          onEdit={controller.openEditQuiz}
-          onFiltersChange={controller.setFilters}
-          onFiltersReset={() => controller.setFilters(defaultQuizFilters)}
-          onRetry={() => controller.listQuery.refetch()}
-          summary={controller.summary}
-          totalCount={controller.listQuery.data?.total ?? controller.listItems.length}
-        />
+      <div className="mx-auto flex max-w-7xl min-h-[calc(100svh-5.5rem)] flex-col">
+        <div className="sticky top-0 z-20 shrink-0 space-y-2 border-b border-outline-variant/15 bg-background/95 pb-sm backdrop-blur-sm">
+          <QuizManagementHeader onCreateQuiz={controller.openCreateQuiz} />
+          <QuizListSummaryCards
+            activeStatus={controller.filters.status}
+            onStatusFilter={(status) =>
+              controller.setFilters({ ...controller.filters, status })
+            }
+            summary={controller.summary}
+          />
+        </div>
+
+        <div className="flex min-h-0 flex-1 flex-col pt-sm">
+          <QuizListView
+            courseOptions={controller.courseOptions}
+            filters={controller.filters}
+            isError={controller.listQuery.isError}
+            isLoading={controller.listQuery.isLoading}
+            items={controller.listItems}
+            onCreateQuiz={controller.openCreateQuiz}
+            onDuplicate={controller.duplicateQuizById}
+            onEdit={controller.openEditQuiz}
+            onFiltersChange={controller.setFilters}
+            onFiltersReset={() => controller.setFilters(defaultQuizFilters)}
+            onRetry={() => controller.listQuery.refetch()}
+            totalCount={controller.listQuery.data?.total ?? controller.listItems.length}
+          />
+        </div>
       </div>
     );
   }

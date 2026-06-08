@@ -264,15 +264,12 @@ export function StudentCoursePage() {
     [setSearchParams],
   );
 
-  const handleLessonCompleted = useCallback(
-    (completedLessonId: number) => {
-      const items = (progressQuery.data ?? []).map((item) =>
-        item.lessonId === completedLessonId
-          ? { ...item, status: "COMPLETED" as const }
-          : item,
+  const handleGoToNextLesson = useCallback(
+    (currentLessonId: number) => {
+      const nextLesson = findNextLessonAfterComplete(
+        progressQuery.data ?? [],
+        currentLessonId,
       );
-
-      const nextLesson = findNextLessonAfterComplete(items, completedLessonId);
       if (!nextLesson) {
         return;
       }
@@ -365,13 +362,13 @@ export function StudentCoursePage() {
             className={
               activeTab === "practice" || activeTab === "exams"
                 ? "min-w-0 space-y-md"
-                : "min-w-0 space-y-md lg:col-span-9"
+                : "min-w-0 space-y-md lg:col-span-8"
             }
           >
             {activeTab === "lectures" ? (
               <CourseMaterialViewer
                 expandedChapterId={expandedChapterId}
-                onLessonCompleted={handleLessonCompleted}
+                onGoToNextLesson={handleGoToNextLesson}
                 selectedMaterialId={selectedMaterialId}
                 subject={subject}
                 subjectId={subjectId}
@@ -473,7 +470,7 @@ export function StudentCoursePage() {
           </div>
 
           {activeTab === "lectures" ? (
-            <div className="min-w-0 lg:sticky lg:top-24 lg:col-span-3 lg:self-start">
+            <div className="min-w-0 lg:sticky lg:top-24 lg:col-span-4 lg:h-[calc(100vh-7rem)] lg:self-start">
               <CourseCurriculumSidebar
                 expandedChapterId={expandedChapterId}
                 expandedLessonId={expandedLessonId}

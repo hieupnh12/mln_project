@@ -408,7 +408,7 @@ export function CourseCurriculumSidebar({
   }, [chapters, queryClient]);
 
   return (
-    <aside className="flex h-full max-h-150 flex-col rounded-xl border border-outline-variant/30 bg-white p-md shadow-[0_4px_20px_rgba(35,39,51,0.04)] lg:max-h-[600px]">
+    <aside className="flex h-full max-h-[80vh] flex-col rounded-xl border border-outline-variant/30 bg-white p-md shadow-[0_4px_20px_rgba(35,39,51,0.04)] lg:h-[calc(100vh-7rem)] lg:max-h-[calc(100vh-7rem)]">
       <h3 className="mb-md flex items-center gap-2 text-label-md font-medium uppercase tracking-wider text-primary-container">
         <MaterialIcon className="text-secondary">list_alt</MaterialIcon>
         Nội dung chương trình

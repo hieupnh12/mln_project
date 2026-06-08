@@ -41,16 +41,16 @@ export function QuizListTable({
   }
 
   return (
-    <section className="overflow-hidden rounded-xl border border-outline-variant/20 bg-white shadow-sm">
-      <header className="flex items-center justify-between border-b border-outline-variant/10 bg-surface-container-lowest px-md py-3">
-        <p className="text-label-md font-medium text-on-surface-variant">
-          Click hàng để mở editor trong trang
+    <section className="flex min-h-[50vh] flex-col overflow-hidden rounded-lg border border-outline-variant/20 bg-white shadow-sm">
+      <header className="flex shrink-0 items-center justify-between border-b border-outline-variant/10 bg-surface-container-lowest px-sm py-2">
+        <p className="text-label-sm font-medium text-on-surface-variant">
+          Click hàng để mở editor
         </p>
         <span className="hidden text-label-sm text-on-surface-variant sm:inline">
-          Sắp xếp: cập nhật gần nhất
+          Cập nhật gần nhất
         </span>
       </header>
-      <div className="overflow-x-auto">
+      <div className="min-h-0 flex-1 overflow-auto">
         <table className="w-full table-fixed border-collapse text-left">
           <colgroup>
             <col className="w-[88px]" />
