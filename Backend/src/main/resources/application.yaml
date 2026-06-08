@@ -9,7 +9,7 @@ app:
   security:
     enabled: ${APP_SECURITY_ENABLED:true}
   cors:
-    allowed-origin-patterns: ${CORS_ALLOWED_ORIGIN_PATTERNS:http://localhost:*,http://127.0.0.1:*}
+    allowed-origin-patterns: ${CORS_ALLOWED_ORIGIN_PATTERNS:https://maclenin.io.vn,http://localhost:*,http://127.0.0.1:*}
   libreoffice:
     enabled: true
     path: ${LIBREOFFICE_PATH:C:/Program Files/LibreOffice/program/soffice.exe}
@@ -72,7 +72,7 @@ spring:
 
 frontend:
 
-  base-url: ${FRONTEND_BASE_URL:http://localhost:5173}
+  base-url: ${FRONTEND_BASE_URL:https://maclenin.io.vn}
 
 
 jwt:
