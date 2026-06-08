@@ -222,18 +222,23 @@ export function useQuestionEditorController({
   async function handleImportComplete(
     rows: ImportPreviewRow[],
     defaultLessonId: number,
+    targetStatus: "PENDING" | "PUBLISHED",
   ) {
     closeModal();
+    const importingPublished = targetStatus === "PUBLISHED";
 
     const report = await runWithAsyncActivity({
       id: "question-library-batch-import",
-      label: "Import câu hỏi hàng loạt",
+      label: importingPublished
+        ? "Import câu hỏi đã duyệt"
+        : "Import câu hỏi chờ duyệt",
       detail: `${rows.length} dòng`,
       simulateProgress: true,
       task: async (updateProgress) => {
         updateProgress(25, "Đang gửi dữ liệu lên server...");
         const result = await batchImportMutation.mutateAsync({
           lessonId: defaultLessonId,
+          targetStatus,
           rows: rows.map(mapImportPreviewRowToPayload),
         });
         updateProgress(95, `Đã xử lý ${result.savedCount}/${rows.length} dòng`);
@@ -242,7 +247,9 @@ export function useQuestionEditorController({
     });
 
     showSuccessToast(
-      `Import xong: ${report.savedCount} câu đang chờ duyệt, ${report.skippedExactDuplicate} trùng, ${report.markedSimilar} tương tự.`,
+      importingPublished
+        ? `Import xong: ${report.savedCount} câu đã duyệt, ${report.skippedExactDuplicate} trùng, ${report.markedSimilar} tương tự.`
+        : `Import xong: ${report.savedCount} câu đang chờ duyệt, ${report.skippedExactDuplicate} trùng, ${report.markedSimilar} tương tự.`,
     );
   }
 

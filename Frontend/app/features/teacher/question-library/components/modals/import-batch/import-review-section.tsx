@@ -10,6 +10,7 @@ type ImportReviewSectionProps = {
   fieldMappings: ImportFieldMapping[];
   matchedColumnCount: number;
   isProcessing: boolean;
+  submittingStatus: "PENDING" | "PUBLISHED" | null;
   previewRows: ImportPreviewRow[];
   rowCount: number;
   lessonOptions: LessonOptionDto[];
@@ -17,13 +18,15 @@ type ImportReviewSectionProps = {
   lessonIssueCount: number;
   onDefaultLessonChange: (lessonId: number | null) => void;
   onCancel: () => void;
-  onFinalize: () => void;
+  onImportPending: () => void;
+  onImportPublished: () => void;
 };
 
 export function ImportReviewSection({
   fieldMappings,
   matchedColumnCount,
   isProcessing,
+  submittingStatus,
   previewRows,
   rowCount,
   lessonOptions,
@@ -31,7 +34,8 @@ export function ImportReviewSection({
   lessonIssueCount,
   onDefaultLessonChange,
   onCancel,
-  onFinalize,
+  onImportPending,
+  onImportPublished,
 }: ImportReviewSectionProps) {
   return (
     <div className="import-review-enter space-y-gutter">
@@ -49,8 +53,8 @@ export function ImportReviewSection({
       ) : null}
 
       <p className="rounded-lg bg-secondary-container/30 px-4 py-3 text-body-md text-on-secondary-fixed-variant">
-        Các câu hợp lệ sẽ được thêm ở trạng thái Cần duyệt. Sau khi import, chọn các câu trong
-        ngân hàng và dùng Duyệt đã chọn để xuất bản hàng loạt.
+        Hoàn tất & Import sẽ thêm câu ở trạng thái Đã duyệt. Chọn Chờ duyệt nếu muốn đưa câu
+        vào hàng đợi duyệt trước khi xuất bản.
       </p>
 
       <div className="grid grid-cols-1 items-start gap-gutter lg:grid-cols-3">
@@ -59,8 +63,10 @@ export function ImportReviewSection({
       </div>
       <ImportActionsBar
         isProcessing={isProcessing}
+        submittingStatus={submittingStatus}
         onCancel={onCancel}
-        onFinalize={onFinalize}
+        onImportPending={onImportPending}
+        onImportPublished={onImportPublished}
       />
     </div>
   );

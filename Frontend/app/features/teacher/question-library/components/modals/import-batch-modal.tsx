@@ -5,7 +5,7 @@ import { showErrorToast, showSuccessToast } from "~/shared/utils/toast";
 
 import { useImportBatch } from "../../hooks/use-import-batch";
 import type { LessonOptionDto } from "../../types/question-library-api.types";
-import type { ImportPreviewRow } from "../../types/import-batch.types";
+import type { ImportPreviewRow, ImportTargetStatus } from "../../types/import-batch.types";
 import { downloadImportTemplate } from "../../utils/download-import-template";
 import { ImportBatchHeader } from "./import-batch/import-batch-header";
 import { ImportInlineProgress } from "./import-batch/import-inline-progress";
@@ -21,7 +21,11 @@ type ImportBatchModalProps = {
   defaultLessonId?: number;
   lessonOptions: LessonOptionDto[];
   onClose: () => void;
-  onImportComplete: (rows: ImportPreviewRow[], defaultLessonId: number) => Promise<void>;
+  onImportComplete: (
+    rows: ImportPreviewRow[],
+    defaultLessonId: number,
+    targetStatus: ImportTargetStatus,
+  ) => Promise<void>;
 };
 
 export function ImportBatchModal({
@@ -49,15 +53,15 @@ export function ImportBatchModal({
     defaultLessonId: defaultLessonId ?? null,
   });
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submittingStatus, setSubmittingStatus] = useState<ImportTargetStatus | null>(null);
   const parseActivity = useRunningAsyncActivity((id) => id.startsWith("import-parse-"));
   const isReview = step === "review";
-  const busy = isParsingFile || isSubmitting;
+  const busy = isParsingFile || submittingStatus !== null;
 
   useEffect(() => {
     if (!open) {
       reset();
-      setIsSubmitting(false);
+      setSubmittingStatus(null);
     }
   }, [open, reset]);
 
@@ -69,7 +73,7 @@ export function ImportBatchModal({
     onClose();
   }
 
-  async function handleFinalize() {
+  async function handleFinalize(targetStatus: ImportTargetStatus) {
     if (lessonIssueCount > 0) {
       showErrorToast("Còn dòng chưa gán được bài học. Kiểm tra Môn/Chương/Bài hoặc bài mặc định.");
       return;
@@ -83,13 +87,13 @@ export function ImportBatchModal({
       return;
     }
 
-    setIsSubmitting(true);
+    setSubmittingStatus(targetStatus);
     try {
-      await onImportComplete(previewRows, fallbackLessonId);
+      await onImportComplete(previewRows, fallbackLessonId, targetStatus);
     } catch {
       // The global activity bar keeps the API error visible after the modal closes.
     } finally {
-      setIsSubmitting(false);
+      setSubmittingStatus(null);
     }
   }
 
@@ -137,12 +141,14 @@ export function ImportBatchModal({
                 defaultLessonId={selectedDefaultLessonId}
                 fieldMappings={fieldMappings}
                 isProcessing={busy}
+                submittingStatus={submittingStatus}
                 lessonIssueCount={lessonIssueCount}
                 lessonOptions={lessonOptions}
                 matchedColumnCount={matchedColumnCount}
                 onCancel={handleClose}
                 onDefaultLessonChange={updateDefaultLessonId}
-                onFinalize={handleFinalize}
+                onImportPending={() => handleFinalize("PENDING")}
+                onImportPublished={() => handleFinalize("PUBLISHED")}
                 previewRows={previewRows}
                 rowCount={rowCount}
               />
