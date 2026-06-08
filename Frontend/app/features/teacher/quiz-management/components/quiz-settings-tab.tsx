@@ -1,4 +1,3 @@
-import type { QuestionItem } from "../../question-library/types/question-library.types";
 import type { QuizSettings } from "../types/quiz-management.types";
 import { QuizSettingsPanel } from "./quiz-settings-panel";
 import { QuizSettingsSummary } from "./quiz-settings-summary";
@@ -25,7 +24,7 @@ export function QuizSettingsTab({
   settings,
 }: QuizSettingsTabProps) {
   return (
-    <div className="grid grid-cols-1 gap-md xl:grid-cols-[minmax(0,1fr)_320px]">
+    <div className="grid grid-cols-1 items-start gap-md xl:grid-cols-[minmax(0,1fr)_minmax(240px,280px)]">
       <QuizSettingsPanel
         candidateCount={candidateCount}
         chapterOptions={chapterOptions}
