@@ -1,6 +1,9 @@
 import { apiClient } from "~/shared/services/api-client";
 
-import { QUIZ_MANAGEMENT_ENDPOINTS } from "../constants/quiz-management.constants";
+import {
+  QUIZ_MANAGEMENT_ENDPOINTS,
+  QUIZ_SAVE_TIMEOUT_MS,
+} from "../constants/quiz-management.constants";
 import type {
   BackendApiResponse,
   CandidateQuestionListDto,
@@ -75,6 +78,7 @@ export async function createQuizApi(payload: SaveQuizPayload) {
   const response = await apiClient.post<BackendApiResponse<QuizDetailDto>>(
     QUIZ_MANAGEMENT_ENDPOINTS.root,
     payload,
+    { timeout: QUIZ_SAVE_TIMEOUT_MS },
   );
   return unwrap(response);
 }
@@ -83,6 +87,7 @@ export async function updateQuizApi(id: string, payload: SaveQuizPayload) {
   const response = await apiClient.put<BackendApiResponse<QuizDetailDto>>(
     QUIZ_MANAGEMENT_ENDPOINTS.byId(id),
     payload,
+    { timeout: QUIZ_SAVE_TIMEOUT_MS },
   );
   return unwrap(response);
 }
@@ -90,6 +95,7 @@ export async function updateQuizApi(id: string, payload: SaveQuizPayload) {
 export async function publishQuizApi(id: string) {
   const response = await apiClient.post<BackendApiResponse<QuizDetailDto>>(
     QUIZ_MANAGEMENT_ENDPOINTS.publish(id),
+    { timeout: QUIZ_SAVE_TIMEOUT_MS },
   );
   return unwrap(response);
 }
@@ -97,6 +103,22 @@ export async function publishQuizApi(id: string) {
 export async function duplicateQuizApi(id: string) {
   const response = await apiClient.post<BackendApiResponse<QuizDetailDto>>(
     QUIZ_MANAGEMENT_ENDPOINTS.duplicate(id),
+    undefined,
+    { timeout: QUIZ_SAVE_TIMEOUT_MS },
+  );
+  return unwrap(response);
+}
+
+export async function closeQuizApi(id: string) {
+  const response = await apiClient.post<BackendApiResponse<null>>(
+    QUIZ_MANAGEMENT_ENDPOINTS.close(id),
+  );
+  return unwrap(response);
+}
+
+export async function deleteQuizApi(id: string) {
+  const response = await apiClient.delete<BackendApiResponse<null>>(
+    QUIZ_MANAGEMENT_ENDPOINTS.byId(id),
   );
   return unwrap(response);
 }

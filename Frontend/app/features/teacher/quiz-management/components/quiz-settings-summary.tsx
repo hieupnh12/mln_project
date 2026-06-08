@@ -1,6 +1,6 @@
 import { MaterialIcon } from "../../components/teacher-icons";
 import type { QuizSettings } from "../types/quiz-management.types";
-import { formatQuizScope } from "../utils/quiz-ui.helpers";
+import { formatCloseDeadline, formatQuizScope } from "../utils/quiz-ui.helpers";
 
 type QuizSettingsSummaryProps = {
   candidateCount: number;
@@ -18,71 +18,50 @@ export function QuizSettingsSummary({
 
   return (
     <aside className="xl:sticky xl:top-4 xl:self-start">
-      <div className="overflow-hidden rounded-xl border border-outline-variant/20 bg-white shadow-sm">
-        <header className="border-b border-outline-variant/10 bg-primary px-md py-sm text-on-primary">
-          <h4 className="flex items-center gap-2 text-label-md font-semibold">
-            <MaterialIcon className="text-secondary-fixed">preview</MaterialIcon>
-            Tóm tắt cấu hình
+      <div className="overflow-hidden rounded-lg border border-outline-variant/20 bg-white shadow-sm">
+        <header className="flex items-center justify-between border-b border-outline-variant/10 bg-surface-container-lowest px-gutter py-4">
+          <h4 className="flex items-center gap-2 text-label-md font-semibold text-primary-container">
+            <MaterialIcon className="text-[18px] text-secondary">preview</MaterialIcon>
+            Tóm tắt
           </h4>
-          <p className="mt-0.5 text-label-sm text-on-primary/70">
-            Cập nhật realtime khi chỉnh form
-          </p>
+          <span className="rounded-full bg-primary-fixed px-2.5 py-0.5 text-label-sm font-medium text-primary">
+            {selectedCount}/{candidateCount}
+          </span>
         </header>
 
-        <div className="grid grid-cols-2 divide-x divide-outline-variant/10 border-b border-outline-variant/10">
-          <HighlightStat icon="library_books" label="Nguồn lọc" value={candidateCount} />
-          <HighlightStat icon="checklist" label="Đã chọn" value={selectedCount} />
-        </div>
-
-        <dl className="space-y-0 px-md py-sm">
-          <SummaryRow highlight label="Tên quiz" value={title} />
+        <dl className="space-y-0 px-gutter py-3">
+          <SummaryRow highlight label="Tên" value={title} />
           <SummaryRow label="Phạm vi" value={scope} />
           <SummaryRow
-            label="Thời gian / Điểm đạt"
-            value={`${settings.duration} phút · ${settings.passingScore}%`}
+            label="TG / Điểm"
+            value={`${settings.duration}′ · ${settings.passingScore}%`}
           />
           <SummaryRow
-            label="Random khi làm bài"
+            label="Đóng lúc"
+            value={formatCloseDeadline(settings.availableUntil) || "Không giới hạn"}
+            valueTone={settings.availableUntil ? "accent" : "muted"}
+          />
+          <SummaryRow
+            label="Random"
             value={settings.randomQuestions ? "Bật" : "Tắt"}
             valueTone={settings.randomQuestions ? "accent" : "muted"}
           />
           <SummaryRow
-            label="Trộn đáp án"
+            label="Trộn ĐA"
             value={settings.shuffleAnswers ? "Bật" : "Tắt"}
             valueTone={settings.shuffleAnswers ? "accent" : "muted"}
           />
         </dl>
 
-        <div className="border-t border-outline-variant/10 bg-secondary-container/20 px-md py-sm">
-          <p className="flex items-start gap-2 text-label-sm text-on-surface-variant">
-            <MaterialIcon className="shrink-0 text-[16px] text-secondary">lightbulb</MaterialIcon>
+        {candidateCount === 0 || selectedCount === 0 ? (
+          <p className="border-t border-outline-variant/10 bg-surface-container-low px-gutter py-3 text-label-sm text-on-surface-variant">
             {candidateCount === 0
-              ? "Không có câu trong phạm vi. Đổi môn/chương hoặc thêm câu ở Ngân hàng câu hỏi."
-              : selectedCount === 0
-                ? `Có ${candidateCount} câu khả dụng. Sang tab Câu hỏi để chọn hoặc random ${settings.randomCount} câu.`
-                : `Đã chọn ${selectedCount}/${candidateCount} câu trong phạm vi.`}
+              ? "Không có câu — đổi phạm vi."
+              : `Có ${candidateCount} câu — sang tab Câu hỏi.`}
           </p>
-        </div>
+        ) : null}
       </div>
     </aside>
-  );
-}
-
-function HighlightStat({
-  icon,
-  label,
-  value,
-}: {
-  icon: string;
-  label: string;
-  value: number;
-}) {
-  return (
-    <div className="px-md py-sm text-center">
-      <MaterialIcon className="mx-auto text-[18px] text-secondary">{icon}</MaterialIcon>
-      <p className="mt-0.5 text-headline-md font-semibold text-primary">{value}</p>
-      <p className="text-label-sm text-on-surface-variant">{label}</p>
-    </div>
   );
 }
 
@@ -106,12 +85,12 @@ function SummaryRow({
 
   return (
     <div
-      className={`flex items-start justify-between gap-sm border-b border-outline-variant/8 py-2 last:border-0 ${
-        highlight ? "rounded-md bg-surface-container-low/60 px-2 -mx-2" : ""
+      className={`flex items-start justify-between gap-sm border-b border-outline-variant/8 py-1.5 last:border-0 ${
+        highlight ? "rounded-md bg-surface-container-low/60 px-1.5 -mx-1.5" : ""
       }`}
     >
       <dt className="text-label-sm text-on-surface-variant">{label}</dt>
-      <dd className={`max-w-[58%] text-right text-label-md ${valueClass}`}>{value}</dd>
+      <dd className={`max-w-[58%] text-right text-label-sm ${valueClass}`}>{value}</dd>
     </div>
   );
 }

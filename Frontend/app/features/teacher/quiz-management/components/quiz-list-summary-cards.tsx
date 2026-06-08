@@ -1,114 +1,124 @@
-import type { ReactNode } from "react";
-
-import { MaterialIcon } from "../../components/teacher-icons";
-import type { QuizFilters } from "../types/quiz-management.types";
-import type { QuizListSummary } from "../utils/quiz-ui.helpers";
-
-type QuizListSummaryCardsProps = {
-  activeStatus: QuizFilters["status"];
-  onStatusFilter: (status: QuizFilters["status"]) => void;
-  summary: QuizListSummary;
-};
-
-export function QuizListSummaryCards({
-  activeStatus,
-  onStatusFilter,
-  summary,
-}: QuizListSummaryCardsProps) {
-  return (
-    <div className="flex gap-1.5 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-      <SummaryChip
-        icon="quiz"
-        label="Tổng"
-        onClick={() => onStatusFilter("all")}
-        selected={activeStatus === "all"}
-        value={`${summary.total} bài`}
-      />
-      <SummaryChip
-        icon="edit_note"
-        label="Nháp"
-        onClick={() => onStatusFilter("Bản nháp")}
-        selected={activeStatus === "Bản nháp"}
-        value={`${summary.draftCount}`}
-      />
-      <SummaryChip
-        icon="published_with_changes"
-        label="Live"
-        onClick={() => onStatusFilter("Đã xuất bản")}
-        selected={activeStatus === "Đã xuất bản"}
-        value={`${summary.publishedCount}`}
-      />
-      <SummaryChip
-        icon="schedule"
-        label="TB thời gian"
-        value={`${summary.avgDuration}′ · ${summary.totalQuestions} câu`}
-      />
-    </div>
-  );
-}
-
-function SummaryChip({
-  icon,
-  label,
-  onClick,
-  selected = false,
-  value,
-}: {
-  icon: string;
-  label: string;
-  onClick?: () => void;
-  selected?: boolean;
-  value: ReactNode;
-}) {
-  const interactive = Boolean(onClick);
-
-  return (
-    <button
-      className={`inline-flex shrink-0 items-center gap-2 rounded-lg border px-3 py-1.5 text-left transition ${
-        selected
-          ? "border-secondary bg-secondary-container/40 text-primary"
-          : "border-outline-variant/20 bg-white text-on-surface-variant hover:border-outline-variant/40"
-      } ${interactive ? "cursor-pointer" : "cursor-default"}`}
-      disabled={!interactive}
-      onClick={onClick}
-      type="button"
-    >
-      <MaterialIcon className={`text-[16px] ${selected ? "text-secondary" : ""}`}>
-        {icon}
-      </MaterialIcon>
-      <span className="text-label-sm font-medium">{label}</span>
-      <span className="text-label-md font-semibold text-primary">{value}</span>
-    </button>
-  );
-}
-
-const quickSteps = [
-  "Tạo quiz hoặc mở bản nháp",
-  "Cài đặt phạm vi, thời gian, điểm",
-  "Chọn câu → xuất bản",
-] as const;
-
-export function QuizListQuickTips() {
-  return (
-    <aside className="flex shrink-0 flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border border-outline-variant/15 bg-secondary-container/15 px-sm py-1.5">
-      <span className="inline-flex shrink-0 items-center gap-1 text-secondary">
-        <MaterialIcon className="text-[16px]">tips_and_updates</MaterialIcon>
-        <span className="text-label-sm font-semibold text-primary">Quy trình nhanh</span>
-      </span>
-      <ol className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-0.5 text-label-sm text-on-surface-variant">
-        {quickSteps.map((step, index) => (
-          <li className="inline-flex items-center gap-2" key={step}>
-            {index > 0 ? (
-              <span aria-hidden className="text-outline-variant/60">
-                ·
-              </span>
-            ) : null}
-            <span>
-              <span className="font-semibold text-primary">{index + 1}.</span> {step}
-            </span>
-          </li>
-        ))}
-      </ol>
-    </aside>
-  );
-}
+import type { ReactNode } from "react";
+
+import { MaterialIcon } from "../../components/teacher-icons";
+import type { QuizFilters } from "../types/quiz-management.types";
+import type { QuizListSummary } from "../utils/quiz-ui.helpers";
+
+type QuizListSummaryCardsProps = {
+  activeStatus: QuizFilters["status"];
+  onStatusFilter: (status: QuizFilters["status"]) => void;
+  summary: QuizListSummary;
+};
+
+export function QuizListSummaryCards({
+  activeStatus,
+  onStatusFilter,
+  summary,
+}: QuizListSummaryCardsProps) {
+  return (
+    <div className="grid grid-cols-1 gap-gutter md:grid-cols-2 lg:grid-cols-4">
+      <StatCard
+        icon="quiz"
+        iconClassName="bg-primary-fixed text-primary"
+        label="Tổng số quiz"
+        onClick={() => onStatusFilter("all")}
+        selected={activeStatus === "all"}
+        value={
+          <>
+            {summary.total.toLocaleString("vi-VN")}{" "}
+            <span className="text-label-md font-normal text-on-surface-variant">quiz</span>
+          </>
+        }
+      />
+      <StatCard
+        icon="edit_note"
+        iconClassName="bg-secondary-container text-on-secondary-container"
+        label="Bản nháp"
+        onClick={() => onStatusFilter("Bản nháp")}
+        selected={activeStatus === "Bản nháp"}
+        value={
+          <>
+            {summary.draftCount}{" "}
+            <span className="text-label-md font-normal text-on-surface-variant">nháp</span>
+          </>
+        }
+      />
+      <StatCard
+        icon="published_with_changes"
+        iconClassName="bg-secondary-fixed text-secondary"
+        label="Đang mở"
+        onClick={() => onStatusFilter("Đã xuất bản")}
+        selected={activeStatus === "Đã xuất bản"}
+        value={
+          <>
+            {summary.publishedCount}{" "}
+            <span className="text-label-md font-normal text-on-surface-variant">live</span>
+          </>
+        }
+      />
+      <StatCard
+        icon="equalizer"
+        iconClassName="bg-secondary-container/80 text-on-secondary-fixed-variant"
+        label="Thống kê nội dung"
+        value={
+          <span className="text-label-md font-bold text-primary-container">
+            {summary.totalQuestions}{" "}
+            <span className="font-normal text-on-surface-variant/70">câu</span>
+            {" · "}
+            {summary.avgDuration}{" "}
+            <span className="font-normal text-on-surface-variant/70">phút TB</span>
+          </span>
+        }
+      />
+    </div>
+  );
+}
+
+function StatCard({
+  icon,
+  iconClassName,
+  label,
+  value,
+  onClick,
+  selected = false,
+}: {
+  icon: string;
+  iconClassName: string;
+  label: string;
+  value: ReactNode;
+  onClick?: () => void;
+  selected?: boolean;
+}) {
+  const className = `flex w-full items-center gap-4 rounded-lg border p-6 text-left shadow-sm transition ${
+    selected
+      ? "border-primary/40 bg-primary-fixed/20 ring-2 ring-primary/20"
+      : "border-outline-variant/20 bg-white hover:border-outline-variant/40"
+  }`;
+
+  const content = (
+    <>
+      <div
+        className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-lg ${iconClassName}`}
+      >
+        <MaterialIcon>{icon}</MaterialIcon>
+      </div>
+      <div className="min-w-0">
+        <p className="text-label-sm font-semibold uppercase tracking-wider text-on-surface-variant">
+          {label}
+        </p>
+        <p className="mt-1 text-[24px] font-bold text-primary-container">{value}</p>
+      </div>
+    </>
+  );
+
+  if (onClick) {
+    return (
+      <button className={className} onClick={onClick} type="button">
+        {content}
+      </button>
+    );
+  }
+
+  return <div className={className}>{content}</div>;
+}
+

@@ -24,7 +24,7 @@ export function QuizSettingsTab({
   settings,
 }: QuizSettingsTabProps) {
   return (
-    <div className="grid grid-cols-1 items-start gap-md xl:grid-cols-[minmax(0,1fr)_minmax(240px,280px)]">
+    <div className="grid grid-cols-1 items-start gap-gutter xl:grid-cols-[minmax(0,1fr)_minmax(240px,280px)]">
       <QuizSettingsPanel
         candidateCount={candidateCount}
         chapterOptions={chapterOptions}

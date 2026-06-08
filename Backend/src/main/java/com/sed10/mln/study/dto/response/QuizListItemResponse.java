@@ -18,6 +18,7 @@ public class QuizListItemResponse {
     int duration;
     int passingScore;
     String status;
+    String availableUntil;
     String updatedAt;
     String createdAt;
     long attemptCount;

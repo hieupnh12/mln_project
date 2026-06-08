@@ -13,6 +13,7 @@ export type QuizListItemDto = {
   duration: number;
   passingScore: number;
   status: string;
+  availableUntil?: string;
   updatedAt: string;
   createdAt: string;
   attemptCount: number;
@@ -37,6 +38,8 @@ export type QuizDetailDto = {
   shuffleAnswers: boolean;
   randomQuestions: boolean;
   status: string;
+  availableFrom?: string;
+  availableUntil?: string;
   updatedAt: string;
   createdAt: string;
   attemptCount: number;
@@ -64,6 +67,7 @@ export type SaveQuizPayload = {
   shuffleAnswers: boolean;
   randomQuestions: boolean;
   questionIds: string[];
+  availableUntil?: string;
 };
 
 export type CandidateQuestionListDto = {

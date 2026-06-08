@@ -79,6 +79,28 @@ export function SelectInput({
   );
 }
 
+export function DateTimeInput({
+  label,
+  onChange,
+  value,
+}: {
+  label: string;
+  onChange: (value: string) => void;
+  value: string;
+}) {
+  return (
+    <label className="block">
+      <span className={fieldLabelClass}>{label}</span>
+      <input
+        className={fieldInputClass}
+        onChange={(event) => onChange(event.target.value)}
+        type="datetime-local"
+        value={value}
+      />
+    </label>
+  );
+}
+
 export function ToggleInput({
   label,
   onChange,

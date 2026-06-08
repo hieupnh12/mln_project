@@ -2,7 +2,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { QUIZ_MANAGEMENT_QUERY_KEYS } from "../constants/quiz-management.constants";
 import {
+  closeQuiz,
   createQuiz,
+  deleteQuiz,
   duplicateQuiz,
   publishQuiz,
   updateQuiz,
@@ -37,6 +39,28 @@ export function useDuplicateQuizMutation() {
 
   return useMutation({
     mutationFn: (id: string) => duplicateQuiz(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUIZ_MANAGEMENT_QUERY_KEYS.root });
+    },
+  });
+}
+
+export function useCloseQuizMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => closeQuiz(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUIZ_MANAGEMENT_QUERY_KEYS.root });
+    },
+  });
+}
+
+export function useDeleteQuizMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => deleteQuiz(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUIZ_MANAGEMENT_QUERY_KEYS.root });
     },

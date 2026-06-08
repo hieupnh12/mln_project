@@ -22,6 +22,8 @@ public class QuizDetailResponse {
     boolean shuffleAnswers;
     boolean randomQuestions;
     String status;
+    String availableFrom;
+    String availableUntil;
     String updatedAt;
     String createdAt;
     long attemptCount;

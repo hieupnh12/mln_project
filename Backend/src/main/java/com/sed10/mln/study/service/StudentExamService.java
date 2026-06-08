@@ -501,6 +501,13 @@ public class StudentExamService {
         if (quiz.getSubject() == null || !quiz.getSubject().getId().equals(subjectId)) {
             throw new AppException(ErrorCode.QUIZ_SCOPE_INVALID);
         }
+        LocalDateTime now = LocalDateTime.now();
+        if (quiz.getAvailableFrom() != null && now.isBefore(quiz.getAvailableFrom())) {
+            throw new AppException(ErrorCode.QUIZ_NOT_AVAILABLE);
+        }
+        if (quiz.getAvailableUntil() != null && now.isAfter(quiz.getAvailableUntil())) {
+            throw new AppException(ErrorCode.QUIZ_NOT_AVAILABLE);
+        }
         return quiz;
     }
 

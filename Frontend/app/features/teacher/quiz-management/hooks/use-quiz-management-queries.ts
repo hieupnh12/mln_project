@@ -51,6 +51,35 @@ type CandidateScope = Pick<QuizSettings, "course" | "chapter" | "lesson"> & {
   page: number;
 };
 
+type CandidateCountScope = Pick<QuizSettings, "course" | "chapter" | "lesson">;
+
+export function useQuizCandidateCountQuery(scope: CandidateCountScope, enabled: boolean) {
+  return useQuery({
+    queryKey: [
+      "teacher",
+      "quiz-management",
+      "candidate-count",
+      scope.course,
+      scope.chapter,
+      scope.lesson,
+    ],
+    queryFn: () =>
+      getCandidateQuestions({
+        course: scope.course,
+        chapter: scope.chapter || "all",
+        lesson: scope.lesson,
+        search: "",
+        difficulty: "all",
+        page: 0,
+        size: 1,
+      }),
+    select: (data) => data.total,
+    enabled: isBrowser && enabled && Boolean(scope.course) && Boolean(scope.chapter),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
+}
+
 export function useQuizCandidateQuestionsQuery(scope: CandidateScope, enabled: boolean) {
   return useQuery({
     queryKey: QUIZ_MANAGEMENT_QUERY_KEYS.candidates(

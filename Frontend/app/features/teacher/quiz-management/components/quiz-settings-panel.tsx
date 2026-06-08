@@ -1,4 +1,5 @@
 import {
+  DateTimeInput,
   NumberInput,
   SelectInput,
   TextInput,
@@ -35,40 +36,35 @@ export function QuizSettingsPanel({
   const titleWarning = settings.title.trim().length > 0 && settings.title.trim().length < 3;
 
   return (
-    <div className="overflow-hidden rounded-xl border border-outline-variant/20 bg-white shadow-sm">
-      <header className="flex items-center justify-between gap-sm border-b border-outline-variant/10 bg-surface-container-low/50 px-md py-sm">
-        <h4 className="flex items-center gap-2 text-label-md font-semibold text-primary">
-          <MaterialIcon className="text-secondary">tune</MaterialIcon>
+    <div className="overflow-hidden rounded-lg border border-outline-variant/20 bg-white shadow-sm">
+      <header className="flex items-center justify-between gap-sm border-b border-outline-variant/10 bg-surface-container-lowest px-gutter py-4">
+        <h4 className="flex items-center gap-2 text-label-md font-semibold text-primary-container">
+          <MaterialIcon className="text-[18px] text-secondary">tune</MaterialIcon>
           Cài đặt quiz
         </h4>
-        <span className="inline-flex items-center gap-1 rounded-full bg-secondary-container/50 px-2.5 py-0.5 text-label-sm font-medium text-primary">
-          <MaterialIcon className="text-[14px]">library_books</MaterialIcon>
-          {candidateCount} câu khả dụng
+        <span className="text-label-sm text-on-surface-variant">
+          {candidateCount.toLocaleString("vi-VN")} câu khả dụng
         </span>
       </header>
 
-      <div className="space-y-sm p-md">
-        <QuizFormSection highlight icon="title" title="Thông tin cơ bản">
+      <div className="space-y-gutter p-gutter">
+        <QuizFormSection highlight icon="title" title="Tên">
           <TextInput
             label="Tên quiz"
             onChange={(title) => onSettingsChange({ ...settings, title })}
-            placeholder="VD: Quiz chương 1 — Khái niệm cơ bản"
+            placeholder="Quiz chương 1..."
             value={settings.title}
           />
-          {titleWarning ? (
-            <p className="text-label-sm text-error">Tên quiz nên có ít nhất 3 ký tự.</p>
-          ) : null}
+          {titleWarning ? <p className="text-label-sm text-error">≥ 3 ký tự</p> : null}
         </QuizFormSection>
 
-        <QuizFormSection
-          description="Lọc ngân hàng câu hỏi cho tab tiếp theo"
-          icon="school"
-          title="Phạm vi nội dung"
-        >
+        <QuizFormSection icon="school" title="Phạm vi">
           <div className="grid grid-cols-1 gap-sm sm:grid-cols-3">
             <SelectInput
               label="Môn"
-              onChange={(course) => onSettingsChange({ ...settings, course })}
+              onChange={(course) =>
+                onSettingsChange({ ...settings, course, chapter: "all", lesson: "all" })
+              }
               value={settings.course}
             >
               {courseOptions.map((item) => (
@@ -77,9 +73,12 @@ export function QuizSettingsPanel({
             </SelectInput>
             <SelectInput
               label="Chương"
-              onChange={(chapter) => onSettingsChange({ ...settings, chapter })}
+              onChange={(chapter) =>
+                onSettingsChange({ ...settings, chapter, lesson: "all" })
+              }
               value={settings.chapter}
             >
+              <option value="all">Tất cả</option>
               {chapterOptions.map((item) => (
                 <option key={item}>{item}</option>
               ))}
@@ -89,7 +88,7 @@ export function QuizSettingsPanel({
               onChange={(lesson) => onSettingsChange({ ...settings, lesson })}
               value={settings.lesson}
             >
-              <option value="all">Tất cả bài</option>
+              <option value="all">Tất cả</option>
               {lessonOptions.map((item) => (
                 <option key={item}>{item}</option>
               ))}
@@ -98,16 +97,16 @@ export function QuizSettingsPanel({
         </QuizFormSection>
 
         <div className="grid grid-cols-1 gap-sm lg:grid-cols-2">
-          <QuizFormSection icon="schedule" title="Thời gian & điểm">
+          <QuizFormSection icon="schedule" title="Thời gian">
             <div className="grid grid-cols-2 gap-sm">
               <NumberInput
-                label="Thời gian (phút)"
+                label="Phút"
                 min={5}
                 onChange={(duration) => onSettingsChange({ ...settings, duration })}
                 value={settings.duration}
               />
               <NumberInput
-                label="Điểm đạt (%)"
+                label="Điểm %"
                 min={1}
                 onChange={(passingScore) =>
                   onSettingsChange({ ...settings, passingScore })
@@ -116,14 +115,19 @@ export function QuizSettingsPanel({
               />
             </div>
             <NumberInput
-              label="Số câu random (tab Câu hỏi)"
+              label="Random"
               min={1}
               onChange={(randomCount) => onSettingsChange({ ...settings, randomCount })}
               value={settings.randomCount}
             />
+            <DateTimeInput
+              label="Đóng lúc"
+              onChange={(availableUntil) => onSettingsChange({ ...settings, availableUntil })}
+              value={settings.availableUntil}
+            />
           </QuizFormSection>
 
-          <QuizFormSection icon="shuffle" title="Tùy chọn làm bài">
+          <QuizFormSection icon="shuffle" title="Tùy chọn">
             <div className="space-y-xs">
               <ToggleInput
                 label="Trộn đáp án"
@@ -133,7 +137,7 @@ export function QuizSettingsPanel({
                 value={settings.shuffleAnswers}
               />
               <ToggleInput
-                label="Random câu khi sinh viên làm bài"
+                label="Random câu"
                 onChange={(randomQuestions) =>
                   onSettingsChange({ ...settings, randomQuestions })
                 }
@@ -153,11 +157,11 @@ export function QuizSettingsPanel({
             type="button"
           >
             <MaterialIcon>casino</MaterialIcon>
-            Tạo ngẫu nhiên từ {candidateCount} câu
+            Random {candidateCount}
           </button>
           <div className="grid grid-cols-2 gap-sm">
-            <Metric label="Đã chọn" value={selectedCount} />
-            <Metric label="Nguồn lọc" value={candidateCount} />
+            <Metric label="Chọn" value={selectedCount} />
+            <Metric label="Nguồn" value={candidateCount} />
           </div>
         </footer>
       ) : null}

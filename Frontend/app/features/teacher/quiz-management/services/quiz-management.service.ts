@@ -1,7 +1,9 @@
 import type { QuestionListItemDto, QuestionDto } from "../../question-library/types/question-library-api.types";
 import type { QuestionItem, QuestionListItem } from "../../question-library/types/question-library.types";
 import {
+  closeQuizApi,
   createQuizApi,
+  deleteQuizApi,
   duplicateQuizApi,
   fetchCandidateQuestions,
   fetchQuizDetail,
@@ -61,20 +63,29 @@ function mapQuizListItemDto(item: QuizListItemDto): QuizListItem {
     updatedAt: item.updatedAt,
     createdAt: item.createdAt,
     attemptCount: item.attemptCount,
+    availableUntil: item.availableUntil,
   };
+}
+
+function normalizeScopeValue(value: string | undefined): string {
+  if (!value || value === "all" || value === "Tất cả" || value === "Tất cả bài") {
+    return "all";
+  }
+  return value;
 }
 
 export function mapQuizDetailToSettings(detail: QuizDetailDto): QuizSettings {
   return {
     title: detail.title,
     course: detail.course,
-    chapter: detail.chapter,
-    lesson: detail.lesson === "all" || detail.lesson === "Tất cả bài" ? "all" : detail.lesson,
+    chapter: normalizeScopeValue(detail.chapter),
+    lesson: normalizeScopeValue(detail.lesson),
     duration: detail.duration,
     passingScore: detail.passingScore,
     randomCount: detail.randomCount > 0 ? detail.randomCount : 10,
     shuffleAnswers: detail.shuffleAnswers,
     randomQuestions: detail.randomQuestions,
+    availableUntil: detail.availableUntil ?? "",
   };
 }
 
@@ -93,6 +104,7 @@ export function buildSaveQuizPayload(
     shuffleAnswers: settings.shuffleAnswers,
     randomQuestions: settings.randomQuestions,
     questionIds,
+    availableUntil: settings.availableUntil.trim() || undefined,
   };
 }
 
@@ -175,4 +187,12 @@ export function publishQuiz(id: string) {
 
 export function duplicateQuiz(id: string) {
   return duplicateQuizApi(id);
+}
+
+export function closeQuiz(id: string) {
+  return closeQuizApi(id);
+}
+
+export function deleteQuiz(id: string) {
+  return deleteQuizApi(id);
 }
