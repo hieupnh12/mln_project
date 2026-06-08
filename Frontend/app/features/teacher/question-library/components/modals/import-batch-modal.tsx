@@ -112,11 +112,6 @@ export function ImportBatchModal({
         <div className="custom-scrollbar flex-1 overflow-y-auto p-md lg:p-xl">
           <div className="mx-auto max-w-6xl space-y-gutter">
             <ImportBatchHeader
-              lessonHints={lessonOptions.slice(0, 6).map((item) => ({
-                subject: item.subjectTitle,
-                chapter: item.chapterTitle,
-                lesson: item.title,
-              }))}
               onClose={handleClose}
               onDownloadTemplate={handleDownloadTemplate}
             />

@@ -1,21 +1,13 @@
 import { MaterialIcon } from "../../../../components/teacher-icons";
 
-type LessonHint = {
-  subject: string;
-  chapter: string;
-  lesson: string;
-};
-
 type ImportBatchHeaderProps = {
   onClose: () => void;
   onDownloadTemplate: () => void;
-  lessonHints?: LessonHint[];
 };
 
 export function ImportBatchHeader({
   onClose,
   onDownloadTemplate,
-  lessonHints = [],
 }: ImportBatchHeaderProps) {
   return (
     <div className="flex flex-col gap-4 border-b border-outline-variant/10 pb-gutter lg:flex-row lg:items-start lg:justify-between">
@@ -31,33 +23,6 @@ export function ImportBatchHeader({
         >
           Import câu hỏi hàng loạt
         </h2>
-        <p className="mt-2 max-w-2xl text-body-md leading-relaxed text-on-surface-variant">
-          Tối ưu quy trình biên soạn bằng cách import nhiều câu hỏi cùng lúc. Hỗ trợ{" "}
-          <span className="font-medium text-on-surface">Excel theo mẫu chuẩn</span> — tải file
-          mẫu, điền dữ liệu và upload lên hệ thống.
-        </p>
-        <ul className="mt-3 flex flex-col gap-1.5 text-label-sm text-on-surface-variant/80 sm:flex-row sm:flex-wrap sm:gap-x-4">
-          <li className="flex items-center gap-1.5">
-            <MaterialIcon className="text-[16px] text-secondary">check_circle</MaterialIcon>
-            File mẫu có dropdown Môn/Chương/Bài — xem sheet Huong dan
-          </li>
-          <li className="flex items-center gap-1.5">
-            <MaterialIcon className="text-[16px] text-secondary">check_circle</MaterialIcon>
-            Dòng trống 3 cột sẽ dùng bài học mặc định
-          </li>
-        </ul>
-        {lessonHints.length > 0 ? (
-          <div className="mt-3 rounded-lg bg-surface-container-low px-3 py-2 text-label-sm text-on-surface-variant">
-            <p className="font-medium text-on-surface">Tên hợp lệ trong hệ thống (ví dụ):</p>
-            <ul className="mt-1 space-y-0.5">
-              {lessonHints.map((hint) => (
-                <li key={`${hint.subject}-${hint.chapter}-${hint.lesson}`}>
-                  {hint.subject} › {hint.chapter} › {hint.lesson}
-                </li>
-              ))}
-            </ul>
-          </div>
-        ) : null}
       </div>
 
       <div className="flex shrink-0 items-center gap-2 lg:flex-col lg:items-end">
