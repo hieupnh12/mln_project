@@ -16,73 +16,45 @@ export function QuizListSummaryCards({
   summary,
 }: QuizListSummaryCardsProps) {
   return (
-    <div className="grid grid-cols-1 gap-gutter sm:grid-cols-2 xl:grid-cols-4">
-      <SummaryCard
+    <div className="flex gap-1.5 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <SummaryChip
         icon="quiz"
-        iconClassName="bg-primary text-on-primary"
-        label="Tổng quiz"
+        label="Tổng"
         onClick={() => onStatusFilter("all")}
         selected={activeStatus === "all"}
-        value={
-          <>
-            {summary.total}{" "}
-            <span className="text-label-md font-normal text-on-surface-variant">bài</span>
-          </>
-        }
+        value={`${summary.total} bài`}
       />
-      <SummaryCard
+      <SummaryChip
         icon="edit_note"
-        iconClassName="bg-surface-container-high text-on-surface-variant"
-        label="Bản nháp"
+        label="Nháp"
         onClick={() => onStatusFilter("Bản nháp")}
         selected={activeStatus === "Bản nháp"}
-        value={
-          <>
-            {summary.draftCount}{" "}
-            <span className="text-label-md font-normal text-on-surface-variant">đang soạn</span>
-          </>
-        }
+        value={`${summary.draftCount}`}
       />
-      <SummaryCard
+      <SummaryChip
         icon="published_with_changes"
-        iconClassName="bg-secondary-container text-primary"
-        label="Đã xuất bản"
+        label="Live"
         onClick={() => onStatusFilter("Đã xuất bản")}
         selected={activeStatus === "Đã xuất bản"}
-        value={
-          <>
-            {summary.publishedCount}{" "}
-            <span className="text-label-md font-normal text-on-surface-variant">live</span>
-          </>
-        }
+        value={`${summary.publishedCount}`}
       />
-      <SummaryCard
+      <SummaryChip
         icon="schedule"
-        iconClassName="bg-secondary-fixed text-secondary"
-        label="Trung bình thời gian"
-        value={
-          <>
-            {summary.avgDuration}{" "}
-            <span className="text-label-md font-normal text-on-surface-variant">
-              phút · {summary.totalQuestions} câu tổng
-            </span>
-          </>
-        }
+        label="TB thời gian"
+        value={`${summary.avgDuration}′ · ${summary.totalQuestions} câu`}
       />
     </div>
   );
 }
 
-function SummaryCard({
+function SummaryChip({
   icon,
-  iconClassName,
   label,
   onClick,
   selected = false,
   value,
 }: {
   icon: string;
-  iconClassName: string;
   label: string;
   onClick?: () => void;
   selected?: boolean;
@@ -92,50 +64,50 @@ function SummaryCard({
 
   return (
     <button
-      className={`flex w-full items-start gap-sm rounded-xl border p-md text-left transition ${
+      className={`inline-flex shrink-0 items-center gap-2 rounded-lg border px-3 py-1.5 text-left transition ${
         selected
-          ? "border-secondary bg-secondary-container/30 shadow-sm"
-          : "border-outline-variant/20 bg-white hover:border-outline-variant/40 hover:shadow-sm"
+          ? "border-secondary bg-secondary-container/40 text-primary"
+          : "border-outline-variant/20 bg-white text-on-surface-variant hover:border-outline-variant/40"
       } ${interactive ? "cursor-pointer" : "cursor-default"}`}
       disabled={!interactive}
       onClick={onClick}
       type="button"
     >
-      <span
-        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${iconClassName}`}
-      >
-        <MaterialIcon>{icon}</MaterialIcon>
-      </span>
-      <div className="min-w-0">
-        <p className="text-label-md font-medium text-on-surface-variant">{label}</p>
-        <p className="mt-1 text-headline-md font-semibold text-primary">{value}</p>
-      </div>
+      <MaterialIcon className={`text-[16px] ${selected ? "text-secondary" : ""}`}>
+        {icon}
+      </MaterialIcon>
+      <span className="text-label-sm font-medium">{label}</span>
+      <span className="text-label-md font-semibold text-primary">{value}</span>
     </button>
   );
 }
 
+const quickSteps = [
+  "Tạo quiz hoặc mở bản nháp",
+  "Cài đặt phạm vi, thời gian, điểm",
+  "Chọn câu → xuất bản",
+] as const;
+
 export function QuizListQuickTips() {
   return (
-    <aside className="rounded-xl border border-outline-variant/20 bg-white p-md shadow-sm">
-      <div className="mb-sm flex items-center gap-2 text-secondary">
-        <MaterialIcon>tips_and_updates</MaterialIcon>
-        <h4 className="text-label-md font-semibold uppercase tracking-wide text-primary">
-          Quy trình nhanh
-        </h4>
-      </div>
-      <ol className="space-y-2 text-body-md text-on-surface-variant">
-        <li className="flex gap-2">
-          <span className="font-semibold text-primary">1.</span>
-          Tạo quiz mới hoặc mở bản nháp từ bảng.
-        </li>
-        <li className="flex gap-2">
-          <span className="font-semibold text-primary">2.</span>
-          Cài đặt phạm vi môn/chương, thời gian và điểm đạt.
-        </li>
-        <li className="flex gap-2">
-          <span className="font-semibold text-primary">3.</span>
-          Chọn câu hỏi hoặc random — xem trước rồi xuất bản.
-        </li>
+    <aside className="flex shrink-0 flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border border-outline-variant/15 bg-secondary-container/15 px-sm py-1.5">
+      <span className="inline-flex shrink-0 items-center gap-1 text-secondary">
+        <MaterialIcon className="text-[16px]">tips_and_updates</MaterialIcon>
+        <span className="text-label-sm font-semibold text-primary">Quy trình nhanh</span>
+      </span>
+      <ol className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-0.5 text-label-sm text-on-surface-variant">
+        {quickSteps.map((step, index) => (
+          <li className="inline-flex items-center gap-2" key={step}>
+            {index > 0 ? (
+              <span aria-hidden className="text-outline-variant/60">
+                ·
+              </span>
+            ) : null}
+            <span>
+              <span className="font-semibold text-primary">{index + 1}.</span> {step}
+            </span>
+          </li>
+        ))}
       </ol>
     </aside>
   );

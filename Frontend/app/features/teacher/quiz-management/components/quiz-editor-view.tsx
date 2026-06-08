@@ -96,7 +96,7 @@ export function QuizEditorView({
   };
 
   return (
-    <section className="space-y-md rounded-2xl border border-outline-variant/20 bg-surface-container-low/50 p-md shadow-sm">
+    <section className="space-y-sm rounded-xl border border-outline-variant/20 bg-surface-container-low/50 p-md shadow-sm">
       <QuizEditorHeader
         isNew={isNew}
         onBack={onBack}

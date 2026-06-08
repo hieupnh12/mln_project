@@ -1,45 +1,28 @@
 import { MaterialIcon } from "../../components/teacher-icons";
 import type { QuizListItem, QuizSettings } from "../types/quiz-management.types";
 import { formatQuizScope } from "../utils/quiz-ui.helpers";
-import { Metric } from "./quiz-metric";
 
 type QuizManagementHeaderProps = {
-  draftCount: number;
-  publishedCount: number;
-  total: number;
   onCreateQuiz: () => void;
 };
 
-export function QuizManagementHeader({
-  draftCount,
-  publishedCount,
-  total,
-  onCreateQuiz,
-}: QuizManagementHeaderProps) {
+export function QuizManagementHeader({ onCreateQuiz }: QuizManagementHeaderProps) {
   return (
-    <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-      <div className="space-y-xs">
-        <h3 className="text-headline-lg font-semibold text-primary">Quản lý Quiz</h3>
-        <p className="max-w-2xl text-body-md text-on-surface-variant">
-          Tạo, chỉnh sửa và xuất bản quiz trong một luồng liền mạch — không popup, load nhẹ
-          theo từng bước.
+    <header className="flex flex-wrap items-center justify-between gap-sm">
+      <div className="min-w-0">
+        <h3 className="text-headline-md font-semibold text-primary">Quản lý Quiz</h3>
+        <p className="hidden text-label-sm text-on-surface-variant sm:block">
+          Tạo, chỉnh sửa và xuất bản quiz — load nhẹ theo từng bước.
         </p>
       </div>
-      <div className="flex flex-col gap-sm sm:flex-row sm:items-center">
-        <div className="grid grid-cols-3 gap-sm rounded-2xl border border-outline-variant/20 bg-white p-sm text-center shadow-[0_4px_20px_rgba(35,39,51,0.04)]">
-          <Metric label="Tổng quiz" value={total} />
-          <Metric label="Bản nháp" value={draftCount} />
-          <Metric label="Đã xuất bản" value={publishedCount} />
-        </div>
-        <button
-          className="flex items-center justify-center gap-sm rounded-lg bg-primary px-md py-sm font-semibold text-on-primary shadow-sm transition hover:opacity-90 active:scale-95"
-          onClick={onCreateQuiz}
-          type="button"
-        >
-          <MaterialIcon>add</MaterialIcon>
-          Tạo quiz mới
-        </button>
-      </div>
+      <button
+        className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-label-md font-semibold text-on-primary shadow-sm transition hover:opacity-90"
+        onClick={onCreateQuiz}
+        type="button"
+      >
+        <MaterialIcon className="text-[18px]">add</MaterialIcon>
+        Tạo quiz mới
+      </button>
     </header>
   );
 }

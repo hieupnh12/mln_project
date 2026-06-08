@@ -3,6 +3,7 @@ package com.sed10.mln.study.service;
 import com.sed10.mln.study.constant.StudentProgressConstant;
 import com.sed10.mln.study.dto.request.UpdateStudentProgressRequest;
 import com.sed10.mln.study.dto.response.StudentProgressResponse;
+import com.sed10.mln.study.dto.response.StudentResumeResponse;
 import com.sed10.mln.study.entity.*;
 
 import com.sed10.mln.study.exception.AppException;
@@ -13,6 +14,7 @@ import com.sed10.mln.study.repository.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -94,6 +96,73 @@ public class StudentProgressService {
                 lessons.addAll(lessonRepo.findByChapter_IdOrderByIdAsc(chapter.getId())));
 
         return mergeLessonsWithProgress(studentId, lessons, progressRepo.findByStudentIdAndSubjectId(studentId, subjectId));
+    }
+
+    @Transactional(readOnly = true)
+    public StudentResumeResponse getRecentResumePoint(Long studentId) {
+        List<StudentProgress> recentRecords = progressRepo.findRecentByStudentId(
+                studentId,
+                PageRequest.of(0, 1));
+
+        if (recentRecords.isEmpty()) {
+            return null;
+        }
+
+        StudentProgress recent = recentRecords.get(0);
+        Lesson recentLesson = recent.getLesson();
+        Chapter chapter = recentLesson.getChapter();
+        Long subjectId = chapter.getSubject().getId();
+
+        if (StudentProgressConstant.COMPLETED.equals(recent.getStatus())) {
+            StudentProgressResponse nextLesson = findNextIncompleteLesson(
+                    studentId,
+                    subjectId,
+                    recent.getId().getLessonId());
+            if (nextLesson != null) {
+                return StudentResumeResponse.builder()
+                        .subjectId(subjectId)
+                        .chapterId(nextLesson.getChapterId())
+                        .lessonId(nextLesson.getLessonId())
+                        .build();
+            }
+        }
+
+        return StudentResumeResponse.builder()
+                .subjectId(subjectId)
+                .chapterId(chapter.getId())
+                .lessonId(recentLesson.getId())
+                .build();
+    }
+
+    private StudentProgressResponse findNextIncompleteLesson(
+            Long studentId,
+            Long subjectId,
+            Long completedLessonId) {
+        List<StudentProgressResponse> progressItems = listProgressBySubject(studentId, subjectId);
+        int completedIndex = -1;
+
+        for (int index = 0; index < progressItems.size(); index++) {
+            if (completedLessonId.equals(progressItems.get(index).getLessonId())) {
+                completedIndex = index;
+                break;
+            }
+        }
+
+        if (completedIndex == -1) {
+            return progressItems.stream()
+                    .filter(item -> !StudentProgressConstant.COMPLETED.equals(item.getStatus()))
+                    .findFirst()
+                    .orElse(null);
+        }
+
+        for (int index = completedIndex + 1; index < progressItems.size(); index++) {
+            StudentProgressResponse item = progressItems.get(index);
+            if (!StudentProgressConstant.COMPLETED.equals(item.getStatus())) {
+                return item;
+            }
+        }
+
+        return null;
     }
 
     private List<StudentProgressResponse> mergeLessonsWithProgress(

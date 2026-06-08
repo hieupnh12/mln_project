@@ -4,6 +4,7 @@ export const STUDENT_PROGRESS_ENDPOINTS = {
   chapterLessonProgress: (chapterId: number) =>
     `/student/chapters/${chapterId}/lesson-progress`,
   lessonProgress: (lessonId: number) => `/student/lessons/${lessonId}/progress`,
+  resume: "/student/progress/resume",
 } as const;
 
 export const STUDENT_PROGRESS_QUERY_KEYS = {

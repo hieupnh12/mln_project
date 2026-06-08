@@ -1,7 +1,6 @@
 import type { QuizFilters, QuizListItem } from "../types/quiz-management.types";
-import type { QuizListSummary } from "../utils/quiz-ui.helpers";
 import { QuizFiltersBar } from "./quiz-filters-bar";
-import { QuizListQuickTips, QuizListSummaryCards } from "./quiz-list-summary-cards";
+import { QuizListQuickTips } from "./quiz-list-summary-cards";
 import { QuizListTable } from "./quiz-list-table";
 
 type QuizListViewProps = {
@@ -16,7 +15,6 @@ type QuizListViewProps = {
   onFiltersChange: (filters: QuizFilters) => void;
   onFiltersReset: () => void;
   onRetry?: () => void;
-  summary: QuizListSummary;
   totalCount: number;
 };
 
@@ -32,23 +30,16 @@ export function QuizListView({
   onFiltersChange,
   onFiltersReset,
   onRetry,
-  summary,
   totalCount,
 }: QuizListViewProps) {
   return (
-    <section className="space-y-md">
-      <QuizListSummaryCards
-        activeStatus={filters.status}
-        onStatusFilter={(status) => onFiltersChange({ ...filters, status })}
-        summary={summary}
-      />
-
+    <section className="flex min-h-0 flex-1 flex-col gap-sm">
       {isError ? (
-        <div className="rounded-xl border border-error/30 bg-error-container/40 p-md">
-          <p className="text-body-md text-error">Không thể tải danh sách quiz.</p>
+        <div className="shrink-0 rounded-lg border border-error/30 bg-error-container/40 p-sm">
+          <p className="text-label-md text-error">Không thể tải danh sách quiz.</p>
           {onRetry ? (
             <button
-              className="mt-3 rounded-lg bg-primary px-4 py-2 text-label-md text-on-primary"
+              className="mt-2 rounded-lg bg-primary px-3 py-1.5 text-label-sm text-on-primary"
               onClick={onRetry}
               type="button"
             >
@@ -58,20 +49,21 @@ export function QuizListView({
         </div>
       ) : null}
 
-      <div className="grid grid-cols-1 gap-md xl:grid-cols-[minmax(0,1fr)_280px]">
-        <div className="space-y-md">
-          <QuizFiltersBar
-            courseOptions={courseOptions}
-            filters={filters}
-            onChange={onFiltersChange}
-            onReset={onFiltersReset}
-            resultCount={items.length}
-            totalCount={totalCount}
-          />
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-sm">
+        <QuizListQuickTips />
+        <QuizFiltersBar
+          courseOptions={courseOptions}
+          filters={filters}
+          onChange={onFiltersChange}
+          onReset={onFiltersReset}
+          resultCount={items.length}
+          totalCount={totalCount}
+        />
+        <div className="min-h-0 flex-1 overflow-auto">
           {isLoading ? (
             <div className="space-y-sm">
-              <div className="h-12 animate-pulse rounded-xl bg-surface-container-low" />
-              <div className="h-64 animate-pulse rounded-xl bg-surface-container-low" />
+              <div className="h-10 animate-pulse rounded-lg bg-surface-container-low" />
+              <div className="h-[50vh] min-h-[320px] animate-pulse rounded-lg bg-surface-container-low" />
             </div>
           ) : (
             <QuizListTable
@@ -82,7 +74,6 @@ export function QuizListView({
             />
           )}
         </div>
-        <QuizListQuickTips />
       </div>
     </section>
   );

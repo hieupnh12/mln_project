@@ -1,8 +1,11 @@
-import { useCallback, useRef } from "react";
+import { useCallback, useMemo } from "react";
 import type { SubjectListItem } from "../../types/student.types";
 import { useYoutubeLessonProgress } from "../../student-progress/hooks/use-youtube-lesson-progress";
 import { useSubjectLessonProgressQuery } from "../../student-progress/hooks/use-student-progress-queries";
-import { buildLessonProgressMap } from "../../student-progress/utils/student-progress-resume.util";
+import {
+  buildLessonProgressMap,
+  findNextLessonAfterComplete,
+} from "../../student-progress/utils/student-progress-resume.util";
 import { studentCourseFeaturedQuote } from "../constants/student-course.constants";
 import {
   useChapterLessonsQuery,
@@ -19,7 +22,7 @@ type CourseMaterialViewerProps = {
   subject: SubjectListItem | undefined;
   expandedChapterId: number | null;
   selectedMaterialId: number | null;
-  onLessonCompleted?: (lessonId: number) => void;
+  onGoToNextLesson?: (lessonId: number) => void;
 };
 
 function MaterialViewerSkeleton() {
@@ -33,7 +36,7 @@ export function CourseMaterialViewer({
   subject,
   expandedChapterId,
   selectedMaterialId,
-  onLessonCompleted,
+  onGoToNextLesson,
 }: CourseMaterialViewerProps) {
   const materialQuery = useMaterialDetailQuery(selectedMaterialId);
   const lessonsQuery = useChapterLessonsQuery(expandedChapterId);
@@ -44,21 +47,25 @@ export function CourseMaterialViewer({
   const lesson = lessonsQuery.data?.find((item) => item.id === material?.lessonId);
   const progressMap = buildLessonProgressMap(progressQuery.data ?? []);
   const lessonProgress = material ? progressMap.get(material.lessonId) : undefined;
-  const onLessonCompletedRef = useRef(onLessonCompleted);
-  onLessonCompletedRef.current = onLessonCompleted;
-
-  const handleLessonCompleted = useCallback(() => {
-    if (material) {
-      onLessonCompletedRef.current?.(material.lessonId);
+  const nextLesson = useMemo(() => {
+    if (!material?.lessonId) {
+      return null;
     }
-  }, [material]);
+
+    return findNextLessonAfterComplete(progressQuery.data ?? [], material.lessonId);
+  }, [material?.lessonId, progressQuery.data]);
+
+  const handleGoToNextLesson = useCallback(() => {
+    if (material) {
+      onGoToNextLesson?.(material.lessonId);
+    }
+  }, [material, onGoToNextLesson]);
 
   useYoutubeLessonProgress({
     subjectId,
     lessonId: material?.lessonId ?? 0,
     currentStatus: lessonProgress?.status,
     enabled: material?.contentType === "YOUTUBE" && material.lessonId != null,
-    onLessonCompleted: material ? handleLessonCompleted : undefined,
   });
 
   if (selectedMaterialId == null) {
@@ -119,7 +126,12 @@ export function CourseMaterialViewer({
           lessonStatus={lessonProgress?.status}
           lessonTitle={lesson?.title || "Bài học chưa đặt tên"}
           material={material}
-          onLessonCompleted={handleLessonCompleted}
+          nextLesson={
+            nextLesson
+              ? { lessonTitle: nextLesson.lessonTitle }
+              : undefined
+          }
+          onGoToNextLesson={nextLesson ? handleGoToNextLesson : undefined}
           subjectId={subjectId}
         />
       )}

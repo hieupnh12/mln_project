@@ -1,16 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import type { SubjectListItem } from "../../types/student.types";
 import { STUDENT_PROGRESS_QUERY_KEYS } from "../constants/student-progress-api.constants";
 import {
+  getRecentResumePoint,
   getSubjectLessonProgress,
   updateLessonProgress,
 } from "../services/student-progress.service";
 import type { StudentProgressStatus } from "../types/student-progress.types";
-import {
-  findGlobalResumePoint,
-  findResumeInProgressList,
-} from "../utils/student-progress-resume.util";
+import { findResumeInProgressList } from "../utils/student-progress-resume.util";
 
 const isBrowser = typeof window !== "undefined";
 
@@ -27,25 +24,11 @@ export function useSubjectLessonProgressQuery(subjectId: number | null) {
   });
 }
 
-export function useStudentResumeQuery(subjects: SubjectListItem[] | undefined) {
+export function useStudentResumeQuery() {
   return useQuery({
     queryKey: STUDENT_PROGRESS_QUERY_KEYS.resume,
-    queryFn: async () => {
-      if (!subjects?.length) {
-        return null;
-      }
-
-      const entries = await Promise.all(
-        subjects.map(async (subject) => {
-          const progress = await getSubjectLessonProgress(subject.id);
-          return [subject.id, progress] as const;
-        }),
-      );
-
-      const progressBySubject = new Map(entries);
-      return findGlobalResumePoint(subjects, progressBySubject);
-    },
-    enabled: isBrowser && Boolean(subjects?.length),
+    queryFn: getRecentResumePoint,
+    enabled: isBrowser,
     staleTime: 30_000,
   });
 }
