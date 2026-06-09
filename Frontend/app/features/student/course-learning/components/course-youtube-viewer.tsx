@@ -1,3 +1,5 @@
+import { PlayCircle } from "lucide-react";
+
 import type { CourseMaterialDetail } from "../types/course-learning.types";
 
 type CourseYoutubeViewerProps = {
@@ -6,7 +8,7 @@ type CourseYoutubeViewerProps = {
 };
 
 const stageCardClassName =
-  "relative overflow-hidden rounded-xl border border-outline-variant/30 bg-white shadow-[0_4px_20px_rgba(35,39,51,0.04)]";
+  "relative overflow-hidden rounded-xl border border-outline-variant/35 bg-landing-white shadow-xl shadow-landing-text/5";
 
 export function CourseYoutubeViewer({ material, lessonTitle }: CourseYoutubeViewerProps) {
   const embedUrl = material.youtubeEmbedUrl;
@@ -14,14 +16,12 @@ export function CourseYoutubeViewer({ material, lessonTitle }: CourseYoutubeView
   if (!embedUrl) {
     return (
       <section
-        className={`${stageCardClassName} flex aspect-video items-center justify-center bg-surface-container-low p-gutter text-center`}
+        className={`${stageCardClassName} flex aspect-video items-center justify-center bg-landing-gray p-gutter text-center`}
       >
-        <div className="space-y-2">
-          <p className="text-label-sm font-semibold uppercase tracking-wider text-on-surface-variant">
-            Bài học
-          </p>
-          <h2 className="text-headline-md font-semibold text-primary">{lessonTitle}</h2>
-          <p className="text-body-md text-on-surface-variant">
+        <div className="space-y-3">
+          <PlayCircle aria-hidden="true" className="mx-auto h-10 w-10 text-landing-red" />
+          <h2 className="text-headline-md font-semibold text-landing-text">{lessonTitle}</h2>
+          <p className="text-body-md text-landing-text-soft">
             Không thể phát video YouTube cho tài liệu này.
           </p>
         </div>
@@ -31,7 +31,7 @@ export function CourseYoutubeViewer({ material, lessonTitle }: CourseYoutubeView
 
   return (
     <section className={stageCardClassName}>
-      <div className="aspect-video w-full bg-black">
+      <div className="aspect-video w-full bg-landing-text">
         <iframe
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           allowFullScreen
@@ -40,11 +40,9 @@ export function CourseYoutubeViewer({ material, lessonTitle }: CourseYoutubeView
           title={lessonTitle}
         />
       </div>
-      <div className="border-t border-outline-variant/15 bg-surface-container-low/40 px-md py-3 sm:px-lg">
-        <p className="text-label-sm font-semibold uppercase tracking-wider text-on-surface-variant">
-          Bài học
-        </p>
-        <h2 className="mt-0.5 text-headline-md font-semibold text-primary">{lessonTitle}</h2>
+      <div className="border-t border-outline-variant/20 bg-landing-white px-md py-4 sm:px-lg">
+        <p className="text-label-sm font-semibold text-landing-red">Bài học video</p>
+        <h2 className="mt-1 text-headline-md font-semibold text-landing-text">{lessonTitle}</h2>
       </div>
     </section>
   );

@@ -13,63 +13,47 @@ type ExamCompletedTableProps = {
 };
 
 export function ExamCompletedTable({ courseId, rows, subjectTitle }: ExamCompletedTableProps) {
-  if (rows.length === 0) {
-    return (
-      <p className="rounded-lg border border-outline-variant bg-white p-gutter text-center text-body-md text-on-surface-variant">
-        Chưa có bài kiểm tra đã nộp.
-      </p>
-    );
-  }
-
   return (
-    <div className="overflow-hidden rounded-lg border border-outline-variant bg-white">
+    <div className="overflow-hidden rounded-xl border border-outline-variant/35 bg-landing-white shadow-lg shadow-landing-text/5">
       <div className="overflow-x-auto">
         <table className="w-full min-w-[720px] border-collapse text-left">
-          <thead className="border-b border-outline-variant bg-surface-container-low">
+          <thead className="border-b border-outline-variant/30 bg-landing-gray">
             <tr>
-              <th className="px-6 py-4 text-label-md text-on-surface-variant">Tên bài thi</th>
-              <th className="px-6 py-4 text-label-md text-on-surface-variant">Môn học</th>
-              <th className="px-6 py-4 text-label-md text-on-surface-variant">Thời gian nộp</th>
-              <th className="px-6 py-4 text-right text-label-md text-on-surface-variant">
+              <th className="px-6 py-4 text-label-md text-landing-text-muted">Tên bài thi</th>
+              <th className="px-6 py-4 text-label-md text-landing-text-muted">Môn học</th>
+              <th className="px-6 py-4 text-label-md text-landing-text-muted">Thời gian nộp</th>
+              <th className="px-6 py-4 text-right text-label-md text-landing-text-muted">
                 Kết quả
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-outline-variant">
+          <tbody className="divide-y divide-outline-variant/25">
             {rows.map((row) => (
-              <tr className="transition-colors hover:bg-surface" key={row.attemptId}>
-                <td className="px-6 py-4 text-body-md">
+              <tr className="transition-colors hover:bg-landing-cream" key={row.attemptId}>
+                <td className="px-6 py-4">
                   <Link
-                    className="font-medium text-primary underline-offset-2 hover:text-secondary hover:underline"
+                    className="font-semibold text-landing-text hover:text-landing-red"
                     to={getStudentExamSummaryPath(courseId, row.quizId, row.attemptId)}
                   >
                     {row.title}
                   </Link>
                 </td>
                 <td className="px-6 py-4">
-                  {subjectTitle ? (
-                    <span className="rounded bg-secondary-container px-2 py-0.5 text-xs font-bold uppercase text-on-secondary-fixed-variant">
-                      {subjectTitle}
-                    </span>
-                  ) : (
-                    <span className="text-sm text-on-surface-variant">—</span>
-                  )}
+                  <span className="rounded-full bg-landing-red/10 px-3 py-1 text-label-sm font-semibold text-landing-red">
+                    {subjectTitle || "Mác - Lê Nin"}
+                  </span>
                 </td>
-                <td className="px-6 py-4 text-sm text-on-surface-variant">{row.submittedAt}</td>
+                <td className="px-6 py-4 text-sm text-landing-text-soft">{row.submittedAt}</td>
                 <td className="px-6 py-4 text-right">
                   <div className="flex flex-col items-end gap-1">
                     <Link
-                      className={
-                        row.passed
-                          ? "font-bold text-secondary underline-offset-2 hover:underline"
-                          : "font-bold text-error underline-offset-2 hover:underline"
-                      }
+                      className={row.passed ? "font-bold text-landing-red" : "font-bold text-error"}
                       to={getStudentExamSummaryPath(courseId, row.quizId, row.attemptId)}
                     >
                       {row.scoreLabel}
                     </Link>
                     <Link
-                      className="text-label-sm text-on-surface-variant underline-offset-2 hover:text-secondary hover:underline"
+                      className="text-label-sm text-landing-text-soft hover:text-landing-red"
                       to={getStudentExamReviewPath(courseId, row.quizId, row.attemptId)}
                     >
                       Chi tiết từng câu
