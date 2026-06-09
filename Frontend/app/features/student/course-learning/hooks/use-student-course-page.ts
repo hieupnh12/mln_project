@@ -5,7 +5,7 @@ import { useParams, useSearchParams } from "react-router";
 import { fetchFlashcardSets } from "~/features/teacher/api/flashcard.api";
 
 import { EXAMS_QUERY_KEYS } from "../../exams/constants/exams-api.constants";
-import { getExamCatalog } from "../../exams/services/exams.service";
+import { getExamCatalog, getExamSession } from "../../exams/services/exams.service";
 import {
   DEFAULT_PRACTICE_QUESTION_BATCH_SIZE,
   PRACTICE_QUERY_KEYS,
@@ -89,11 +89,21 @@ export function useStudentCoursePage() {
       queryFn: fetchFlashcardSets,
       staleTime: 5 * 60 * 1000,
     });
-    void queryClient.prefetchQuery({
+    queryClient.fetchQuery({
       queryKey: EXAMS_QUERY_KEYS.catalog(subjectId),
       queryFn: () => getExamCatalog(subjectId, 50),
       staleTime: 5 * 60 * 1000,
-    });
+    }).then((catalog) => {
+      if (catalog && Array.isArray(catalog.ongoing)) {
+        catalog.ongoing.forEach((exam) => {
+          void queryClient.prefetchQuery({
+            queryKey: EXAMS_QUERY_KEYS.session(subjectId, exam.id),
+            queryFn: () => getExamSession(subjectId, exam.id),
+            staleTime: 5 * 60 * 1000,
+          });
+        });
+      }
+    }).catch(() => {});
     void queryClient.prefetchQuery({
       queryKey: PRACTICE_QUERY_KEYS.questions(
         subjectId,

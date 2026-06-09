@@ -483,11 +483,24 @@ public class StudentExamService {
             links = links.subList(0, count);
         }
 
+        if (links.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<Long> questionIds = links.stream()
+                .map(link -> link.getQuestion().getId())
+                .filter(Objects::nonNull)
+                .toList();
+
+        // Batch load all answers
+        List<Answer> allAnswers = answerRepository.findByQuestion_IdInOrderByQuestion_IdAscSortOrderAsc(questionIds);
+        Map<Long, List<Answer>> answersByQuestionId = allAnswers.stream()
+                .collect(Collectors.groupingBy(answer -> answer.getQuestion().getId()));
+
         List<StudentExamQuestionResponse> result = new ArrayList<>();
         for (QuizQuestion link : links) {
             Question question = link.getQuestion();
-            List<Answer> answers = new ArrayList<>(
-                    answerRepository.findByQuestion_IdOrderBySortOrderAsc(question.getId()));
+            List<Answer> answers = new ArrayList<>(answersByQuestionId.getOrDefault(question.getId(), Collections.emptyList()));
             if (Boolean.TRUE.equals(quiz.getShuffleAnswers())) {
                 Collections.shuffle(answers);
             }
