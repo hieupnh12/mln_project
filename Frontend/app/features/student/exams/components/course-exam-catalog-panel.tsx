@@ -1,5 +1,6 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { RefreshCw } from "lucide-react";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router";
 
 import { getAuthSession } from "~/shared/services/auth-session.service";
@@ -8,6 +9,8 @@ import { showErrorToast } from "~/shared/utils/toast";
 
 import { getStudentExamSessionPath } from "../../constants/student-routes.constants";
 import { useStudentExamsQuery } from "../hooks/use-student-exams-query";
+import { EXAMS_QUERY_KEYS } from "../constants/exams-api.constants";
+import { getExamSession } from "../services/exams.service";
 import { ExamCatalogSection } from "./exam-catalog-section";
 import { ExamCompletedList } from "./exam-completed-list";
 import { ExamCompletedTable } from "./exam-completed-table";
@@ -44,8 +47,25 @@ export function CourseExamCatalogPanel({
   courseTitle,
 }: CourseExamCatalogPanelProps) {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const isLoggedIn = Boolean(getAuthSession()?.accessToken);
   const examsQuery = useStudentExamsQuery({ subjectId, enabled: active });
+
+  const ongoingExams = examsQuery.data?.ongoing ?? [];
+
+  useEffect(() => {
+    if (ongoingExams.length === 0 || !subjectId) {
+      return;
+    }
+    ongoingExams.forEach((exam) => {
+      void queryClient.prefetchQuery({
+        queryKey: EXAMS_QUERY_KEYS.session(subjectId, exam.id),
+        queryFn: () => getExamSession(subjectId, exam.id),
+        staleTime: 5 * 60 * 1000,
+      });
+    });
+  }, [ongoingExams, subjectId, queryClient]);
+
   const retakeQuizIds = useMemo(() => {
     const completed = examsQuery.data?.completed ?? [];
     return new Set(completed.filter((row) => !row.passed).map((row) => row.quizId));
