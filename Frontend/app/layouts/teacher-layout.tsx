@@ -63,7 +63,8 @@ export function TeacherLayout() {
   }, [queryClient]);
 
   return (
-    <div className="min-h-svh overflow-x-hidden bg-background font-body-md text-on-surface">
+    <div className="teacher-theme-root min-h-svh overflow-x-hidden bg-background font-body-md text-on-surface">
+
       <TeacherSidebar
         collapsed={collapsed}
         onToggle={toggleCollapsed}

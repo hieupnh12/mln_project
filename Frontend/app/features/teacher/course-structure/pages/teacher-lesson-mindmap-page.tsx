@@ -403,7 +403,7 @@ TỪ NỘI DUNG SAU:  [ ]`;
   }
 
   return (
-    <div className="fixed inset-0 z-[60] flex bg-[var(--color-background)] overflow-hidden">
+    <div className="theme-default fixed inset-0 z-[60] flex bg-[var(--color-background)] overflow-hidden">
       {/* Editor Canvas */}
       <main className="flex-1 h-full relative">
         {nodes.length === 0 ? (

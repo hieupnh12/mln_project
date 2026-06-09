@@ -476,3 +476,32 @@ a {
     transform: translateY(0);
   }
 }
+
+.teacher-theme-root {
+  --color-secondary: var(--color-landing-red);
+  --color-secondary-container: color-mix(in srgb, var(--color-landing-red) 10%, var(--color-landing-white));
+  --color-on-secondary-container: var(--color-landing-red-deep);
+  --color-secondary-fixed: var(--color-landing-red);
+  --color-secondary-fixed-dim: var(--color-landing-red-deep);
+}
+
+.theme-default {
+  --color-background: #fcf8f9;
+  --color-surface: #fcf8f9;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f6f3f4;
+  --color-surface-container: #f0edee;
+  --color-surface-container-high: #ebe7e8;
+  --color-surface-container-highest: #e5e2e3;
+  --color-primary: #0e121e;
+  --color-primary-container: #232733;
+  --color-secondary: #3f6564;
+  --color-secondary-container: #bfe8e6;
+  --color-on-secondary-container: #436968;
+  --color-on-primary: #ffffff;
+  --color-on-surface: #1c1b1c;
+  --color-on-surface-variant: #46464c;
+  --color-outline: #76777c;
+  --color-outline-variant: #c6c6cc;
+}
+

@@ -351,8 +351,9 @@ be used instead of hard-coded colors inside React components:
 
 Rules:
 
-- Use these only for the marketing/landing experience.
-- Keep app dashboards, forms, and learning tools on the Serene Academic tokens.
+- Use these for the marketing/landing experience, authentication surfaces, and student
+  learning surfaces when a consistent public-to-product brand transition is needed.
+- Keep dense learning tools, teacher workflows, and admin workflows on the Serene Academic tokens.
 - Do not add additional landing colors without updating this section and `app.css`.
 
 Trước khi merge UI/API code:

@@ -1,4 +1,5 @@
-import { StudentMaterialIcon as MaterialIcon } from "../../components/student-material-icon";
+import { ClipboardCheck } from "lucide-react";
+
 import type { PracticeTestCard } from "../types/practice.types";
 
 type PracticeTestsSidebarProps = {
@@ -27,11 +28,12 @@ export function PracticeTestsSidebar({
       <div
         className={
           embedded
-            ? "rounded-xl border border-outline-variant/20 bg-surface-container-lowest p-gutter shadow-sm"
-            : "sticky top-20 rounded-xl border border-outline-variant/20 bg-surface-container-lowest p-gutter shadow-sm"
+            ? "rounded-xl border border-outline-variant/35 bg-landing-white p-gutter shadow-lg shadow-landing-text/5"
+            : "sticky top-20 rounded-xl border border-outline-variant/35 bg-landing-white p-gutter shadow-lg shadow-landing-text/5"
         }
       >
-        <h3 className="mb-4 text-label-md font-bold text-primary">
+        <h3 className="mb-4 flex items-center gap-2 text-label-md font-bold text-landing-text">
+          <ClipboardCheck aria-hidden="true" className="h-5 w-5 text-landing-red" />
           Các bài kiểm tra khác
         </h3>
         <ul className="custom-scrollbar flex max-h-[calc(100vh-7rem)] flex-col gap-3 overflow-y-auto">
@@ -43,22 +45,19 @@ export function PracticeTestsSidebar({
                 <button
                   className={
                     isActive
-                      ? "w-full rounded-xl border border-secondary bg-secondary-container/20 p-4 text-left ring-2 ring-secondary/10"
-                      : "w-full rounded-xl border border-outline-variant/20 bg-surface-container-low p-4 text-left transition hover:border-secondary/40"
+                      ? "w-full rounded-xl border border-landing-red/25 bg-landing-red/5 p-4 text-left"
+                      : "w-full rounded-xl border border-outline-variant/30 bg-landing-cream p-4 text-left transition hover:border-landing-red/20"
                   }
                   onClick={() => onSelectTest(test.id)}
                   type="button"
                 >
-                  <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-secondary-container text-primary">
-                    <MaterialIcon>quiz</MaterialIcon>
-                  </div>
-                  <p className="text-label-md font-semibold text-primary">
+                  <p className="text-label-md font-semibold text-landing-text">
                     {test.title}
                   </p>
-                  <p className="mt-1 text-label-sm text-on-surface-variant">
+                  <p className="mt-1 text-label-sm text-landing-text-soft">
                     {test.description}
                   </p>
-                  <p className="mt-2 text-label-sm text-on-surface-variant">
+                  <p className="mt-2 text-label-sm font-medium text-landing-red">
                     {test.questionCountLabel} · {test.durationLabel}
                   </p>
                 </button>
