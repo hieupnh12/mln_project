@@ -19,4 +19,6 @@ public class SaveQuizRequest {
     Boolean shuffleAnswers;
     Boolean randomQuestions;
     List<String> questionIds;
+    String availableFrom;
+    String availableUntil;
 }

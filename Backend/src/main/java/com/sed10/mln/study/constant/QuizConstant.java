@@ -5,14 +5,19 @@ import java.util.Map;
 public final class QuizConstant {
     public static final String DRAFT = "DRAFT";
     public static final String PUBLISHED = "PUBLISHED";
+    public static final String CLOSED = "CLOSED";
 
     private static final Map<String, String> TO_LABEL = Map.of(
             DRAFT, "Bản nháp",
-            PUBLISHED, "Đã xuất bản");
+            PUBLISHED, "Đã xuất bản",
+            CLOSED, "Đã tắt");
 
     private static final Map<String, String> FROM_LABEL = Map.of(
             "Bản nháp", DRAFT,
-            "Đã xuất bản", PUBLISHED);
+            "Đã xuất bản", PUBLISHED,
+            "Đã tắt", CLOSED,
+            "Live", PUBLISHED,
+            "Nháp", DRAFT);
 
     private QuizConstant() {}
 

@@ -33,12 +33,25 @@ export class ApiRequestError extends Error {
   }
 }
 
+function resolveAxiosErrorMessage(error: AxiosError<ApiErrorPayload>) {
+  const payload = error.response?.data;
+  if (payload?.message) {
+    return payload.message;
+  }
+
+  if (error.code === "ECONNABORTED" || /timeout/i.test(error.message)) {
+    return "Yêu cầu quá thời gian chờ. Vui lòng thử lại.";
+  }
+
+  return error.message ?? DEFAULT_API_ERROR_MESSAGE;
+}
+
 function toApiRequestError(error: AxiosError<ApiErrorPayload>) {
   const payload = error.response?.data;
   const code = payload?.code != null ? String(payload.code) : undefined;
 
   return new ApiRequestError({
-    message: payload?.message ?? error.message ?? DEFAULT_API_ERROR_MESSAGE,
+    message: resolveAxiosErrorMessage(error),
     code,
     status: error.response?.status,
     details: payload?.errors,

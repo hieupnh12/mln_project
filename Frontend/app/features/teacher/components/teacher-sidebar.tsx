@@ -7,46 +7,89 @@ import {
 } from "../constants/teacher-dashboard.constants";
 import { TeacherAccountMenu } from "./teacher-account-menu";
 import { MaterialIcon } from "./teacher-icons";
+import { TeacherSidebarToggle } from "./teacher-sidebar-toggle";
+import { getTeacherNavLinkClassName } from "../utils/teacher-nav-link-classes";
 
-export function TeacherSidebar() {
+type TeacherSidebarProps = {
+  collapsed: boolean;
+  onToggle: () => void;
+  sidebarWidthClass: string;
+};
+
+export function TeacherSidebar({
+  collapsed,
+  onToggle,
+  sidebarWidthClass,
+}: TeacherSidebarProps) {
   const authUser = useAuthUser({ fallbackName: "giảng viên" });
 
   return (
-    <aside className="fixed left-0 top-0 z-50 hidden h-svh w-64 flex-col border-r border-outline-variant/20 bg-surface/85 p-md shadow-[0_4px_20px_rgba(35,39,51,0.04)] backdrop-blur lg:flex">
-      <Link className="mb-xl flex items-center gap-sm" to={TEACHER_ROUTES.dashboard}>
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-container text-white">
-          <MaterialIcon filled>school</MaterialIcon>
-        </div>
-        <div className="min-w-0">
-          <h1 className="truncate text-headline-md font-bold text-primary">
-            M-L Master
-          </h1>
-          <p className="text-label-sm font-semibold text-on-surface-variant/70">
-            Teacher Portal
-          </p>
-        </div>
-      </Link>
+    <aside
+      className={`fixed left-0 top-0 z-50 hidden h-svh flex-col border-r border-outline-variant/20 bg-surface/85 shadow-[0_4px_20px_rgba(35,39,51,0.04)] backdrop-blur transition-[width,padding] duration-200 ease-out lg:flex ${sidebarWidthClass} ${collapsed ? "px-2 py-md" : "p-md"}`}
+    >
+      <div
+        className={
+          collapsed
+            ? "mb-md flex justify-center"
+            : "mb-xl flex items-center justify-between gap-sm"
+        }
+      >
+        {collapsed ? (
+          <TeacherSidebarToggle collapsed={collapsed} onToggle={onToggle} />
+        ) : (
+          <>
+            <Link className="flex min-w-0 flex-1 items-center gap-sm" to={TEACHER_ROUTES.dashboard}>
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary-container text-white">
+                <MaterialIcon filled>school</MaterialIcon>
+              </div>
+              <div className="min-w-0">
+                <h1 className="truncate text-headline-md font-bold text-primary">
+                  M-L Master
+                </h1>
+                <p className="text-label-sm font-semibold text-on-surface-variant/70">
+                  Teacher Portal
+                </p>
+              </div>
+            </Link>
+            <TeacherSidebarToggle collapsed={collapsed} onToggle={onToggle} />
+          </>
+        )}
+      </div>
 
-      <nav className="flex-1 space-y-base overflow-y-auto pr-xs">
+      <nav
+        className={`flex-1 overflow-y-auto pr-xs ${collapsed ? "space-y-1" : "space-y-base"}`}
+      >
         {teacherNavItems.map((item) => (
           <NavLink
-            className={({ isActive }) =>
-              isActive
-                ? "flex w-full items-center gap-md rounded-xl bg-secondary-container px-md py-sm text-left font-semibold text-on-secondary-container transition"
-                : "flex w-full items-center gap-md rounded-xl px-md py-sm text-left text-on-surface-variant transition hover:bg-surface-container hover:text-primary"
+            className={(state) =>
+              getTeacherNavLinkClassName(
+                state,
+                collapsed ? "sidebar-collapsed" : "sidebar",
+              )
             }
             end={item.to === TEACHER_ROUTES.dashboard}
             key={item.label}
+            title={item.label}
             to={item.to}
           >
-            <MaterialIcon>{item.icon}</MaterialIcon>
-            <span className="text-label-md font-medium">{item.label}</span>
+            <MaterialIcon className={collapsed ? "text-[22px]" : undefined}>
+              {item.icon}
+            </MaterialIcon>
+            {collapsed ? (
+              <span className="line-clamp-2 w-full px-0.5 text-[10px] font-semibold leading-tight">
+                {item.shortLabel}
+              </span>
+            ) : (
+              <span className="text-label-md font-medium">{item.label}</span>
+            )}
           </NavLink>
         ))}
       </nav>
 
-      <div className="mt-auto border-t border-outline-variant/20 pt-md">
-        <TeacherAccountMenu user={authUser} />
+      <div
+        className={`mt-auto border-t border-outline-variant/20 ${collapsed ? "pt-sm" : "pt-md"}`}
+      >
+        <TeacherAccountMenu collapsed={collapsed} user={authUser} />
       </div>
     </aside>
   );

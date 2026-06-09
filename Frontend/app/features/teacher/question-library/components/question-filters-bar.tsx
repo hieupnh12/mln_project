@@ -149,21 +149,12 @@ export function QuestionFiltersBar({
             </option>
           ))}
         </FilterSelect>
-        <div className="flex items-center">
-          <button
-            className="flex items-center gap-1 text-label-md font-medium text-on-surface-variant transition hover:text-primary"
-            onClick={onReset}
-            type="button"
-          >
-            <MaterialIcon className="text-sm">restart_alt</MaterialIcon>
-            Làm mới
-          </button>
-        </div>
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-outline-variant/10 pt-4">
         <div className="flex flex-wrap gap-3">
           <OutlineAction icon="download" label="Export" onClick={onOpenExport} />
+          <OutlineAction icon="restart_alt" label="Làm mới" onClick={onReset} />
         </div>
         <div className="flex flex-wrap items-center justify-end gap-3">
           {selectedCount > 0 ? (

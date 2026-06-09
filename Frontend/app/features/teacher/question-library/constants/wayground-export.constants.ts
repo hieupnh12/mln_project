@@ -46,3 +46,5 @@ export const EXPORT_PAGE_SIZE = 100;
 export const EXPORT_DETAIL_BATCH_SIZE = 10;
 
 export const APPROVED_EXPORT_STATUS = "Đã xuất bản" as const;
+
+export const PENDING_EXPORT_STATUS = "Cần duyệt" as const;

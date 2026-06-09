@@ -1,7 +1,11 @@
-import { apiClient } from "~/shared/services/api-client";
+import { apiClient, ApiRequestError } from "~/shared/services/api-client";
 import type { BackendApiResponse } from "~/shared/types/api.types";
 
-import { EXAMS_API_ENDPOINTS } from "../constants/exams-api.constants";
+import {
+  EXAMS_API_ENDPOINTS,
+  EXAM_REVIEW_TIMEOUT_MS,
+  EXAM_SUBMIT_TIMEOUT_MS,
+} from "../constants/exams-api.constants";
 import type { StudentQuizCatalogDto } from "../types/exams-api.types";
 import type {
   StudentExamSessionDto,
@@ -12,6 +16,12 @@ import type { ExamReview } from "../types/exam-review.types";
 import type { ExamSummary } from "../types/exam-summary.types";
 
 function unwrap<T>(response: { data: BackendApiResponse<T> }): T {
+  if (response.data.result == null) {
+    throw new ApiRequestError({
+      message: response.data.message ?? "API không trả về dữ liệu bài kiểm tra.",
+    });
+  }
+
   return response.data.result;
 }
 
@@ -38,6 +48,7 @@ export async function submitExam(
   const response = await apiClient.post<BackendApiResponse<SubmitExamResultDto>>(
     EXAMS_API_ENDPOINTS.submit(subjectId, quizId),
     body,
+    { timeout: EXAM_SUBMIT_TIMEOUT_MS },
   );
   return unwrap(response);
 }
@@ -52,6 +63,7 @@ export async function fetchExamSummary(subjectId: number, attemptId: string) {
 export async function fetchExamReview(subjectId: number, attemptId: string) {
   const response = await apiClient.get<BackendApiResponse<ExamReview>>(
     EXAMS_API_ENDPOINTS.review(subjectId, attemptId),
+    { timeout: EXAM_REVIEW_TIMEOUT_MS },
   );
   return unwrap(response);
 }

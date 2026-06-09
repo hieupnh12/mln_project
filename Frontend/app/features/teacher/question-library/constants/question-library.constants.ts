@@ -31,6 +31,9 @@ export const QUESTION_LIBRARY_QUERY_KEYS = {
 
 export const QUESTION_PAGE_SIZE = 10;
 
+/** Import hàng loạt có thể mất lâu khi nhiều dòng và kiểm tra trùng lặp. */
+export const QUESTION_BATCH_IMPORT_TIMEOUT_MS = 60_000;
+
 export const defaultQuestionFilters = {
   search: "",
   course: "all",

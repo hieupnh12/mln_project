@@ -8,6 +8,8 @@ export type TeacherRoutePath =
 
 export type TeacherNavItem = {
   label: string;
+  /** Nhãn ngắn khi sidebar thu gọn hoặc bottom nav mobile. */
+  shortLabel: string;
   icon: string;
   to: TeacherRoutePath;
 };

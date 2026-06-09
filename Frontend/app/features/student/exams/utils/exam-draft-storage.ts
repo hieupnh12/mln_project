@@ -17,9 +17,19 @@ export function loadExamDraft(key: string): ExamDraft | null {
 }
 
 export function saveExamDraft(key: string, draft: ExamDraft) {
-  localStorage.setItem(key, JSON.stringify(draft));
+  try {
+    localStorage.setItem(key, JSON.stringify(draft));
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export function clearExamDraft(key: string) {
-  localStorage.removeItem(key);
+  try {
+    localStorage.removeItem(key);
+    return true;
+  } catch {
+    return false;
+  }
 }

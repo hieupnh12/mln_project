@@ -90,4 +90,20 @@ public class QuizManagementController {
                 .result(quizManagementService.duplicateQuiz(QuizConstant.parseId(id)))
                 .build();
     }
+
+    @PostMapping("/{id}/close")
+    public ApiResponse<Void> closeQuiz(@PathVariable String id) {
+        quizManagementService.closeQuiz(QuizConstant.parseId(id));
+        return ApiResponse.<Void>builder()
+                .message("Đã tắt quiz")
+                .build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ApiResponse<Void> deleteQuiz(@PathVariable String id) {
+        quizManagementService.deleteQuiz(QuizConstant.parseId(id));
+        return ApiResponse.<Void>builder()
+                .message("Đã xóa quiz")
+                .build();
+    }
 }

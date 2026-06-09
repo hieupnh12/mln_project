@@ -6,6 +6,7 @@ import type { AuthUserViewModel } from "~/features/auth/hooks/use-auth-user";
 import { MaterialIcon } from "./teacher-icons";
 
 type TeacherAccountMenuProps = {
+  collapsed?: boolean;
   user: AuthUserViewModel;
 };
 
@@ -13,7 +14,7 @@ function getInitial(name: string) {
   return name.trim().charAt(0).toUpperCase() || "G";
 }
 
-export function TeacherAccountMenu({ user }: TeacherAccountMenuProps) {
+export function TeacherAccountMenu({ collapsed = false, user }: TeacherAccountMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const logout = useLogout();
@@ -32,50 +33,61 @@ export function TeacherAccountMenu({ user }: TeacherAccountMenuProps) {
     };
   }, []);
 
+  const avatar = user.avatarUrl ? (
+    <img
+      alt="Ảnh đại diện giảng viên"
+      className="h-10 w-10 rounded-full object-cover shadow-sm"
+      referrerPolicy="no-referrer"
+      src={user.avatarUrl}
+    />
+  ) : (
+    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary-container text-label-md font-bold text-primary shadow-sm">
+      {getInitial(user.name)}
+    </span>
+  );
+
   return (
     <div className="relative" ref={menuRef}>
       <button
         aria-expanded={isOpen}
         aria-haspopup="menu"
         aria-label="Mở menu tài khoản"
-        className="flex w-full items-center gap-sm rounded-xl px-sm py-xs text-left transition hover:bg-surface-container active:scale-[0.99]"
+        className={
+          collapsed
+            ? "mx-auto flex items-center justify-center rounded-xl p-1 transition hover:bg-surface-container active:scale-[0.99]"
+            : "flex w-full items-center gap-sm rounded-xl px-sm py-xs text-left transition hover:bg-surface-container active:scale-[0.99]"
+        }
         onClick={() => setIsOpen((current) => !current)}
+        title={user.name}
         type="button"
       >
-        {user.avatarUrl ? (
-          <img
-            alt="Ảnh đại diện giảng viên"
-            className="h-10 w-10 rounded-full object-cover shadow-sm"
-            referrerPolicy="no-referrer"
-            src={user.avatarUrl}
-          />
-        ) : (
-          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary-container text-label-md font-bold text-primary shadow-sm">
-            {getInitial(user.name)}
-          </span>
-        )}
-        <span className="min-w-0 flex-1">
-          <span className="block truncate text-label-md font-bold text-primary">
-            {user.name}
-          </span>
-          <span className="block truncate text-label-sm font-semibold text-on-surface-variant/70">
-            Teacher Portal
-          </span>
-        </span>
-        <MaterialIcon className="text-on-surface-variant">
-          more_vert
-        </MaterialIcon>
+        {avatar}
+        {!collapsed ? (
+          <>
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-label-md font-bold text-primary">
+                {user.name}
+              </span>
+              <span className="block truncate text-label-sm font-semibold text-on-surface-variant/70">
+                Teacher Portal
+              </span>
+            </span>
+            <MaterialIcon className="text-on-surface-variant">more_vert</MaterialIcon>
+          </>
+        ) : null}
       </button>
 
       {isOpen ? (
         <div
-          className="absolute bottom-14 left-0 z-50 w-full overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-lowest shadow-[0_18px_40px_rgba(35,39,51,0.12)]"
+          className={
+            collapsed
+              ? "absolute bottom-0 left-[calc(100%+0.5rem)] z-50 w-56 overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-lowest shadow-[0_18px_40px_rgba(35,39,51,0.12)]"
+              : "absolute bottom-14 left-0 z-50 w-full overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-lowest shadow-[0_18px_40px_rgba(35,39,51,0.12)]"
+          }
           role="menu"
         >
           <div className="border-b border-outline-variant/20 px-4 py-3">
-            <p className="truncate text-label-md font-semibold text-primary">
-              {user.name}
-            </p>
+            <p className="truncate text-label-md font-semibold text-primary">{user.name}</p>
             {user.email ? (
               <p className="mt-1 truncate text-label-sm text-on-surface-variant">
                 {user.email}

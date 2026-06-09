@@ -288,7 +288,7 @@ public class QuestionLibraryService {
                 .findById(request.getLessonId())
                 .orElseThrow(() -> new AppException(ErrorCode.LESSON_NOT_FOUND));
 
-        String statusCode = QuestionConstant.PENDING;
+        String statusCode = resolveImportStatus(request.getTargetStatus());
 
         Map<String, String> internalHashes = new HashMap<>();
         List<BatchImportRowResult> rowResults = new ArrayList<>();
@@ -417,11 +417,30 @@ public class QuestionLibraryService {
                 .updatedBy(teacher)
                 .createdAt(now)
                 .updatedAt(now)
+                .publishedAt(QuestionConstant.PUBLISHED.equals(statusCode) ? now : null)
                 .build();
         question = questionRepository.save(question);
         saveAnswers(question, request);
         saveTags(question, request.getTags());
         return question;
+    }
+
+    private String resolveImportStatus(String targetStatus) {
+        if (targetStatus == null || targetStatus.isBlank()) {
+            return QuestionConstant.PENDING;
+        }
+
+        String trimmed = targetStatus.trim();
+        if ("APPROVED".equalsIgnoreCase(trimmed) || "Đã duyệt".equalsIgnoreCase(trimmed)) {
+            return QuestionConstant.PUBLISHED;
+        }
+
+        String normalized = QuestionConstant.fromLabel(trimmed);
+        if (QuestionConstant.PUBLISHED.equals(normalized) || QuestionConstant.PENDING.equals(normalized)) {
+            return normalized;
+        }
+
+        return QuestionConstant.PENDING;
     }
 
     private void validateCreateRequest(CreateQuestionRequest request) {

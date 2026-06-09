@@ -1,6 +1,9 @@
 import { apiClient } from "~/shared/services/api-client";
 
-import { QUESTION_LIBRARY_ENDPOINTS } from "../constants/question-library.constants";
+import {
+  QUESTION_BATCH_IMPORT_TIMEOUT_MS,
+  QUESTION_LIBRARY_ENDPOINTS,
+} from "../constants/question-library.constants";
 import type {
   BackendApiResponse,
   BatchImportPayload,
@@ -92,6 +95,7 @@ export async function batchImportQuestionsApi(payload: BatchImportPayload) {
   const response = await apiClient.post<BackendApiResponse<BatchImportReportDto>>(
     QUESTION_LIBRARY_ENDPOINTS.batchImport,
     payload,
+    { timeout: QUESTION_BATCH_IMPORT_TIMEOUT_MS },
   );
   return unwrap(response);
 }

@@ -1,6 +1,6 @@
 import { MaterialIcon } from "../../components/teacher-icons";
 import type { QuizSettings } from "../types/quiz-management.types";
-import { formatQuizScope } from "../utils/quiz-ui.helpers";
+import { formatCloseDeadline, formatQuizScope } from "../utils/quiz-ui.helpers";
 
 type QuizPublishSummaryProps = {
   questionCount: number;
@@ -13,28 +13,26 @@ export function QuizPublishSummary({ questionCount, settings }: QuizPublishSumma
     questionCount > 0 ? (settings.duration / questionCount).toFixed(1) : "—";
 
   return (
-    <section className="rounded-xl border border-outline-variant/20 bg-surface-container-low p-md">
-      <h4 className="mb-md flex items-center gap-2 text-headline-md font-semibold text-primary">
-        <MaterialIcon>summarize</MaterialIcon>
-        Thông số xuất bản
+    <section className="rounded-xl border border-outline-variant/20 bg-surface-container-low p-sm">
+      <h4 className="mb-sm flex items-center gap-1.5 text-label-md font-semibold text-primary">
+        <MaterialIcon className="text-[16px]">summarize</MaterialIcon>
+        Thông số
       </h4>
 
-      <div className="grid grid-cols-2 gap-sm sm:grid-cols-4">
-        <StatBlock icon="quiz" label="Câu hỏi" value={String(questionCount)} />
-        <StatBlock icon="timer" label="Thời gian" value={`${settings.duration}′`} />
-        <StatBlock icon="grade" label="Điểm đạt" value={`${settings.passingScore}%`} />
-        <StatBlock icon="speed" label="Phút/câu" value={String(perQuestionMinutes)} />
+      <div className="grid grid-cols-4 gap-1.5">
+        <StatBlock icon="quiz" label="Câu" value={String(questionCount)} />
+        <StatBlock icon="timer" label="Phút" value={`${settings.duration}′`} />
+        <StatBlock icon="grade" label="Điểm" value={`${settings.passingScore}%`} />
+        <StatBlock icon="speed" label="P/câu" value={String(perQuestionMinutes)} />
       </div>
 
-      <dl className="mt-md space-y-2 border-t border-outline-variant/15 pt-md text-body-md">
+      <dl className="mt-sm space-y-1 border-t border-outline-variant/15 pt-sm text-label-sm">
         <Row label="Phạm vi" value={scope} />
+        <Row label="Random" value={settings.randomQuestions ? "Bật" : "Tắt"} />
+        <Row label="Trộn ĐA" value={settings.shuffleAnswers ? "Bật" : "Tắt"} />
         <Row
-          label="Random câu khi làm bài"
-          value={settings.randomQuestions ? "Có — mỗi SV có thể khác nhau" : "Không — cố định thứ tự đã chọn"}
-        />
-        <Row
-          label="Trộn đáp án"
-          value={settings.shuffleAnswers ? "Có — đáp án xáo trộn" : "Không — giữ nguyên thứ tự đáp án"}
+          label="Đóng lúc"
+          value={formatCloseDeadline(settings.availableUntil) || "Không giới hạn"}
         />
       </dl>
     </section>
@@ -51,9 +49,9 @@ function StatBlock({
   value: string;
 }) {
   return (
-    <div className="rounded-lg bg-white p-sm text-center shadow-sm">
-      <MaterialIcon className="mx-auto text-secondary">{icon}</MaterialIcon>
-      <p className="mt-1 text-headline-md font-semibold text-primary">{value}</p>
+    <div className="rounded-md bg-white p-1.5 text-center shadow-sm">
+      <MaterialIcon className="mx-auto text-[16px] text-secondary">{icon}</MaterialIcon>
+      <p className="text-label-md font-semibold text-primary">{value}</p>
       <p className="text-label-sm text-on-surface-variant">{label}</p>
     </div>
   );
@@ -61,9 +59,9 @@ function StatBlock({
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex flex-col gap-0.5 sm:flex-row sm:justify-between sm:gap-sm">
+    <div className="flex justify-between gap-sm">
       <dt className="text-on-surface-variant">{label}</dt>
-      <dd className="font-medium text-primary sm:max-w-[55%] sm:text-right">{value}</dd>
+      <dd className="max-w-[55%] text-right font-medium text-primary">{value}</dd>
     </div>
   );
 }

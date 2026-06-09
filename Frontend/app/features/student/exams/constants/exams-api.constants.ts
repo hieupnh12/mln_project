@@ -11,6 +11,8 @@ export const EXAMS_API_ENDPOINTS = {
 } as const;
 
 export const EXAMS_CATALOG_STALE_MS = 90_000;
+export const EXAM_SUBMIT_TIMEOUT_MS = 120_000;
+export const EXAM_REVIEW_TIMEOUT_MS = 60_000;
 
 export const EXAMS_QUERY_KEYS = {
   catalog: (subjectId: number) => ["student", "exams", "catalog", subjectId] as const,
