@@ -17,7 +17,7 @@ export function ExamCompletedList({ courseId, rows }: ExamCompletedListProps) {
     <ul className="space-y-3 md:hidden">
       {rows.map((row) => (
         <li
-          className="rounded-lg border border-outline-variant bg-white p-4 shadow-sm"
+          className="rounded-xl border border-outline-variant/35 bg-landing-white p-4 shadow-lg shadow-landing-text/5"
           key={row.attemptId}
         >
           <div className="mb-2 flex flex-wrap items-center gap-2">
@@ -25,27 +25,23 @@ export function ExamCompletedList({ courseId, rows }: ExamCompletedListProps) {
               label={row.passed ? "Đã đạt" : "Chưa đạt"}
               variant={row.passed ? "passed" : "failed"}
             />
-            <span className="text-label-sm text-on-surface-variant">{row.submittedAt}</span>
+            <span className="text-label-sm text-landing-text-soft">{row.submittedAt}</span>
           </div>
           <Link
-            className="text-body-md font-medium text-primary underline-offset-2 hover:text-secondary hover:underline"
+            className="text-body-md font-semibold text-landing-text hover:text-landing-red"
             to={getStudentExamSummaryPath(courseId, row.quizId, row.attemptId)}
           >
             {row.title}
           </Link>
           <div className="mt-3 flex items-center justify-between gap-3">
             <Link
-              className={
-                row.passed
-                  ? "text-label-md font-bold text-secondary"
-                  : "text-label-md font-bold text-error"
-              }
+              className={row.passed ? "font-bold text-landing-red" : "font-bold text-error"}
               to={getStudentExamSummaryPath(courseId, row.quizId, row.attemptId)}
             >
               {row.scoreLabel}
             </Link>
             <Link
-              className="text-label-sm text-on-surface-variant underline-offset-2 hover:text-secondary hover:underline"
+              className="text-label-sm text-landing-text-soft hover:text-landing-red"
               to={getStudentExamReviewPath(courseId, row.quizId, row.attemptId)}
             >
               Chi tiết

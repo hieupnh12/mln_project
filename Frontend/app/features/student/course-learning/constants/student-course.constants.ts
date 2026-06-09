@@ -6,14 +6,9 @@ import type {
   StudentTest,
 } from "../../types/student.types";
 
-export const studentCourseProfile = {
-  avatarUrl:
-    "https://lh3.googleusercontent.com/aida-public/AB6AXuBmgAhUdjynIgoYXjFQKl6-QVgquMDt6-XNmSn5I-pchog6m0f7d2qIeDCmq14SAIXIDE9hu4GL3BZca0xuDBQevwNkMR6a86kLQ_Fve6xOglFT_jXZWd0r1zPy3y8RFzJBLw27WqRBirNueH7xS_Qv1OTsJ5JzMftijJiyYUAUvIRtnK9vEcMPiQJHwlgArKajFsvIK5j-2f1mWtpLc48CsWtJV7_LqZoXrL69fLWjLWHWKNp85Voh2YOUJ6YpR-2EWlRnOv1wyIXB",
-};
-
 export const studentCourseFeaturedQuote = {
   quote:
-    "Triết học không treo lơ lửng ngoài thế giới, cũng như bộ óc không treo lơ lửng ngoài cơ thể con người...",
+    "Triết học không treo lơ lửng ngoài thế giới, cũng như bộ óc không treo lơ lửng ngoài cơ thể con người.",
   author: "Các Mác",
 };
 
@@ -46,8 +41,12 @@ export const studentCourseTests: StudentTest[] = [
 ];
 
 export const studentCourseBottomNavItems: StudentNavItem[] = [
-  { label: "Home", icon: "home", href: STUDENT_ROUTES.dashboard },
-  { label: "Library", icon: "menu_book", active: true, href: "#" },
-  { label: "Progress", icon: "query_stats", href: `${STUDENT_ROUTES.dashboard}#analytics` },
-  { label: "Profile", icon: "person", href: "#" },
+  { label: "Trang chủ", icon: "home", href: STUDENT_ROUTES.dashboard },
+  { label: "Khóa học", icon: "menu_book", active: true, href: "#" },
+  {
+    label: "Tiến độ",
+    icon: "query_stats",
+    href: `${STUDENT_ROUTES.dashboard}#analytics`,
+  },
+  { label: "Tài khoản", icon: "person", href: STUDENT_ROUTES.dashboard },
 ];

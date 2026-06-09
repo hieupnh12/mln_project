@@ -1,3 +1,4 @@
+import { RefreshCw } from "lucide-react";
 import { useMemo } from "react";
 import { useNavigate } from "react-router";
 
@@ -26,10 +27,10 @@ function ExamCatalogSkeleton() {
     <div className="flex flex-col gap-lg">
       {Array.from({ length: 3 }).map((_, index) => (
         <div className="space-y-md" key={index}>
-          <div className="h-8 w-48 animate-pulse rounded-lg bg-surface-container" />
+          <div className="h-8 w-48 animate-pulse rounded-lg bg-landing-gray" />
           <div className="grid grid-cols-1 gap-gutter lg:grid-cols-2">
-            <div className="h-56 animate-pulse rounded-lg bg-surface-container-low" />
-            <div className="h-56 animate-pulse rounded-lg bg-surface-container-low" />
+            <div className="h-56 animate-pulse rounded-xl bg-landing-white" />
+            <div className="h-56 animate-pulse rounded-xl bg-landing-white" />
           </div>
         </div>
       ))}
@@ -45,7 +46,6 @@ export function CourseExamCatalogPanel({
   const navigate = useNavigate();
   const isLoggedIn = Boolean(getAuthSession()?.accessToken);
   const examsQuery = useStudentExamsQuery({ subjectId, enabled: active });
-
   const retakeQuizIds = useMemo(() => {
     const completed = examsQuery.data?.completed ?? [];
     return new Set(completed.filter((row) => !row.passed).map((row) => row.quizId));
@@ -62,11 +62,9 @@ export function CourseExamCatalogPanel({
   if (!active) {
     return null;
   }
-
   if (examsQuery.isLoading) {
     return <ExamCatalogSkeleton />;
   }
-
   if (examsQuery.isError) {
     const errorMessage = normalizeApiError(examsQuery.error).message;
 
@@ -75,12 +73,13 @@ export function CourseExamCatalogPanel({
         <p className="text-body-md font-medium text-error">
           Không tải được danh sách bài kiểm tra.
         </p>
-        <p className="mt-2 text-body-sm text-on-surface-variant">{errorMessage}</p>
+        <p className="mt-2 text-sm text-on-surface-variant">{errorMessage}</p>
         <button
-          className="mt-3 rounded-lg bg-primary px-4 py-2 text-label-md font-medium text-on-primary"
+          className="mt-4 inline-flex items-center gap-2 rounded-lg bg-landing-red px-4 py-2 text-label-md font-medium text-on-primary"
           onClick={() => void examsQuery.refetch()}
           type="button"
         >
+          <RefreshCw aria-hidden="true" className="h-4 w-4" />
           Thử lại
         </button>
       </article>
@@ -94,7 +93,6 @@ export function CourseExamCatalogPanel({
     completed: [],
   };
   const displayCourseTitle = courseTitle || catalog.subjectTitle;
-  const ongoingCount = catalog.ongoing.length;
   const isCatalogEmpty =
     catalog.ongoing.length === 0 &&
     catalog.upcoming.length === 0 &&
@@ -102,40 +100,42 @@ export function CourseExamCatalogPanel({
 
   return (
     <div className="flex flex-col gap-lg">
-      {examsQuery.isFetching && !examsQuery.isLoading ? (
-        <p className="text-center text-label-sm text-on-surface-variant">Đang cập nhật...</p>
-      ) : null}
-
       {!isLoggedIn ? <ExamLoginBanner /> : null}
 
-      <header className="mb-md">
-        <h1 className="text-headline-lg font-semibold text-primary">Danh sách bài kiểm tra</h1>
-        <p className="mt-2 text-body-md text-on-surface-variant">
+      <header>
+        <p className="text-label-md font-semibold text-landing-red">Đánh giá kiến thức</p>
+        <h1 className="mt-2 font-serif text-headline-lg font-semibold text-landing-text">
+          Danh sách bài kiểm tra
+        </h1>
+        <p className="mt-2 max-w-3xl text-body-md text-landing-text-soft">
           {displayCourseTitle
-            ? `Môn ${displayCourseTitle} — hoàn thành các bài kiểm tra đúng hạn để duy trì kết quả học tập tốt.`
-            : "Hoàn thành các bài kiểm tra đúng hạn để duy trì kết quả học tập tốt."}
+            ? `Theo dõi các bài kiểm tra của môn ${displayCourseTitle} và hoàn thành đúng hạn.`
+            : "Hoàn thành bài kiểm tra đúng hạn để duy trì kết quả học tập."}
         </p>
+        {examsQuery.isFetching && !examsQuery.isLoading ? (
+          <p className="mt-2 text-label-sm text-landing-text-soft">Đang cập nhật...</p>
+        ) : null}
       </header>
 
       {isCatalogEmpty ? (
         <ExamEmptyState
-          description="Giảng viên chưa xuất bản bài kiểm tra cho môn học này, hoặc các bài đang được chuẩn bị."
+          description="Giảng viên chưa xuất bản bài kiểm tra cho môn học này."
           icon="quiz"
           title="Chưa có bài kiểm tra"
         />
       ) : (
         <>
           <ExamCatalogSection
-            badge={ongoingCount > 0 ? `${ongoingCount} bài` : undefined}
+            badge={catalog.ongoing.length > 0 ? `${catalog.ongoing.length} bài` : undefined}
             icon="play_circle"
             iconFilled
             title="Đang diễn ra"
           >
             {catalog.ongoing.length === 0 ? (
               <ExamEmptyState
-                description="Các bài đã đạt hoặc chưa đến hạn mở sẽ không hiển thị tại đây."
+                description="Hiện không có bài kiểm tra nào đang mở."
                 icon="event_available"
-                title="Hiện chưa có bài kiểm tra đang mở"
+                title="Chưa có bài đang mở"
               />
             ) : (
               <div className="grid grid-cols-1 gap-gutter lg:grid-cols-2">
@@ -154,14 +154,18 @@ export function CourseExamCatalogPanel({
           <ExamCatalogSection icon="event" title="Sắp tới">
             {catalog.upcoming.length === 0 ? (
               <ExamEmptyState
-                description="Bài chưa có câu hỏi hoặc chưa đến thời gian mở sẽ hiển thị tại đây."
+                description="Các bài sắp mở sẽ xuất hiện tại đây."
                 icon="schedule"
                 title="Không có bài kiểm tra sắp mở"
               />
             ) : (
-              <div className="grid grid-cols-1 gap-gutter md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid grid-cols-1 gap-gutter md:grid-cols-2 xl:grid-cols-3">
                 {catalog.upcoming.map((exam) => (
-                  <ExamUpcomingCard exam={exam} key={exam.id} subjectTitle={displayCourseTitle} />
+                  <ExamUpcomingCard
+                    exam={exam}
+                    key={exam.id}
+                    subjectTitle={displayCourseTitle}
+                  />
                 ))}
               </div>
             )}
@@ -170,13 +174,9 @@ export function CourseExamCatalogPanel({
           <ExamCatalogSection icon="check_circle" muted title="Đã hoàn thành">
             {catalog.completed.length === 0 ? (
               <ExamEmptyState
-                description={
-                  isLoggedIn
-                    ? "Kết quả các bài bạn đã nộp sẽ xuất hiện tại đây."
-                    : "Đăng nhập để xem lịch sử làm bài và điểm số."
-                }
+                description="Kết quả các bài bạn đã nộp sẽ xuất hiện tại đây."
                 icon="history"
-                title="Chưa có bài kiểm tra đã nộp"
+                title="Chưa có bài đã nộp"
               />
             ) : (
               <>

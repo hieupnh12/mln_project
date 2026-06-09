@@ -1,3 +1,5 @@
+import { ArrowRight } from "lucide-react";
+
 import { StudentMaterialIcon as MaterialIcon } from "../../components/student-material-icon";
 import type { ExamCard } from "../types/exams.types";
 import { formatExamDuration } from "../utils/format-exam-duration";
@@ -11,57 +13,52 @@ type ExamOngoingCardProps = {
 
 export function ExamOngoingCard({ exam, isRetake = false, onStart }: ExamOngoingCardProps) {
   return (
-    <article className="group rounded-lg border border-outline-variant/10 border-l-4 border-l-secondary bg-white/80 p-md shadow-[0_4px_20px_rgba(35,39,51,0.04)] backdrop-blur-sm transition-all hover:shadow-md">
-      <div className="mb-4 flex items-start justify-between gap-3">
+    <article className="group rounded-xl border border-landing-red/15 bg-landing-white p-md shadow-lg shadow-landing-red/5 transition hover:-translate-y-1 hover:shadow-xl">
+      <div className="mb-5 flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <ExamStatusPill label="Đang mở" variant="ongoing" />
             {isRetake ? <ExamStatusPill label="Làm lại" variant="failed" /> : null}
           </div>
-          <h3 className="mt-3 text-headline-md font-semibold text-primary transition-colors group-hover:text-secondary">
+          <h3 className="mt-4 text-headline-md font-semibold text-landing-text">
             {exam.title}
           </h3>
           {exam.chapter || exam.lesson !== "Tất cả bài" ? (
-            <p className="mt-2 text-body-sm text-on-surface-variant">
+            <p className="mt-2 text-sm text-landing-text-soft">
               {[exam.chapter, exam.lesson !== "Tất cả bài" ? exam.lesson : null]
                 .filter(Boolean)
                 .join(" · ")}
             </p>
           ) : null}
         </div>
-        <div className="shrink-0 rounded-lg bg-surface-container-low p-3">
-          <MaterialIcon className="text-secondary">{exam.icon}</MaterialIcon>
-        </div>
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-landing-red/10 text-landing-red">
+          <MaterialIcon>{exam.icon}</MaterialIcon>
+        </span>
       </div>
 
       <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <div className="flex items-center gap-2 text-on-surface-variant">
-          <MaterialIcon className="text-body-md">schedule</MaterialIcon>
-          <span className="text-label-md">{formatExamDuration(exam.durationMinutes)}</span>
-        </div>
-        <div className="flex items-center gap-2 text-on-surface-variant">
-          <MaterialIcon className="text-body-md">description</MaterialIcon>
-          <span className="text-label-md">{exam.questionCount} câu</span>
-        </div>
-        <div className="col-span-2 flex items-center gap-2 text-on-surface-variant sm:col-span-1">
-          <MaterialIcon className="text-body-md">verified</MaterialIcon>
-          <span className="text-label-md">Đạt {exam.passingScore}%</span>
-        </div>
+        <p className="text-label-md text-landing-text-soft">
+          {formatExamDuration(exam.durationMinutes)}
+        </p>
+        <p className="text-label-md text-landing-text-soft">{exam.questionCount} câu</p>
+        <p className="col-span-2 text-label-md text-landing-text-soft sm:col-span-1">
+          Đạt {exam.passingScore}%
+        </p>
       </div>
 
       {exam.scheduleLabel ? (
-        <p className="mb-4 text-label-sm text-on-surface-variant">
+        <p className="mb-4 text-label-sm text-landing-text-soft">
           Hạn: {exam.scheduleLabel}
         </p>
       ) : null}
 
       <button
-        className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-3 text-label-md font-medium text-on-primary transition-all hover:bg-primary-container active:scale-[0.98]"
+        className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-landing-red to-landing-red-dark px-4 py-3 text-label-md font-semibold text-on-primary transition hover:-translate-y-0.5 active:translate-y-0"
         onClick={() => onStart(exam.id)}
         type="button"
       >
         {isRetake ? "Làm lại bài kiểm tra" : "Bắt đầu làm bài"}
-        <MaterialIcon>arrow_forward</MaterialIcon>
+        <ArrowRight aria-hidden="true" className="h-4 w-4" />
       </button>
     </article>
   );

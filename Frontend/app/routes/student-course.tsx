@@ -2,10 +2,10 @@ import { StudentCoursePage } from "../features/student/course-learning/pages/stu
 
 export function meta() {
   return [
-    { title: "Triết học Mác - Lênin | ML Learning" },
+    { title: "Khóa học Mác - Lê Nin | M-L Learning" },
     {
       name: "description",
-      content: "Không gian học tập môn Triết học Mác - Lênin.",
+      content: "Không gian bài giảng, flashcard, luyện tập và kiểm tra Mác - Lê Nin.",
     },
   ];
 }

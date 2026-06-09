@@ -1,3 +1,4 @@
+import { Presentation } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { useSlideLessonProgress } from "../../student-progress/hooks/use-slide-lesson-progress";
@@ -22,7 +23,7 @@ type CourseSlideViewerProps = {
 };
 
 const stageCardClassName =
-  "overflow-hidden rounded-xl border border-outline-variant/30 bg-white shadow-[0_4px_20px_rgba(35,39,51,0.04)]";
+  "overflow-hidden rounded-xl border border-outline-variant/35 bg-landing-white shadow-xl shadow-landing-text/5";
 
 export function CourseSlideViewer({
   material,
@@ -72,49 +73,47 @@ export function CourseSlideViewer({
         await containerRef.current.requestFullscreen();
       }
     } catch {
-      // Browser may reject fullscreen without user gesture.
+      // Fullscreen can be rejected by the browser without a direct user gesture.
     }
   }
 
   const currentSlide = slides[activeIndex];
-  const { displayedImageUrl, isSlideLoading, handleSlideImageLoad, handleSlideImageError } =
-    useSlideImageLoad(currentSlide?.imageUrl ?? "", material.id);
+  const {
+    displayedImageUrl,
+    isSlideLoading,
+    handleSlideImageLoad,
+    handleSlideImageError,
+  } = useSlideImageLoad(currentSlide?.imageUrl ?? "", material.id);
 
   function handlePrevious() {
-    if (isSlideLoading) {
-      return;
+    if (!isSlideLoading) {
+      setActiveIndex((index) => Math.max(0, index - 1));
     }
-
-    setActiveIndex((index) => Math.max(0, index - 1));
   }
 
   function handleNext() {
-    if (isSlideLoading) {
-      return;
+    if (!isSlideLoading) {
+      setActiveIndex((index) => Math.min(totalSlides - 1, index + 1));
     }
-
-    setActiveIndex((index) => Math.min(totalSlides - 1, index + 1));
   }
 
   function handleGoToNextLesson() {
-    if (isSlideLoading) {
-      return;
+    if (!isSlideLoading) {
+      onGoToNextLesson?.();
     }
-
-    onGoToNextLesson?.();
   }
 
   if (slides.length === 0) {
     return (
       <section
-        className={`${stageCardClassName} flex aspect-video items-center justify-center bg-surface-container-low p-gutter text-center`}
+        className={`${stageCardClassName} flex aspect-video items-center justify-center bg-landing-gray p-gutter text-center`}
       >
-        <div className="space-y-2">
-          <p className="text-label-sm font-semibold uppercase tracking-wider text-on-surface-variant">
-            Bài học
+        <div className="space-y-3">
+          <Presentation aria-hidden="true" className="mx-auto h-10 w-10 text-landing-red" />
+          <h2 className="text-headline-md font-semibold text-landing-text">{lessonTitle}</h2>
+          <p className="text-body-md text-landing-text-soft">
+            Slide chưa có dữ liệu hiển thị.
           </p>
-          <h2 className="text-headline-md font-semibold text-primary">{lessonTitle}</h2>
-          <p className="text-body-md text-on-surface-variant">Slide chưa có dữ liệu hiển thị.</p>
         </div>
       </section>
     );
@@ -123,7 +122,6 @@ export function CourseSlideViewer({
   const isLessonCompleted = lessonStatus === "COMPLETED";
   const isOnLastSlide = activeIndex >= totalSlides - 1;
   const canGoToNextLesson = isOnLastSlide && nextLesson != null && onGoToNextLesson != null;
-
   const controlProps = {
     activeIndex,
     totalSlides,
@@ -142,8 +140,8 @@ export function CourseSlideViewer({
   return (
     <div className={isFullscreen ? "" : stageCardClassName}>
       <section
-        className={`group relative aspect-video bg-surface-container-low ${
-          isFullscreen ? "h-screen w-screen bg-black" : ""
+        className={`group relative aspect-video bg-landing-gray ${
+          isFullscreen ? "h-screen w-screen bg-landing-text" : ""
         }`}
         ref={containerRef}
       >
@@ -159,9 +157,7 @@ export function CourseSlideViewer({
         {isFullscreen ? <CourseSlideFullscreenControls {...controlProps} /> : null}
       </section>
 
-      {!isFullscreen ? (
-        <CourseSlideToolbar lessonTitle={lessonTitle} {...controlProps} />
-      ) : null}
+      {!isFullscreen ? <CourseSlideToolbar lessonTitle={lessonTitle} {...controlProps} /> : null}
     </div>
   );
 }
