@@ -2,12 +2,15 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 
+import { ApiRequestError } from "~/shared/services/api-client";
+import { runWithAsyncActivity } from "~/shared/utils/run-with-async-activity";
 import { showErrorToast, showInfoToast, showSuccessToast } from "~/shared/utils/toast";
 
 import { getStudentExamSummaryPath } from "../../constants/student-routes.constants";
 import { EXAMS_QUERY_KEYS } from "../constants/exams-api.constants";
 import { submitExamAttempt } from "../services/exams.service";
 import type { ExamAnswerMap, ExamSession } from "../types/exam-session.types";
+import type { SubmitExamResultDto } from "../types/exam-session-api.types";
 import { clearExamDraft } from "../utils/exam-draft-storage";
 import { saveExamSummary } from "../utils/exam-summary-storage";
 
@@ -37,8 +40,11 @@ export function useExamSubmitFlow({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const autoSubmittedRef = useRef(false);
+  const submitInFlightRef = useRef(false);
+  const submitCompletedRef = useRef(false);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [autoSubmitMode, setAutoSubmitMode] = useState(false);
 
@@ -49,39 +55,64 @@ export function useExamSubmitFlow({
       showErrorToast("Vui lòng đăng nhập để nộp bài kiểm tra.");
       return;
     }
-
-    setIsSubmitting(true);
-    try {
-      const payload = Object.entries(answers).map(([questionId, answerId]) => ({
-        questionId,
-        answerId,
-      }));
-      const elapsedSeconds = Math.max(0, initialSeconds - remainingSeconds);
-      const questionIds = (session?.questions ?? []).map((q) => q.id);
-      const result = await submitExamAttempt(
-        subjectId,
-        quizId,
-        studentId,
-        questionIds,
-        payload,
-        elapsedSeconds,
-      );
-      clearExamDraft(draftKey);
-      if (result.summary) {
-        saveExamSummary(result.attemptId, result.summary);
-      }
-      void queryClient.invalidateQueries({ queryKey: EXAMS_QUERY_KEYS.catalogRoot });
-      setConfirmOpen(false);
-      showSuccessToast(`Đã nộp bài. Kết quả: ${result.scoreLabel}`);
-      navigate(getStudentExamSummaryPath(String(subjectId), quizId, result.attemptId), {
-        state: { summary: result.summary },
-      });
-    } catch {
-      showErrorToast("Không nộp được bài. Vui lòng thử lại.");
-      autoSubmittedRef.current = false;
-    } finally {
-      setIsSubmitting(false);
+    if (submitInFlightRef.current || submitCompletedRef.current) {
+      return;
     }
+
+    submitInFlightRef.current = true;
+    setIsSubmitting(true);
+
+    const payload = Object.entries(answers).map(([questionId, answerId]) => ({
+      questionId,
+      answerId,
+    }));
+    const elapsedSeconds = Math.max(0, initialSeconds - remainingSeconds);
+    const questionIds = (session?.questions ?? []).map((q) => q.id);
+
+    let result: SubmitExamResultDto;
+    try {
+      result = await runWithAsyncActivity({
+        label: "Đang nộp bài kiểm tra",
+        detail: `${payload.length}/${questionIds.length} câu đã trả lời`,
+        simulateProgress: true,
+        task: async (updateProgress) => {
+          updateProgress(20, "Đang gửi câu trả lời...");
+          const submitResult = await submitExamAttempt(
+            subjectId,
+            quizId,
+            studentId,
+            questionIds,
+            payload,
+            elapsedSeconds,
+          );
+          updateProgress(100, "Đã chấm điểm");
+          return submitResult;
+        },
+      });
+    } catch (error) {
+      showErrorToast(
+        error instanceof ApiRequestError
+          ? error.message
+          : "Không nộp được bài. Vui lòng thử lại.",
+      );
+      autoSubmittedRef.current = false;
+      setIsSubmitting(false);
+      submitInFlightRef.current = false;
+      return;
+    }
+
+    submitCompletedRef.current = true;
+    setHasSubmitted(true);
+    setConfirmOpen(false);
+    clearExamDraft(draftKey);
+    saveExamSummary(result.attemptId, result.summary);
+    void queryClient.invalidateQueries({ queryKey: EXAMS_QUERY_KEYS.catalogRoot });
+    showSuccessToast(`Đã nộp bài. Kết quả: ${result.scoreLabel}`);
+    setIsSubmitting(false);
+    submitInFlightRef.current = false;
+    navigate(getStudentExamSummaryPath(String(subjectId), quizId, result.attemptId), {
+      state: { summary: result.summary },
+    });
   }, [
     answers,
     draftKey,
@@ -100,6 +131,9 @@ export function useExamSubmitFlow({
       showErrorToast("Vui lòng đăng nhập để nộp bài kiểm tra.");
       return;
     }
+    if (submitInFlightRef.current || submitCompletedRef.current) {
+      return;
+    }
     setAutoSubmitMode(false);
     setConfirmOpen(true);
   }, [studentId]);
@@ -116,6 +150,8 @@ export function useExamSubmitFlow({
 
   return {
     isSubmitting,
+    hasSubmitted,
+    submitDisabled: isSubmitting || hasSubmitted,
     confirmOpen,
     autoSubmitMode,
     unansweredCount,

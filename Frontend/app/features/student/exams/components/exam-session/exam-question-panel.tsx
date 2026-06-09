@@ -9,10 +9,6 @@ type ExamQuestionPanelProps = {
   isFlagged: boolean;
   onSelectAnswer: (answerId: number) => void;
   onToggleFlag: () => void;
-  onPrevious: () => void;
-  onNext: () => void;
-  hasPrevious: boolean;
-  hasNext: boolean;
 };
 
 export function ExamQuestionPanel({
@@ -23,10 +19,6 @@ export function ExamQuestionPanel({
   isFlagged,
   onSelectAnswer,
   onToggleFlag,
-  onPrevious,
-  onNext,
-  hasPrevious,
-  hasNext,
 }: ExamQuestionPanelProps) {
   return (
     <div className="flex min-w-0 flex-1 flex-col gap-6">
@@ -81,26 +73,6 @@ export function ExamQuestionPanel({
         </div>
       </section>
 
-      <div className="mt-2 flex items-center justify-between gap-4">
-        <button
-          className="flex items-center gap-2 rounded-lg border border-outline px-4 py-2.5 text-label-md text-on-surface-variant transition-colors hover:bg-surface-container-high disabled:opacity-40 md:px-6"
-          disabled={!hasPrevious}
-          onClick={onPrevious}
-          type="button"
-        >
-          <MaterialIcon>arrow_back</MaterialIcon>
-          Câu trước
-        </button>
-        <button
-          className="flex items-center gap-2 rounded-lg bg-surface-container-highest px-4 py-2.5 text-label-md text-primary transition-colors hover:bg-surface-dim md:px-6"
-          disabled={!hasNext}
-          onClick={onNext}
-          type="button"
-        >
-          Câu tiếp theo
-          <MaterialIcon>arrow_forward</MaterialIcon>
-        </button>
-      </div>
     </div>
   );
 }

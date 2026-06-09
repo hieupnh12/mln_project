@@ -1,9 +1,7 @@
-import { PracticeInlineToolbar } from "../../practice/components/practice-inline-toolbar";
 import { PracticeSessionContent } from "../../practice/components/practice-session-content";
 import { PracticeSettingsSidebar } from "../../practice/components/practice-settings-sidebar";
 import { useCoursePractice } from "../../practice/hooks/use-course-practice";
 import type { PracticeModeSettings } from "../../practice/types/practice.types";
-import { formatSessionTime } from "../../practice/utils/format-session-time";
 
 type CoursePracticePanelProps = {
   subjectId: number;
@@ -74,10 +72,6 @@ function QuestionPane({
           <div className="h-full w-1/3 animate-pulse rounded-full bg-secondary" />
         </div>
       ) : null}
-      <PracticeInlineToolbar
-        questionLabel={`Câu hỏi ${session.displayIndex}`}
-        sessionTimeLabel={formatSessionTime(session.stats.sessionSeconds)}
-      />
       <PracticeSessionContent
         answerState={session.answerState}
         countdownActive={session.countdownActive}

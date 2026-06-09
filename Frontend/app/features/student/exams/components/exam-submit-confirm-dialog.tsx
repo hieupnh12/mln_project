@@ -1,3 +1,5 @@
+import { createPortal } from "react-dom";
+
 import { StudentMaterialIcon as MaterialIcon } from "../../components/student-material-icon";
 
 type ExamSubmitConfirmDialogProps = {
@@ -17,7 +19,7 @@ export function ExamSubmitConfirmDialog({
   onConfirm,
   onCancel,
 }: ExamSubmitConfirmDialogProps) {
-  if (!open) {
+  if (!open || typeof document === "undefined") {
     return null;
   }
 
@@ -28,11 +30,12 @@ export function ExamSubmitConfirmDialog({
       ? `Bạn còn ${unansweredCount} câu chưa trả lời. Sau khi nộp bài, bạn không thể chỉnh sửa.`
       : "Bạn đã trả lời đủ các câu hỏi. Xác nhận nộp bài kiểm tra?";
 
-  return (
+  return createPortal(
     <div
+      aria-describedby="exam-submit-dialog-description"
       aria-labelledby="exam-submit-dialog-title"
       aria-modal="true"
-      className="fixed inset-0 z-[100] flex items-end justify-center p-gutter sm:items-center"
+      className="fixed inset-0 z-[100] grid place-items-center overflow-y-auto p-margin-mobile"
       role="dialog"
     >
       <button
@@ -42,28 +45,57 @@ export function ExamSubmitConfirmDialog({
         onClick={onCancel}
         type="button"
       />
-      <article className="relative z-10 box-border w-full min-w-[280px] max-w-md rounded-xl border border-outline-variant/20 bg-surface-container-lowest p-gutter shadow-lg sm:rounded-xl">
-        <div className="mb-md grid grid-cols-[2.75rem_minmax(0,1fr)] items-start gap-3">
+      <article
+        className="relative z-10 flex min-w-0 flex-col overflow-hidden rounded-xl border border-outline-variant/20 bg-surface-container-lowest shadow-lg"
+        style={{
+          maxHeight: "calc(100dvh - 2rem)",
+          width: "min(28rem, calc(100vw - 2rem))",
+        }}
+      >
+        <div className="flex min-h-0 items-start gap-3 overflow-y-auto p-4 sm:gap-4 sm:p-gutter">
           <div
             aria-hidden="true"
-            className="flex h-11 w-11 items-center justify-center rounded-full bg-error-container"
+            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full sm:h-11 sm:w-11 ${
+              autoSubmit ? "bg-error-container" : "bg-secondary-container"
+            }`}
           >
-            <MaterialIcon className="text-error" size="md">
+            <MaterialIcon
+              className={autoSubmit ? "text-error" : "text-on-secondary-container"}
+              size="md"
+            >
               {autoSubmit ? "timer" : "done"}
             </MaterialIcon>
           </div>
-          <div className="text-left">
-            <h2 className="text-base font-semibold leading-snug text-primary" id="exam-submit-dialog-title">
+          <div className="min-w-0 flex-1 text-left">
+            <h2
+              className="break-words text-base font-semibold leading-snug text-primary sm:text-lg"
+              id="exam-submit-dialog-title"
+            >
               {title}
             </h2>
-            <p className="mt-1 text-sm leading-relaxed text-on-surface-variant">{description}</p>
+            <p
+              className="mt-1.5 break-words text-sm leading-relaxed text-on-surface-variant"
+              id="exam-submit-dialog-description"
+            >
+              {description}
+            </p>
           </div>
+          {!isSubmitting && !autoSubmit ? (
+            <button
+              aria-label="Đóng hộp thoại"
+              className="shrink-0 rounded-full p-1.5 text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-primary"
+              onClick={onCancel}
+              type="button"
+            >
+              <MaterialIcon className="text-[20px]">close</MaterialIcon>
+            </button>
+          ) : null}
         </div>
 
-        <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
+        <div className="flex shrink-0 flex-col gap-2 border-t border-outline-variant/20 bg-surface-container-lowest p-4 sm:flex-row sm:justify-end sm:px-gutter sm:py-4">
           {!autoSubmit ? (
             <button
-              className="order-2 rounded-lg border border-outline-variant px-4 py-2.5 text-label-md text-on-surface-variant transition-colors hover:bg-surface-container-low disabled:opacity-50 sm:order-1"
+              className="min-h-11 w-full rounded-lg border border-outline-variant px-4 py-2.5 text-label-md text-on-surface-variant transition-colors hover:bg-surface-container-low disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
               disabled={isSubmitting}
               onClick={onCancel}
               type="button"
@@ -72,15 +104,19 @@ export function ExamSubmitConfirmDialog({
             </button>
           ) : null}
           <button
-            className="order-1 rounded-lg bg-primary px-4 py-2.5 text-label-md font-medium text-on-primary transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 sm:order-2"
+            className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-label-md font-medium text-on-primary transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
             disabled={isSubmitting}
             onClick={onConfirm}
             type="button"
           >
+            {isSubmitting ? (
+              <MaterialIcon className="animate-spin text-[18px]">progress_activity</MaterialIcon>
+            ) : null}
             {isSubmitting ? "Đang nộp bài..." : autoSubmit ? "Nộp bài ngay" : "Nộp bài"}
           </button>
         </div>
       </article>
-    </div>
+    </div>,
+    document.body,
   );
 }
