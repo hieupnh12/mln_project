@@ -115,13 +115,15 @@ public class QuizManagementService {
         Quiz quiz = getQuizEntity(id);
         List<QuizQuestion> links = quizQuestionRepository.findByQuiz_IdOrderBySortOrderAsc(id);
         List<String> questionIds = new ArrayList<>();
-        List<QuestionResponse> questions = new ArrayList<>();
+        List<Question> questionEntities = new ArrayList<>();
 
         for (QuizQuestion link : links) {
             Question question = link.getQuestion();
             questionIds.add("Q-" + question.getId());
-            questions.add(questionMapper.toResponse(question));
+            questionEntities.add(question);
         }
+
+        List<QuestionResponse> questions = questionMapper.toResponses(questionEntities);
 
         long attemptCount = quizAttemptRepository.countByQuiz_Id(id);
         return quizMapper.toDetailResponse(quiz, questionIds, questions, attemptCount);

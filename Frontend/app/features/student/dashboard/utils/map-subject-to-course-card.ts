@@ -1,6 +1,8 @@
-import type { SubjectListItem } from "../../types/student.types";
-
-import type { CourseTone, StudentDashboardCourse } from "../../types/student.types";
+import type {
+  CourseTone,
+  StudentDashboardCourse,
+  SubjectListItem,
+} from "../../types/student.types";
 
 const SUBJECT_CARD_ICONS = [
   "school",

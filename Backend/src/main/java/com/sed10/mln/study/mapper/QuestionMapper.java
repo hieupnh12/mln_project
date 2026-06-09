@@ -10,7 +10,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -37,11 +40,47 @@ public class QuestionMapper {
     }
 
     public QuestionResponse toResponse(Question question) {
+        List<Answer> answers = answerRepository.findByQuestion_IdOrderBySortOrderAsc(question.getId());
+        List<String> tags = questionTagRepository.findByQuestion_Id(question.getId()).stream()
+                .map(questionTag -> questionTag.getTag().getName())
+                .toList();
+        return toResponse(question, answers, tags);
+    }
+
+    public List<QuestionResponse> toResponses(List<Question> questions) {
+        if (questions == null || questions.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<Long> questionIds = questions.stream().map(Question::getId).toList();
+
+        // Batch fetch answers
+        List<Answer> allAnswers = answerRepository.findByQuestion_IdInOrderByQuestion_IdAscSortOrderAsc(questionIds);
+        Map<Long, List<Answer>> answersByQuestionId = allAnswers.stream()
+                .collect(Collectors.groupingBy(answer -> answer.getQuestion().getId()));
+
+        // Batch fetch tags
+        List<QuestionTag> allQuestionTags = questionTagRepository.findByQuestion_IdIn(questionIds);
+        Map<Long, List<String>> tagsByQuestionId = allQuestionTags.stream()
+                .collect(Collectors.groupingBy(
+                        qt -> qt.getQuestion().getId(),
+                        Collectors.mapping(qt -> qt.getTag().getName(), Collectors.toList())
+                ));
+
+        return questions.stream()
+                .map(q -> toResponse(
+                        q,
+                        answersByQuestionId.getOrDefault(q.getId(), Collections.emptyList()),
+                        tagsByQuestionId.getOrDefault(q.getId(), Collections.emptyList())
+                ))
+                .toList();
+    }
+
+    public QuestionResponse toResponse(Question question, List<Answer> answers, List<String> tags) {
         Lesson lesson = question.getLesson();
         Chapter chapter = lesson != null ? lesson.getChapter() : null;
         Subject subject = chapter != null ? chapter.getSubject() : null;
 
-        List<Answer> answers = answerRepository.findByQuestion_IdOrderBySortOrderAsc(question.getId());
         List<String> options = answers.stream().map(Answer::getContent).toList();
         List<Integer> correctOptionIndices = new ArrayList<>();
         for (int index = 0; index < answers.size(); index++) {
@@ -54,10 +93,6 @@ public class QuestionMapper {
                 .map(Answer::getContent)
                 .findFirst()
                 .orElse("");
-
-        List<String> tags = questionTagRepository.findByQuestion_Id(question.getId()).stream()
-                .map(questionTag -> questionTag.getTag().getName())
-                .toList();
 
         User updatedBy = question.getUpdatedBy() != null ? question.getUpdatedBy() : question.getCreatedBy();
         String updatedByName = updatedBy != null && updatedBy.getFullName() != null

@@ -1,3 +1,5 @@
+import { ArrowRight, BookOpen } from "lucide-react";
+
 type CourseCoverPanelProps = {
   subjectTitle: string;
   coverImageUrl: string;
@@ -10,23 +12,28 @@ export function CourseCoverPanel({
   description,
 }: CourseCoverPanelProps) {
   return (
-    <section className="relative flex aspect-video items-end overflow-hidden rounded-xl border border-outline-variant/30 bg-white shadow-[0_4px_20px_rgba(35,39,51,0.04)]">
+    <section className="relative flex min-h-[360px] items-end overflow-hidden rounded-xl border border-outline-variant/30 bg-landing-white shadow-xl shadow-landing-text/5 sm:min-h-[430px]">
       <img
         alt={`Ảnh bìa môn ${subjectTitle}`}
         className="absolute inset-0 h-full w-full object-cover"
+        decoding="async"
         src={coverImageUrl}
       />
-      <div className="absolute inset-0 bg-linear-to-t from-primary/80 via-primary/20 to-transparent" />
-      <div className="relative z-10 w-full p-md sm:p-lg">
-        <p className="text-label-sm font-semibold uppercase tracking-wider text-secondary-container">
+      <div className="absolute inset-0 bg-gradient-to-t from-landing-text via-landing-text/45 to-transparent" />
+      <div className="relative z-10 w-full p-5 sm:p-8">
+        <p className="inline-flex items-center gap-2 rounded-full bg-landing-white/15 px-3 py-1.5 text-label-sm font-semibold text-on-primary backdrop-blur-xl">
+          <BookOpen aria-hidden="true" className="h-4 w-4" />
           Môn học
         </p>
-        <h3 className="mt-1 text-headline-lg font-semibold text-white">{subjectTitle}</h3>
+        <h2 className="mt-4 max-w-3xl font-serif text-[30px] font-bold leading-tight text-on-primary sm:text-[40px]">
+          {subjectTitle}
+        </h2>
         {description ? (
-          <p className="mt-2 max-w-2xl text-body-md text-white/85">{description}</p>
+          <p className="mt-3 max-w-2xl text-body-md text-on-primary/85">{description}</p>
         ) : null}
-        <p className="mt-4 text-label-md text-secondary-container/90">
-          Chọn chương và tài liệu ở cột bên phải để bắt đầu học.
+        <p className="mt-6 inline-flex items-center gap-2 text-label-md font-semibold text-on-primary">
+          Chọn chương và tài liệu để bắt đầu
+          <ArrowRight aria-hidden="true" className="h-4 w-4" />
         </p>
       </div>
     </section>

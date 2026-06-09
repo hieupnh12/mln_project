@@ -2,6 +2,7 @@ package com.sed10.mln.study.service;
 
 import com.sed10.mln.study.constant.QuestionConstant;
 import com.sed10.mln.study.dto.response.QuestionResponse;
+import com.sed10.mln.study.entity.Question;
 import com.sed10.mln.study.mapper.QuestionMapper;
 import com.sed10.mln.study.repository.QuestionRepository;
 import lombok.RequiredArgsConstructor;
@@ -28,17 +29,16 @@ public class StudentPracticeService {
             int size) {
         int safeSize = Math.min(Math.max(1, size), MAX_QUESTION_SIZE);
 
-        return questionRepository
+        List<Question> questions = questionRepository
                 .findPracticeQuestions(
                         subjectId,
                         chapterId,
                         lessonId,
                         QuestionConstant.PUBLISHED,
                         PageRequest.of(0, safeSize, Sort.by(Sort.Direction.DESC, "updatedAt", "id")))
-                .getContent()
-                .stream()
-                .map(questionMapper::toResponse)
-                .toList();
+                .getContent();
+
+        return questionMapper.toResponses(questions);
     }
 
     @Transactional(readOnly = true)
