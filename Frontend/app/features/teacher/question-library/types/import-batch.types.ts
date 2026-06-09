@@ -16,6 +16,8 @@ export type ImportPreviewRow = {
   explanation?: string;
 };
 
+export type ImportTargetStatus = "PENDING" | "PUBLISHED";
+
 export type ImportFieldMapping = {
   id: string;
   systemField: string;

@@ -1,12 +1,14 @@
 import { useMemo } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 
+import { ApiRequestError } from "~/shared/services/api-client";
 import { StudentMaterialIcon as MaterialIcon } from "../../components/student-material-icon";
 import {
   getStudentCourseExamsTabPath,
   getStudentExamSessionPath,
 } from "../../constants/student-routes.constants";
 import { ExamReviewQuestionCard } from "../components/exam-review/exam-review-question-card";
+import { ExamReviewSkeleton } from "../components/exam-review/exam-review-skeleton";
 import { getAuthSession } from "~/shared/services/auth-session.service";
 
 import { useExamReviewQuery } from "../hooks/use-exam-review-query";
@@ -51,23 +53,33 @@ export function StudentExamReviewPage() {
   }
 
   if (reviewQuery.isLoading) {
-    return (
-      <div className="flex min-h-svh items-center justify-center bg-background">
-        <p className="text-on-surface-variant">Đang tải chi tiết bài làm...</p>
-      </div>
-    );
+    return <ExamReviewSkeleton />;
   }
 
   if (reviewQuery.isError || !review) {
+    const errorMessage =
+      reviewQuery.error instanceof ApiRequestError
+        ? reviewQuery.error.message
+        : "Không tải được chi tiết bài làm.";
+
     return (
       <div className="flex min-h-svh flex-col items-center justify-center gap-4 bg-background p-gutter">
-        <p className="text-error">Không tải được chi tiết bài làm.</p>
-        <Link
-          className="text-label-md font-medium text-secondary underline"
-          to={getStudentCourseExamsTabPath(String(subjectId))}
-        >
-          Quay lại danh sách
-        </Link>
+        <p className="max-w-lg text-center text-error">{errorMessage}</p>
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          <button
+            className="rounded-lg bg-primary px-4 py-2.5 text-label-md font-medium text-on-primary"
+            onClick={() => void reviewQuery.refetch()}
+            type="button"
+          >
+            Thử lại
+          </button>
+          <Link
+            className="text-label-md font-medium text-secondary underline"
+            to={getStudentCourseExamsTabPath(String(subjectId))}
+          >
+            Quay lại danh sách
+          </Link>
+        </div>
       </div>
     );
   }

@@ -330,6 +330,31 @@ Chạy typecheck/build sau khi sửa.
 
 ## 10. PR / Merge Checklist
 
+## 11. Landing Modern Tokens
+
+The public landing page may use a light premium education palette while still staying
+inside the project token system. These tokens live in `Frontend/app/app.css` and should
+be used instead of hard-coded colors inside React components:
+
+| Token | Hex | Usage |
+| --- | --- | --- |
+| `landing-white` | `#ffffff` | Main landing background and glass panels |
+| `landing-cream` | `#f8f9fa` | Warm premium section background |
+| `landing-gray` | `#f3f4f6` | Subtle secondary background |
+| `landing-red` | `#b91c1c` | Primary Marx-Lenin CTA and highlights |
+| `landing-red-deep` | `#991b1b` | CTA gradient and hover states |
+| `landing-red-dark` | `#7f1d1d` | Deep accent for timeline nodes |
+| `landing-gold` | `#d4a017` | Premium accent and small highlights |
+| `landing-text` | `#111827` | Main landing headings |
+| `landing-text-muted` | `#374151` | Body copy |
+| `landing-text-soft` | `#6b7280` | Supporting text |
+
+Rules:
+
+- Use these only for the marketing/landing experience.
+- Keep app dashboards, forms, and learning tools on the Serene Academic tokens.
+- Do not add additional landing colors without updating this section and `app.css`.
+
 Trước khi merge UI/API code:
 
 - Không dùng hex mới nếu không cập nhật `DESIGN.md`.

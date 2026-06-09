@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { MaterialIcon } from "../../../components/teacher-icons";
 import { statusDisplayLabels } from "../../constants/question-library.constants";
 import type { QuestionItem } from "../../types/question-library.types";
+import { QuestionLibraryLoadingState } from "../question-library-loading-state";
 import { ModalOverlay } from "./modal-overlay";
 
 type QuestionDetailModalProps = {
@@ -37,6 +38,7 @@ export function QuestionDetailModal({
   if (isLoading) {
     return (
       <QuestionDetailStateModal
+        loading
         message="Đang tải chi tiết câu hỏi..."
         onClose={onClose}
         questionId={questionId}
@@ -191,12 +193,14 @@ export function QuestionDetailModal({
 function QuestionDetailStateModal({
   questionId,
   message,
+  loading = false,
   actionLabel,
   onAction,
   onClose,
 }: {
   questionId: string | null;
   message: string;
+  loading?: boolean;
   actionLabel?: string;
   onAction?: () => void;
   onClose: () => void;
@@ -220,18 +224,22 @@ function QuestionDetailStateModal({
             <MaterialIcon>close</MaterialIcon>
           </button>
         </header>
-        <div className="flex min-h-48 flex-col items-center justify-center gap-3 p-md text-center lg:p-lg">
-          <p className="text-body-md text-on-surface-variant">{message}</p>
-          {actionLabel && onAction ? (
-            <button
-              className="rounded-lg bg-primary px-4 py-2 text-label-md font-medium text-on-primary"
-              onClick={onAction}
-              type="button"
-            >
-              {actionLabel}
-            </button>
-          ) : null}
-        </div>
+        {loading ? (
+          <QuestionLibraryLoadingState label={message} variant="detail" />
+        ) : (
+          <div className="flex min-h-48 flex-col items-center justify-center gap-3 p-md text-center lg:p-lg">
+            <p className="text-body-md text-on-surface-variant">{message}</p>
+            {actionLabel && onAction ? (
+              <button
+                className="rounded-lg bg-primary px-4 py-2 text-label-md font-medium text-on-primary"
+                onClick={onAction}
+                type="button"
+              >
+                {actionLabel}
+              </button>
+            ) : null}
+          </div>
+        )}
       </div>
     </ModalOverlay>
   );

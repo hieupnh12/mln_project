@@ -117,6 +117,7 @@ export type BatchImportRowPayload = {
 
 export type BatchImportPayload = {
   lessonId: number;
+  targetStatus: "PENDING" | "PUBLISHED";
   rows: BatchImportRowPayload[];
 };
 

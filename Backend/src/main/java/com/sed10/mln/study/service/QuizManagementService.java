@@ -24,11 +24,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +42,8 @@ public class QuizManagementService {
     private final QuizQuestionRepository quizQuestionRepository;
     private final QuizAttemptRepository quizAttemptRepository;
     private final QuestionRepository questionRepository;
+    private final SubjectRepository subjectRepository;
+    private final ChapterRepository chapterRepository;
     private final LessonRepository lessonRepository;
     private final UserRepository userRepository;
     private final QuestionLibraryService questionLibraryService;
@@ -163,11 +168,13 @@ public class QuizManagementService {
                 .createdBy(teacher)
                 .createdAt(now)
                 .updatedAt(now)
+                .availableFrom(parseDateTime(request.getAvailableFrom()))
+                .availableUntil(parseDateTime(request.getAvailableUntil()))
                 .build();
 
         quiz = quizRepository.save(quiz);
         replaceQuizQuestions(quiz, request.getQuestionIds());
-        return getQuiz(quiz.getId());
+        return buildSavedQuizResponse(quiz, request.getQuestionIds());
     }
 
     @Transactional
@@ -184,11 +191,13 @@ public class QuizManagementService {
         quiz.setSubject(scope.subject());
         quiz.setChapter(scope.chapter());
         quiz.setLesson(scope.lesson());
+        quiz.setAvailableFrom(parseDateTime(request.getAvailableFrom()));
+        quiz.setAvailableUntil(parseDateTime(request.getAvailableUntil()));
         quiz.setUpdatedAt(LocalDateTime.now());
 
         quizRepository.save(quiz);
         replaceQuizQuestions(quiz, request.getQuestionIds());
-        return getQuiz(quiz.getId());
+        return buildSavedQuizResponse(quiz, request.getQuestionIds());
     }
 
     @Transactional
@@ -223,6 +232,8 @@ public class QuizManagementService {
                 .createdBy(teacher)
                 .createdAt(now)
                 .updatedAt(now)
+                .availableFrom(source.getAvailableFrom())
+                .availableUntil(source.getAvailableUntil())
                 .build();
         copy = quizRepository.save(copy);
 
@@ -244,6 +255,27 @@ public class QuizManagementService {
         return getQuiz(copy.getId());
     }
 
+    @Transactional
+    public void closeQuiz(Long id) {
+        Quiz quiz = getQuizEntity(id);
+        if (!QuizConstant.PUBLISHED.equals(quiz.getStatus())) {
+            throw new AppException(ErrorCode.QUIZ_CLOSE_INVALID);
+        }
+        quiz.setStatus(QuizConstant.CLOSED);
+        quiz.setUpdatedAt(LocalDateTime.now());
+        quizRepository.save(quiz);
+    }
+
+    @Transactional
+    public void deleteQuiz(Long id) {
+        Quiz quiz = getQuizEntity(id);
+        if (!QuizConstant.DRAFT.equals(quiz.getStatus())) {
+            throw new AppException(ErrorCode.QUIZ_DELETE_NOT_ALLOWED);
+        }
+        quizQuestionRepository.deleteByQuiz_Id(id);
+        quizRepository.delete(quiz);
+    }
+
     private Quiz getQuizEntity(Long id) {
         return quizRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.QUIZ_NOT_FOUND));
     }
@@ -254,14 +286,19 @@ public class QuizManagementService {
             return;
         }
 
-        int order = 1;
-        for (String rawId : rawQuestionIds) {
-            Long questionId = parseQuestionId(rawId);
-            Question question = questionRepository
-                    .findById(questionId)
-                    .orElseThrow(() -> new AppException(ErrorCode.QUESTION_NOT_FOUND));
+        List<Long> questionIds = rawQuestionIds.stream().map(this::parseQuestionId).toList();
+        Map<Long, Question> questionMap = questionRepository.findAllById(questionIds).stream()
+                .collect(Collectors.toMap(Question::getId, Function.identity(), (left, right) -> left, LinkedHashMap::new));
 
-            quizQuestionRepository.save(QuizQuestion.builder()
+        List<QuizQuestion> links = new ArrayList<>(questionIds.size());
+        int order = 1;
+        for (Long questionId : questionIds) {
+            Question question = questionMap.get(questionId);
+            if (question == null) {
+                throw new AppException(ErrorCode.QUESTION_NOT_FOUND);
+            }
+
+            links.add(QuizQuestion.builder()
                     .id(QuizQuestionId.builder()
                             .quizId(quiz.getId())
                             .questionId(questionId)
@@ -272,39 +309,64 @@ public class QuizManagementService {
                     .points(question.getScore())
                     .build());
         }
+
+        quizQuestionRepository.saveAll(links);
+    }
+
+    private QuizDetailResponse buildSavedQuizResponse(Quiz quiz, List<String> rawQuestionIds) {
+        List<String> questionIds = rawQuestionIds == null ? List.of() : rawQuestionIds;
+        long attemptCount = quizAttemptRepository.countByQuiz_Id(quiz.getId());
+        return quizMapper.toDetailResponse(quiz, questionIds, Collections.emptyList(), attemptCount);
     }
 
     private record QuizScope(Subject subject, Chapter chapter, Lesson lesson) {}
 
     private QuizScope resolveScope(String course, String chapterTitle, String lessonTitle) {
-        if (course == null || course.isBlank() || chapterTitle == null || chapterTitle.isBlank()) {
+        if (course == null || course.isBlank()) {
             throw new AppException(ErrorCode.QUIZ_SCOPE_INVALID);
         }
 
-        List<Lesson> lessons = lessonRepository.findAllWithChapterAndSubject();
-        Chapter chapter = lessons.stream()
-                .map(Lesson::getChapter)
-                .filter(Objects::nonNull)
-                .filter(item -> item.getSubject() != null)
-                .filter(item -> course.equals(item.getSubject().getTitle()))
-                .filter(item -> chapterTitle.equals(item.getTitle()))
-                .findFirst()
+        Subject subject = subjectRepository.findFirstByTitle(course)
                 .orElseThrow(() -> new AppException(ErrorCode.QUIZ_SCOPE_INVALID));
 
-        Subject subject = chapter.getSubject();
+        Chapter chapter = null;
+        if (chapterTitle != null
+                && !chapterTitle.isBlank()
+                && !"all".equalsIgnoreCase(chapterTitle)
+                && !"Tất cả".equalsIgnoreCase(chapterTitle)) {
+            chapter = chapterRepository.findFirstBySubject_IdAndTitle(subject.getId(), chapterTitle)
+                    .orElseThrow(() -> new AppException(ErrorCode.QUIZ_SCOPE_INVALID));
+        }
+
         Lesson lesson = null;
         if (lessonTitle != null
                 && !lessonTitle.isBlank()
                 && !"all".equalsIgnoreCase(lessonTitle)
+                && !"Tất cả".equalsIgnoreCase(lessonTitle)
                 && !"Tất cả bài".equalsIgnoreCase(lessonTitle)) {
-            lesson = lessons.stream()
-                    .filter(item -> item.getChapter() != null && chapterTitle.equals(item.getChapter().getTitle()))
-                    .filter(item -> lessonTitle.equals(item.getTitle()))
-                    .findFirst()
-                    .orElseThrow(() -> new AppException(ErrorCode.QUIZ_SCOPE_INVALID));
+            lesson = chapter != null
+                    ? lessonRepository.findFirstByChapter_IdAndTitle(chapter.getId(), lessonTitle)
+                            .orElseThrow(() -> new AppException(ErrorCode.QUIZ_SCOPE_INVALID))
+                    : lessonRepository.findFirstBySubjectIdAndTitle(subject.getId(), lessonTitle)
+                            .orElseThrow(() -> new AppException(ErrorCode.QUIZ_SCOPE_INVALID));
         }
 
         return new QuizScope(subject, chapter, lesson);
+    }
+
+    private LocalDateTime parseDateTime(String rawValue) {
+        if (rawValue == null || rawValue.isBlank()) {
+            return null;
+        }
+        try {
+            return LocalDateTime.parse(rawValue.trim());
+        } catch (DateTimeParseException ignored) {
+            try {
+                return java.time.LocalDate.parse(rawValue.trim()).atTime(23, 59, 59);
+            } catch (DateTimeParseException ex) {
+                throw new AppException(ErrorCode.QUIZ_SCOPE_INVALID);
+            }
+        }
     }
 
     private void validatePublishable(String title, long questionCount, Integer duration, Integer passingScore) {

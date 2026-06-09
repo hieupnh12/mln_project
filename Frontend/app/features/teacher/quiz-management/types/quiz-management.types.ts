@@ -1,4 +1,4 @@
-export type QuizStatus = "Đã xuất bản" | "Bản nháp";
+export type QuizStatus = "Đã xuất bản" | "Bản nháp" | "Đã tắt";
 
 export type QuizSettings = {
   title: string;
@@ -10,6 +10,7 @@ export type QuizSettings = {
   randomCount: number;
   shuffleAnswers: boolean;
   randomQuestions: boolean;
+  availableUntil: string;
 };
 
 /** Payload nhẹ cho danh sách — không chứa câu hỏi, tối ưu khi gọi API list. */
@@ -22,6 +23,7 @@ export type QuizListItem = {
   duration: number;
   passingScore: number;
   status: QuizStatus;
+  availableUntil?: string;
   updatedAt: string;
   createdAt?: string;
   attemptCount?: number;

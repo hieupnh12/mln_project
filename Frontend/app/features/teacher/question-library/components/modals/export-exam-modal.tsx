@@ -14,19 +14,18 @@ import type { LessonOptionDto } from "../../types/question-library-api.types";
 import type {
   ExportConfig,
   RandomExamConfig,
-  RandomExamPreviewItem,
 } from "../../types/export-exam.types";
 import { toWaygroundExportOptions } from "../../types/export-exam.types";
 import type { QuestionItem } from "../../types/question-library.types";
 import { buildQuizDraftPayload } from "../../utils/build-quiz-draft-payload";
 import { downloadWaygroundExport } from "../../utils/download-wayground-export";
 import {
-  fetchApprovedQuestionDetails,
-  fetchApprovedQuestionSummaries,
+  fetchExportQuestionDetails,
+  fetchQuestionSummariesForExport,
 } from "../../utils/fetch-export-questions";
 import { filterQuestionsByScope, pickRandomQuestions } from "../../utils/random-exam";
 import { validateRandomExamConfig } from "../../utils/validate-random-exam-config";
-import { ExamPreviewModal } from "./exam-preview-modal";
+import { QuestionLibraryLoadingState } from "../question-library-loading-state";
 import { ExportConfigSection } from "./export-config-section";
 import { ModalOverlay } from "./modal-overlay";
 import { RandomExamConfigSection } from "./random-exam-config-section";
@@ -47,15 +46,12 @@ export function ExportExamModal({ open, lessonOptions, onClose }: ExportExamModa
     Array<Pick<QuestionItem, "id" | "difficulty" | "chapter" | "lesson" | "course">>
   >([]);
   const [loadingCandidates, setLoadingCandidates] = useState(false);
-  const [previewOpen, setPreviewOpen] = useState(false);
-  const [previewItems, setPreviewItems] = useState<RandomExamPreviewItem[]>([]);
   const [pickedQuestions, setPickedQuestions] = useState<QuestionItem[]>([]);
   const [exporting, setExporting] = useState(false);
   const [savingDraft, setSavingDraft] = useState(false);
 
   useEffect(() => {
     if (!open) {
-      setPreviewOpen(false);
       return;
     }
 
@@ -76,15 +72,18 @@ export function ExportExamModal({ open, lessonOptions, onClose }: ExportExamModa
     let cancelled = false;
     setLoadingCandidates(true);
 
-    fetchApprovedQuestionSummaries({
-      search: "",
-      course: "all",
-      chapter: "all",
-      lesson: "all",
-      difficulty: "all",
-      type: "all",
-      status: "Đã xuất bản",
-    })
+    fetchQuestionSummariesForExport(
+      {
+        search: "",
+        course: "all",
+        chapter: "all",
+        lesson: "all",
+        difficulty: "all",
+        type: "all",
+        status: "all",
+      },
+      exportConfig.statusFilter,
+    )
       .then((items) => {
         if (!cancelled) {
           setCandidates(items);
@@ -99,30 +98,16 @@ export function ExportExamModal({ open, lessonOptions, onClose }: ExportExamModa
     return () => {
       cancelled = true;
     };
-  }, [open]);
+  }, [open, exportConfig.statusFilter]);
 
   useEffect(() => {
     setPickedQuestions([]);
-    setPreviewItems([]);
-    setPreviewOpen(false);
-  }, [randomConfig]);
+  }, [randomConfig, exportConfig.statusFilter]);
 
   const validation = useMemo(
     () => validateRandomExamConfig(randomConfig, candidates, lessonOptions),
     [randomConfig, candidates, lessonOptions],
   );
-
-  function buildPreviewItems(questions: QuestionItem[]): RandomExamPreviewItem[] {
-    return questions.map((item) => ({
-      id: item.id,
-      question: item.question,
-      difficulty: item.difficulty,
-      chapter: item.chapter,
-      lesson: item.lesson,
-      score: item.score,
-      timeInSeconds: exportConfig.timePerQuestionSeconds,
-    }));
-  }
 
   async function generatePickedQuestions(): Promise<QuestionItem[] | null> {
     if (!validation.valid) {
@@ -138,17 +123,9 @@ export function ExportExamModal({ open, lessonOptions, onClose }: ExportExamModa
       randomConfig.mediumPercent,
     );
 
-    const details = await fetchApprovedQuestionDetails(pickedSummaries.map((item) => item.id));
+    const details = await fetchExportQuestionDetails(pickedSummaries.map((item) => item.id));
     setPickedQuestions(details);
-    setPreviewItems(buildPreviewItems(details));
     return details;
-  }
-
-  async function handlePreview() {
-    const details = await generatePickedQuestions();
-    if (details && details.length > 0) {
-      setPreviewOpen(true);
-    }
   }
 
   async function saveDraftQuiz(questions: QuestionItem[]) {
@@ -191,19 +168,17 @@ export function ExportExamModal({ open, lessonOptions, onClose }: ExportExamModa
 
     await runWithAsyncActivity({
       id: "question-library-random-export",
-      label: "Xuất đề & lưu quiz bản nháp",
+      label: "Xuất file đề Wayground",
       simulateProgress: true,
       task: async (updateProgress) => {
         setExporting(true);
         try {
+          updateProgress(30, "Đang chọn câu hỏi theo cấu hình...");
           const questions =
             pickedQuestions.length > 0 ? pickedQuestions : await generatePickedQuestions();
           if (!questions || questions.length === 0) {
             return;
           }
-
-          updateProgress(40, `Đang lưu quiz bản nháp (${questions.length} câu)...`);
-          await saveDraftQuiz(questions);
 
           updateProgress(80, "Đang tạo file Excel Wayground...");
           await downloadWaygroundExport(
@@ -212,11 +187,8 @@ export function ExportExamModal({ open, lessonOptions, onClose }: ExportExamModa
             "wayground-de-ngau-nhien",
           );
 
-          setPreviewOpen(false);
           onClose();
-          showSuccessToast(
-            `Đã xuất ${questions.length} câu sang Wayground và lưu quiz bản nháp.`,
-          );
+          showSuccessToast(`Đã xuất ${questions.length} câu sang Wayground.`);
         } finally {
           setExporting(false);
         }
@@ -226,15 +198,8 @@ export function ExportExamModal({ open, lessonOptions, onClose }: ExportExamModa
     });
   }
 
-  useEffect(() => {
-    if (pickedQuestions.length > 0) {
-      setPreviewItems(buildPreviewItems(pickedQuestions));
-    }
-  }, [exportConfig.timePerQuestionSeconds, exportConfig.columns.explanation, pickedQuestions]);
-
   return (
-    <>
-      <ModalOverlay labelledBy="export-exam-title" onClose={onClose} open={open}>
+    <ModalOverlay labelledBy="export-exam-title" onClose={onClose} open={open}>
         <div className="custom-scrollbar mx-auto max-h-[calc(100vh-48px)] w-full max-w-[1400px] overflow-y-auto rounded-2xl bg-background p-4 shadow-2xl md:p-md">
           <div className="mb-6 flex items-start justify-between gap-4 border-b border-outline-variant/10 pb-4">
             <div>
@@ -245,7 +210,7 @@ export function ExportExamModal({ open, lessonOptions, onClose }: ExportExamModa
                 Cấu hình xuất &amp; đề thi
               </h2>
               <p className="mt-2 text-body-lg text-on-surface-variant">
-                Random đề, xem trước, lưu quiz bản nháp hoặc xuất Excel Wayground.
+                Random đề, lưu quiz bản nháp hoặc xuất Excel Wayground.
               </p>
             </div>
             <button
@@ -264,17 +229,21 @@ export function ExportExamModal({ open, lessonOptions, onClose }: ExportExamModa
             </section>
             <section className="lg:col-span-7">
               {loadingCandidates ? (
-                <p className="rounded-xl border border-outline-variant/10 bg-surface-container-lowest p-md text-center text-body-md text-on-surface-variant">
-                  Đang tải ngân hàng câu hỏi đã duyệt...
-                </p>
+                <div className="rounded-xl border border-outline-variant/10 bg-surface-container-lowest shadow-sm">
+                  <QuestionLibraryLoadingState
+                    label="Đang tải ngân hàng câu hỏi theo trạng thái export"
+                    minHeightClassName="min-h-[420px]"
+                  />
+                </div>
               ) : (
                 <RandomExamConfigSection
                   config={randomConfig}
+                  actionDisabled={loadingCandidates}
+                  exporting={exporting}
                   lessonOptions={lessonOptions}
                   onChange={setRandomConfig}
-                  onPreview={handlePreview}
+                  onExportFile={handleExportFile}
                   onSaveDraft={handleSaveDraft}
-                  previewDisabled={loadingCandidates}
                   savingDraft={savingDraft}
                   validation={validation}
                 />
@@ -282,17 +251,6 @@ export function ExportExamModal({ open, lessonOptions, onClose }: ExportExamModa
             </section>
           </div>
         </div>
-      </ModalOverlay>
-
-      <ExamPreviewModal
-        exporting={exporting}
-        items={previewItems}
-        onClose={() => setPreviewOpen(false)}
-        onExport={handleExportFile}
-        onSaveDraft={handleSaveDraft}
-        open={previewOpen}
-        savingDraft={savingDraft}
-      />
-    </>
+    </ModalOverlay>
   );
 }

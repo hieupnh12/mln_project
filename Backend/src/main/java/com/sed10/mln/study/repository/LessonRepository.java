@@ -31,4 +31,15 @@ List<Lesson> findAllWithChapterAndSubject();
 
     @Query("SELECT l FROM Lesson l LEFT JOIN FETCH l.chapter WHERE l.id = :lessonId")
     java.util.Optional<Lesson> findByIdWithChapter(@Param("lessonId") Long lessonId);
+
+    Optional<Lesson> findFirstByChapter_IdAndTitle(Long chapterId, String title);
+
+    @Query("""
+            SELECT l FROM Lesson l
+            JOIN l.chapter c
+            WHERE c.subject.id = :subjectId AND l.title = :title
+            """)
+    Optional<Lesson> findFirstBySubjectIdAndTitle(
+            @Param("subjectId") Long subjectId,
+            @Param("title") String title);
 }

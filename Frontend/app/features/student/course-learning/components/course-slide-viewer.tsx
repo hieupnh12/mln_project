@@ -1,27 +1,36 @@
 import { useEffect, useRef, useState } from "react";
 
-import { StudentMaterialIcon as MaterialIcon } from "../../components/student-material-icon";
 import { useSlideLessonProgress } from "../../student-progress/hooks/use-slide-lesson-progress";
 import type { StudentProgressStatus } from "../../student-progress/types/student-progress.types";
+import { useSlideImageLoad } from "../hooks/use-slide-image-load";
 import type { CourseMaterialDetail } from "../types/course-learning.types";
+import { CourseSlideFullscreenControls } from "./course-slide-fullscreen-controls";
+import { CourseSlideStage } from "./course-slide-stage";
+import { CourseSlideToolbar } from "./course-slide-toolbar";
+
+type CourseSlideNextLesson = {
+  lessonTitle: string;
+};
 
 type CourseSlideViewerProps = {
   material: CourseMaterialDetail;
   lessonTitle: string;
   subjectId: number;
   lessonStatus?: StudentProgressStatus;
-  onLessonCompleted?: () => void;
+  nextLesson?: CourseSlideNextLesson;
+  onGoToNextLesson?: () => void;
 };
 
 const stageCardClassName =
-  "relative flex aspect-video items-end overflow-hidden rounded-xl border border-outline-variant/30 bg-white shadow-[0_4px_20px_rgba(35,39,51,0.04)]";
+  "overflow-hidden rounded-xl border border-outline-variant/30 bg-white shadow-[0_4px_20px_rgba(35,39,51,0.04)]";
 
 export function CourseSlideViewer({
   material,
   lessonTitle,
   subjectId,
   lessonStatus,
-  onLessonCompleted,
+  nextLesson,
+  onGoToNextLesson,
 }: CourseSlideViewerProps) {
   const containerRef = useRef<HTMLElement>(null);
   const slides = material.slides;
@@ -48,7 +57,6 @@ export function CourseSlideViewer({
     activeSlideIndex: activeIndex,
     totalSlides,
     currentStatus: lessonStatus,
-    onLessonCompleted,
     enabled: totalSlides > 0,
   });
 
@@ -68,10 +76,40 @@ export function CourseSlideViewer({
     }
   }
 
+  const currentSlide = slides[activeIndex];
+  const { displayedImageUrl, isSlideLoading, handleSlideImageLoad, handleSlideImageError } =
+    useSlideImageLoad(currentSlide?.imageUrl ?? "", material.id);
+
+  function handlePrevious() {
+    if (isSlideLoading) {
+      return;
+    }
+
+    setActiveIndex((index) => Math.max(0, index - 1));
+  }
+
+  function handleNext() {
+    if (isSlideLoading) {
+      return;
+    }
+
+    setActiveIndex((index) => Math.min(totalSlides - 1, index + 1));
+  }
+
+  function handleGoToNextLesson() {
+    if (isSlideLoading) {
+      return;
+    }
+
+    onGoToNextLesson?.();
+  }
+
   if (slides.length === 0) {
     return (
-      <section className={`${stageCardClassName} items-center justify-center bg-surface-container-low p-gutter text-center`}>
-        <div className="relative z-10 space-y-2">
+      <section
+        className={`${stageCardClassName} flex aspect-video items-center justify-center bg-surface-container-low p-gutter text-center`}
+      >
+        <div className="space-y-2">
           <p className="text-label-sm font-semibold uppercase tracking-wider text-on-surface-variant">
             Bài học
           </p>
@@ -82,97 +120,48 @@ export function CourseSlideViewer({
     );
   }
 
-  const currentSlide = slides[activeIndex];
   const isLessonCompleted = lessonStatus === "COMPLETED";
+  const isOnLastSlide = activeIndex >= totalSlides - 1;
+  const canGoToNextLesson = isOnLastSlide && nextLesson != null && onGoToNextLesson != null;
+
+  const controlProps = {
+    activeIndex,
+    totalSlides,
+    slideProgressPercent,
+    isLessonCompleted,
+    isOnLastSlide,
+    canGoToNextLesson,
+    nextLessonTitle: nextLesson?.lessonTitle,
+    onPrevious: handlePrevious,
+    onNext: handleNext,
+    isSlideLoading,
+    onGoToNextLesson: handleGoToNextLesson,
+    onFullscreenToggle: handleFullscreenToggle,
+  };
 
   return (
-    <section
-      className={`group ${stageCardClassName} ${isFullscreen ? "aspect-auto h-screen w-screen rounded-none border-0 bg-black" : ""}`}
-      ref={containerRef}
-    >
-      <img
-        alt={`${lessonTitle} - slide ${activeIndex + 1}`}
-        className={`absolute inset-0 h-full w-full ${isFullscreen ? "object-contain" : "object-cover"}`}
-        src={currentSlide.imageUrl}
-      />
-
-      <div className="absolute inset-0 bg-linear-to-t from-primary/80 via-primary/20 to-transparent" />
-
-      <div className="absolute inset-x-0 top-0 z-20 bg-linear-to-b from-primary/70 to-transparent px-md pb-4 pt-md sm:px-lg">
-        <div className="flex items-center justify-between gap-4">
-          <span className="text-label-sm font-medium text-white/90">
-            Tiến độ slide: {activeIndex + 1}/{totalSlides}
-          </span>
-          <span className="text-label-sm font-semibold text-white">{slideProgressPercent}%</span>
-        </div>
-        <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/25">
-          <div
-            className="h-full rounded-full bg-secondary-container transition-all duration-300"
-            style={{ width: `${slideProgressPercent}%` }}
-          />
-        </div>
-      </div>
-
-      {isLessonCompleted ? (
-        <div className="absolute right-md top-16 z-20 flex items-center gap-1 rounded-full bg-secondary-container/95 px-3 py-1 text-label-sm font-semibold text-secondary shadow-sm">
-          <MaterialIcon className="text-sm" filled>
-            check_circle
-          </MaterialIcon>
-          Đã hoàn thành
-        </div>
-      ) : null}
-
-      <div className="relative z-10 w-full p-md sm:p-lg">
-        <p className="text-label-sm font-semibold uppercase tracking-wider text-secondary-container">
-          Bài học
-        </p>
-        <h2 className="mt-1 text-headline-lg font-semibold text-white">{lessonTitle}</h2>
-      </div>
-
-      <div
-        className={`absolute inset-x-0 bottom-0 z-20 flex items-center justify-between bg-linear-to-t from-primary/20 to-transparent p-md transition-opacity duration-300 ${
-          isFullscreen ? "opacity-100" : "opacity-100 lg:opacity-0 lg:group-hover:opacity-100"
+    <div className={isFullscreen ? "" : stageCardClassName}>
+      <section
+        className={`group relative aspect-video bg-surface-container-low ${
+          isFullscreen ? "h-screen w-screen bg-black" : ""
         }`}
+        ref={containerRef}
       >
-        <div className="flex gap-2">
-          <button
-            aria-label={isFullscreen ? "Thu nhỏ" : "Phóng to"}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-white/90 shadow-sm transition-colors hover:bg-secondary-container"
-            onClick={handleFullscreenToggle}
-            type="button"
-          >
-            <MaterialIcon className="text-primary">
-              {isFullscreen ? "fullscreen_exit" : "fullscreen"}
-            </MaterialIcon>
-          </button>
-        </div>
+        <CourseSlideStage
+          alt={`${lessonTitle} - slide ${activeIndex + 1}`}
+          displayedImageUrl={displayedImageUrl}
+          imageUrl={currentSlide.imageUrl}
+          isSlideLoading={isSlideLoading}
+          onImageError={handleSlideImageError}
+          onImageLoad={handleSlideImageLoad}
+        />
 
-        <div className="flex items-center gap-4 rounded-full bg-white/90 px-4 py-2 shadow-sm">
-          <button
-            aria-label="Slide trước"
-            className="flex items-center gap-1 text-label-md font-medium text-primary transition hover:text-secondary disabled:opacity-40"
-            disabled={activeIndex === 0}
-            onClick={() => setActiveIndex((index) => Math.max(0, index - 1))}
-            type="button"
-          >
-            <MaterialIcon>chevron_left</MaterialIcon>
-            Trước
-          </button>
-          <span className="border-x border-outline-variant px-4 text-label-sm font-semibold">
-            {activeIndex + 1} / {totalSlides}
-          </span>
-          <button
-            aria-label="Slide tiếp theo"
-            className="flex items-center gap-1 text-label-md font-medium text-primary transition hover:text-secondary disabled:opacity-40"
-            disabled={activeIndex >= totalSlides - 1}
-            onClick={() => setActiveIndex((index) => Math.min(totalSlides - 1, index + 1))}
-            type="button"
-          >
-            Tiếp
-            <MaterialIcon>chevron_right</MaterialIcon>
-          </button>
-        </div>
-      </div>
-    </section>
+        {isFullscreen ? <CourseSlideFullscreenControls {...controlProps} /> : null}
+      </section>
+
+      {!isFullscreen ? (
+        <CourseSlideToolbar lessonTitle={lessonTitle} {...controlProps} />
+      ) : null}
+    </div>
   );
 }

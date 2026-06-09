@@ -16,5 +16,6 @@ export function useExamReviewQuery({ subjectId, attemptId }: UseExamReviewQueryO
         : ["student", "exams", "review", "idle"],
     queryFn: () => getExamReview(subjectId as number, attemptId as string),
     enabled: subjectId != null && Boolean(attemptId),
+    retry: false,
   });
 }

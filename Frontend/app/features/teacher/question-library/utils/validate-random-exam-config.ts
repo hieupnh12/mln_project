@@ -38,7 +38,7 @@ export function validateRandomExamConfig(
   }
 
   if (poolSize === 0) {
-    errors.push("Không có câu hỏi đã duyệt trong phạm vi chương/bài đã chọn.");
+    errors.push("Không có câu hỏi trong phạm vi chương/bài và trạng thái đã chọn.");
   }
 
   if (config.totalCount > poolSize) {

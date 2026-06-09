@@ -1,5 +1,6 @@
 import type { ExamQuestion, QuestionNavState } from "../../types/exam-session.types";
 import { getQuestionNavClass } from "../../utils/get-question-nav-class";
+import { ExamQuestionNavActions } from "./exam-question-nav-actions";
 
 type ExamQuestionNavProps = {
   questions: ExamQuestion[];
@@ -8,6 +9,10 @@ type ExamQuestionNavProps = {
   flaggedIndices: Set<number>;
   isAnswered: (index: number) => boolean;
   onSelect: (index: number) => void;
+  onPrevious: () => void;
+  onNext: () => void;
+  hasPrevious: boolean;
+  hasNext: boolean;
 };
 
 function resolveNavState(
@@ -35,6 +40,10 @@ export function ExamQuestionNav({
   flaggedIndices,
   isAnswered,
   onSelect,
+  onPrevious,
+  onNext,
+  hasPrevious,
+  hasNext,
 }: ExamQuestionNavProps) {
   return (
     <aside className="flex w-full flex-col gap-6 md:w-80">
@@ -70,7 +79,14 @@ export function ExamQuestionNav({
           })}
         </div>
 
-        <div className="mt-8 space-y-3 border-t border-outline-variant pt-6">
+        <ExamQuestionNavActions
+          hasNext={hasNext}
+          hasPrevious={hasPrevious}
+          onNext={onNext}
+          onPrevious={onPrevious}
+        />
+
+        <div className="mt-6 space-y-3 border-t border-outline-variant pt-5">
           <div className="flex items-center gap-3">
             <div className="h-4 w-4 rounded bg-secondary" />
             <span className="text-label-sm text-on-surface-variant">Đã trả lời</span>

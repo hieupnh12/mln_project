@@ -18,6 +18,9 @@ type QuizEditorViewProps = {
   candidatePage: number;
   candidateQuestions: QuestionListItem[];
   candidateTotal: number;
+  hasActiveFilter: boolean;
+  isCandidateSearchPending: boolean;
+  isGeneratingRandom: boolean;
   chapterOptions: string[];
   courseOptions: string[];
   difficultyFilter: string;
@@ -32,6 +35,8 @@ type QuizEditorViewProps = {
   onClearQuestions: () => void;
   onDifficultyFilterChange: (value: string) => void;
   onGenerateRandom: () => void;
+  onClose: () => void;
+  onDelete: () => void;
   onMoveQuestion: (fromIndex: number, toIndex: number) => void;
   onPublish: () => void;
   onRemoveQuestion: (id: string) => void;
@@ -54,6 +59,9 @@ export function QuizEditorView({
   candidatePage,
   candidateQuestions,
   candidateTotal,
+  hasActiveFilter,
+  isCandidateSearchPending,
+  isGeneratingRandom,
   chapterOptions,
   courseOptions,
   difficultyFilter,
@@ -68,6 +76,8 @@ export function QuizEditorView({
   onClearQuestions,
   onDifficultyFilterChange,
   onGenerateRandom,
+  onClose,
+  onDelete,
   onMoveQuestion,
   onPublish,
   onRemoveQuestion,
@@ -96,7 +106,7 @@ export function QuizEditorView({
   };
 
   return (
-    <section className="space-y-md rounded-2xl border border-outline-variant/20 bg-surface-container-low/50 p-md shadow-sm">
+    <section className="space-y-gutter">
       <QuizEditorHeader
         isNew={isNew}
         onBack={onBack}
@@ -137,6 +147,9 @@ export function QuizEditorView({
           candidateQuestions={candidateQuestions}
           candidateTotal={candidateTotal}
           difficultyFilter={difficultyFilter}
+          hasActiveFilter={hasActiveFilter}
+          isCandidateSearchPending={isCandidateSearchPending}
+          isGeneratingRandom={isGeneratingRandom}
           onAdd={onAddQuestion}
           onCandidatePageChange={onCandidatePageChange}
           onClearAll={onClearQuestions}
@@ -157,7 +170,6 @@ export function QuizEditorView({
       {!isLoadingDetail && activeTab === "publish" ? (
         <QuizPublishPanel
           isPublished={isPublished}
-          onPublish={onPublish}
           onRemove={onRemoveQuestion}
           questions={selectedQuestions}
           settings={settings}
@@ -167,8 +179,13 @@ export function QuizEditorView({
       {!isLoadingDetail ? (
         <QuizEditorFooter
           activeTab={activeTab}
+          canClose={quiz?.status === "Đã xuất bản"}
+          canDelete={!isNew && quiz?.status === "Bản nháp"}
           canPublish={stepComplete.publish}
+          canReopen={quiz?.status === "Đã tắt"}
           isPublished={isPublished || isSaving}
+          onClose={onClose}
+          onDelete={onDelete}
           onGoToTab={onTabChange}
           onPublish={onPublish}
           onSaveDraft={onSaveDraft}

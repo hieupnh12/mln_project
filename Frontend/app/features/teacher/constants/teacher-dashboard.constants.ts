@@ -10,20 +10,42 @@ export const TEACHER_ROUTES = {
 } as const;
 
 export const teacherNavItems: TeacherNavItem[] = [
-  { label: "Dashboard", icon: "dashboard", to: TEACHER_ROUTES.dashboard },
+  {
+    label: "Dashboard",
+    shortLabel: "Trang chủ",
+    icon: "dashboard",
+    to: TEACHER_ROUTES.dashboard,
+  },
   {
     label: "Cấu trúc khóa học",
+    shortLabel: "Khóa học",
     icon: "account_tree",
     to: TEACHER_ROUTES.courses,
   },
-  { label: "Tài liệu PDF", icon: "picture_as_pdf", to: TEACHER_ROUTES.pdfs },
-  { label: "Flashcard", icon: "quiz", to: TEACHER_ROUTES.flashcards },
+  {
+    label: "Tài liệu PDF",
+    shortLabel: "PDF",
+    icon: "picture_as_pdf",
+    to: TEACHER_ROUTES.pdfs,
+  },
+  {
+    label: "Flashcard",
+    shortLabel: "Flashcard",
+    icon: "quiz",
+    to: TEACHER_ROUTES.flashcards,
+  },
   {
     label: "Ngân hàng câu hỏi",
+    shortLabel: "Câu hỏi",
     icon: "database",
     to: TEACHER_ROUTES.questions,
   },
-  { label: "Quản lý Quiz", icon: "task", to: TEACHER_ROUTES.quizzes },
+  {
+    label: "Quản lý Quiz",
+    shortLabel: "Quiz",
+    icon: "task",
+    to: TEACHER_ROUTES.quizzes,
+  },
 ];
 
 export const mindmapNodes = [

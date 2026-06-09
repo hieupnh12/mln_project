@@ -6,7 +6,12 @@ export function getExamSummaryStorageKey(attemptId: string) {
 }
 
 export function saveExamSummary(attemptId: string, summary: ExamSummary) {
-  sessionStorage.setItem(getExamSummaryStorageKey(attemptId), JSON.stringify(summary));
+  try {
+    sessionStorage.setItem(getExamSummaryStorageKey(attemptId), JSON.stringify(summary));
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export function loadExamSummary(attemptId: string): ExamSummary | null {

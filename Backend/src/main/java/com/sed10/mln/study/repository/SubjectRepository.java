@@ -1,6 +1,7 @@
 package com.sed10.mln.study.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -11,5 +12,7 @@ public interface SubjectRepository extends JpaRepository<Subject, Long> {
 
 
     List<Subject> findBySubjectCode(String subjectCode);
+
+    Optional<Subject> findFirstByTitle(String title);
 
 }

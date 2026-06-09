@@ -1,5 +1,10 @@
 import type { ReactNode } from "react";
 
+const fieldLabelClass =
+  "text-label-sm font-medium text-on-surface-variant";
+const fieldInputClass =
+  "mt-1 w-full rounded-lg border border-outline-variant/30 bg-white px-3 py-2 text-body-md text-primary transition focus:border-secondary/50 focus:outline-none focus:ring-2 focus:ring-secondary/15";
+
 export function TextInput({
   label,
   onChange,
@@ -13,11 +18,9 @@ export function TextInput({
 }) {
   return (
     <label className="block">
-      <span className="text-label-sm font-semibold uppercase tracking-wider text-on-surface-variant">
-        {label}
-      </span>
+      <span className={fieldLabelClass}>{label}</span>
       <input
-        className="mt-2 w-full rounded-lg border-outline-variant bg-surface-container-low"
+        className={fieldInputClass}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
         value={value}
@@ -39,11 +42,9 @@ export function NumberInput({
 }) {
   return (
     <label className="block">
-      <span className="text-label-sm font-semibold uppercase tracking-wider text-on-surface-variant">
-        {label}
-      </span>
+      <span className={fieldLabelClass}>{label}</span>
       <input
-        className="mt-2 w-full rounded-lg border-outline-variant bg-surface-container-low"
+        className={fieldInputClass}
         min={min}
         onChange={(event) => onChange(Number(event.target.value))}
         type="number"
@@ -66,16 +67,36 @@ export function SelectInput({
 }) {
   return (
     <label className="block">
-      <span className="text-label-sm font-semibold uppercase tracking-wider text-on-surface-variant">
-        {label}
-      </span>
+      <span className={fieldLabelClass}>{label}</span>
       <select
-        className="mt-2 w-full rounded-lg border-outline-variant bg-surface-container-low"
+        className={fieldInputClass}
         onChange={(event) => onChange(event.target.value)}
         value={value}
       >
         {children}
       </select>
+    </label>
+  );
+}
+
+export function DateTimeInput({
+  label,
+  onChange,
+  value,
+}: {
+  label: string;
+  onChange: (value: string) => void;
+  value: string;
+}) {
+  return (
+    <label className="block">
+      <span className={fieldLabelClass}>{label}</span>
+      <input
+        className={fieldInputClass}
+        onChange={(event) => onChange(event.target.value)}
+        type="datetime-local"
+        value={value}
+      />
     </label>
   );
 }
@@ -90,14 +111,24 @@ export function ToggleInput({
   value: boolean;
 }) {
   return (
-    <label className="flex items-center justify-between gap-sm rounded-xl bg-surface-container-low px-sm py-3">
-      <span className="font-semibold text-primary">{label}</span>
-      <input
-        checked={value}
-        className="rounded border-outline-variant text-secondary"
-        onChange={(event) => onChange(event.target.checked)}
-        type="checkbox"
-      />
+    <label className="flex cursor-pointer items-center justify-between gap-sm rounded-lg border border-outline-variant/15 bg-white px-sm py-2 transition hover:border-secondary/30">
+      <span className="text-label-md font-medium text-primary">{label}</span>
+      <span className="relative inline-flex h-5 w-9 shrink-0 items-center">
+        <input
+          checked={value}
+          className="peer sr-only"
+          onChange={(event) => onChange(event.target.checked)}
+          type="checkbox"
+        />
+        <span
+          aria-hidden
+          className="absolute inset-0 rounded-full bg-outline-variant/40 transition peer-checked:bg-secondary peer-focus-visible:ring-2 peer-focus-visible:ring-secondary/25"
+        />
+        <span
+          aria-hidden
+          className="absolute left-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition peer-checked:translate-x-4"
+        />
+      </span>
     </label>
   );
 }

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 
+import { useDebouncedValue } from "~/shared/hooks/use-debounced-value";
 import { runWithAsyncActivity } from "~/shared/utils/run-with-async-activity";
 import { showErrorToast, showSuccessToast } from "~/shared/utils/toast";
 import { ApiRequestError } from "~/shared/services/api-client";
@@ -11,16 +12,21 @@ import {
   defaultQuizSettings,
 } from "../constants/quiz-management.constants";
 import {
+  useCloseQuizMutation,
+  useDeleteQuizMutation,
   useDuplicateQuizMutation,
   usePublishQuizMutation,
   useSaveQuizMutation,
 } from "./use-quiz-management-mutations";
+import { useQuizScopeOptions } from "./use-quiz-scope-options";
 import {
+  useQuizCandidateCountQuery,
   useQuizCandidateQuestionsQuery,
   useQuizDetailQuery,
   useQuizListQuery,
   useQuizStatsQuery,
 } from "./use-quiz-management-queries";
+import { hasActiveCandidateFilter } from "../utils/quiz-ui.helpers";
 import {
   buildSaveQuizPayload,
   getCandidateQuestions,
@@ -45,6 +51,17 @@ export function useQuizManagementController() {
   const [candidateSearch, setCandidateSearch] = useState("");
   const [candidateDifficulty, setCandidateDifficulty] = useState("all");
   const [candidatePage, setCandidatePage] = useState(0);
+  const [isGeneratingRandom, setIsGeneratingRandom] = useState(false);
+
+  const debouncedCandidateSearch = useDebouncedValue(candidateSearch, 300);
+  const hasCandidateFilter = hasActiveCandidateFilter(
+    debouncedCandidateSearch,
+    candidateDifficulty,
+  );
+  const hasCandidateFilterUi = hasActiveCandidateFilter(
+    candidateSearch,
+    candidateDifficulty,
+  );
 
   const metadataQuery = useQuestionMetadataQuery();
   const listQuery = useQuizListQuery(filters);
@@ -53,21 +70,39 @@ export function useQuizManagementController() {
   const saveMutation = useSaveQuizMutation();
   const publishMutation = usePublishQuizMutation();
   const duplicateMutation = useDuplicateQuizMutation();
+  const closeMutation = useCloseQuizMutation();
+  const deleteMutation = useDeleteQuizMutation();
 
   const courseOptions = metadataQuery.data?.courses ?? [];
-  const chapterOptions = metadataQuery.data?.chapters ?? [];
-  const lessonOptions = metadataQuery.data?.lessons ?? [];
+  const lessonOptions = metadataQuery.data?.lessonOptions ?? [];
+  const { chapterOptions, lessonTitles } = useQuizScopeOptions(
+    lessonOptions,
+    settings.course,
+    settings.chapter,
+  );
+
+  const candidateCountQuery = useQuizCandidateCountQuery(
+    {
+      course: settings.course,
+      chapter: settings.chapter || "all",
+      lesson: settings.lesson,
+    },
+    view === "editor" && Boolean(settings.course),
+  );
 
   const candidateQuery = useQuizCandidateQuestionsQuery(
     {
       course: settings.course,
-      chapter: settings.chapter,
+      chapter: settings.chapter || "all",
       lesson: settings.lesson,
-      search: candidateSearch,
+      search: debouncedCandidateSearch,
       difficulty: candidateDifficulty,
       page: candidatePage,
     },
-    view === "editor" && Boolean(settings.course) && Boolean(settings.chapter),
+    view === "editor"
+      && Boolean(settings.course)
+      && editorTab === "questions"
+      && hasCandidateFilter,
   );
 
   useEffect(() => {
@@ -78,10 +113,11 @@ export function useQuizManagementController() {
         : {
             ...current,
             course: courseOptions[0],
-            chapter: chapterOptions[0] ?? "",
+            chapter: "all",
+            lesson: "all",
           },
     );
-  }, [chapterOptions, courseOptions]);
+  }, [courseOptions]);
 
   useEffect(() => {
     if (!detailQuery.data) return;
@@ -113,7 +149,9 @@ export function useQuizManagementController() {
       ...defaultQuizSettings,
       title: "Quiz mới",
       course: courseOptions[0] ?? "",
-      chapter: chapterOptions[0] ?? "",
+      chapter: "all",
+      lesson: "all",
+      availableUntil: "",
     });
     setSelectedIds([]);
     setSelectedQuestions([]);
@@ -205,30 +243,98 @@ export function useQuizManagementController() {
     setIsPublished(false);
   }
 
+  async function closeQuizById(quizId: string) {
+    if (!window.confirm("Tắt quiz live? Sinh viên sẽ không làm bài được.")) {
+      return;
+    }
+    try {
+      await runWithAsyncActivity({
+        label: "Tắt quiz",
+        simulateProgress: true,
+        task: async (updateProgress) => {
+          updateProgress(50, "Đang tắt...");
+          await closeMutation.mutateAsync(quizId);
+          updateProgress(100, "Hoàn tất");
+        },
+      });
+      showSuccessToast("Đã tắt quiz.");
+      if (editorQuizId === quizId) {
+        setIsPublished(false);
+        void detailQuery.refetch();
+      }
+    } catch (error) {
+      showErrorToast(error instanceof ApiRequestError ? error.message : "Không thể tắt quiz.");
+    }
+  }
+
+  async function deleteQuizById(quizId: string) {
+    if (!window.confirm("Xóa bản nháp này? Hành động không hoàn tác.")) {
+      return;
+    }
+    try {
+      await runWithAsyncActivity({
+        label: "Xóa quiz",
+        simulateProgress: true,
+        task: async (updateProgress) => {
+          updateProgress(50, "Đang xóa...");
+          await deleteMutation.mutateAsync(quizId);
+          updateProgress(100, "Hoàn tất");
+        },
+      });
+      showSuccessToast("Đã xóa quiz.");
+      if (editorQuizId === quizId) {
+        backToList();
+      }
+    } catch (error) {
+      showErrorToast(error instanceof ApiRequestError ? error.message : "Không thể xóa quiz.");
+    }
+  }
+
   async function generateRandomQuiz() {
-    if (!settings.course || !settings.chapter) {
-      showErrorToast("Chọn môn và chương trước khi random câu hỏi.");
+    if (!settings.course) {
+      showErrorToast("Chọn môn trước khi random.");
       return;
     }
 
+    const poolSize = candidateCountQuery.data ?? 0;
+    if (poolSize === 0) {
+      showErrorToast("Không có câu hỏi trong phạm vi đã chọn.");
+      return;
+    }
+
+    setIsGeneratingRandom(true);
     try {
-      const pool = await getCandidateQuestions({
-        course: settings.course,
-        chapter: settings.chapter,
-        lesson: settings.lesson,
-        search: "",
-        difficulty: "all",
-        page: 0,
-        size: 100,
+      const picked = await runWithAsyncActivity({
+        label: "Random câu hỏi",
+        simulateProgress: true,
+        task: async (updateProgress) => {
+          updateProgress(25, "Đang lấy ngân hàng câu...");
+          const pool = await getCandidateQuestions({
+            course: settings.course,
+            chapter: settings.chapter,
+            lesson: settings.lesson,
+            search: "",
+            difficulty: "all",
+            page: 0,
+            size: Math.min(poolSize, 500),
+          });
+          updateProgress(70, "Đang chọn ngẫu nhiên...");
+          const shuffled = [...pool.items].sort(() => Math.random() - 0.5);
+          const selected = shuffled.slice(0, Math.min(settings.randomCount, pool.items.length));
+          updateProgress(100, `Đã chọn ${selected.length} câu`);
+          return selected;
+        },
       });
-      const shuffled = [...pool.items].sort(() => Math.random() - 0.5);
-      const picked = shuffled.slice(0, settings.randomCount);
+
       setSelectedIds(picked.map((item) => item.id));
       setSelectedQuestions(picked.map(toQuestionItem));
       setIsPublished(false);
       setEditorTab("questions");
+      showSuccessToast(`Đã random ${picked.length} câu.`);
     } catch (error) {
       showErrorToast(error instanceof ApiRequestError ? error.message : "Không thể random câu hỏi.");
+    } finally {
+      setIsGeneratingRandom(false);
     }
   }
 
@@ -250,6 +356,27 @@ export function useQuizManagementController() {
       showSuccessToast("Đã lưu bản nháp.");
     } catch (error) {
       showErrorToast(error instanceof ApiRequestError ? error.message : "Không thể lưu quiz.");
+    }
+  }
+
+  async function reopenQuizById(quizId: string) {
+    try {
+      await runWithAsyncActivity({
+        label: "Bật lại quiz",
+        simulateProgress: true,
+        task: async (updateProgress) => {
+          updateProgress(50, "Đang bật lại...");
+          await publishMutation.mutateAsync(quizId);
+          updateProgress(100, "Hoàn tất");
+        },
+      });
+      showSuccessToast("Đã bật lại quiz.");
+      if (editorQuizId === quizId) {
+        setIsPublished(true);
+        void detailQuery.refetch();
+      }
+    } catch (error) {
+      showErrorToast(error instanceof ApiRequestError ? error.message : "Không thể bật lại quiz.");
     }
   }
 
@@ -302,6 +429,9 @@ export function useQuizManagementController() {
     openCreateQuiz,
     openEditQuiz,
     duplicateQuizById,
+    closeQuizById,
+    reopenQuizById,
+    deleteQuizById,
     backToList,
     editorQuizId,
     editorTab,
@@ -316,8 +446,14 @@ export function useQuizManagementController() {
     isSaving: saveMutation.isPending || publishMutation.isPending,
     courseOptions,
     chapterOptions,
-    lessonOptions,
+    lessonOptions: lessonTitles,
+    candidateCount: candidateCountQuery.data ?? 0,
+    candidateCountLoading: candidateCountQuery.isLoading,
     candidateQuery,
+    hasCandidateFilter: hasCandidateFilterUi,
+    isCandidateSearchPending:
+      candidateSearch.trim().length > 0 && candidateSearch !== debouncedCandidateSearch,
+    isGeneratingRandom,
     candidateSearch,
     setCandidateSearch,
     candidateDifficulty,

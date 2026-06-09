@@ -46,12 +46,12 @@ spring:
             scope:
               - email
               - profile
-              
+
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: ${SPRING_DATASOURCE_URL:jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:mln_database}?sslMode=${MYSQL_SSL_MODE:DISABLED}&allowPublicKeyRetrieval=true&serverTimezone=UTC}
     username: ${SPRING_DATASOURCE_USERNAME:${MYSQL_USER:root}}
-    password:  ${SPRING_DATASOURCE_PASSWORD:${MYSQL_PASSWORD:}}
+    password: ${SPRING_DATASOURCE_PASSWORD:${MYSQL_PASSWORD:}}
 
   jpa:
     hibernate:
@@ -71,9 +71,7 @@ spring:
       max-request-size: 100MB
 
 frontend:
-
   base-url: ${FRONTEND_BASE_URL:http://localhost:5173}
-
 
 jwt:
   signerKey: ${JWT_SIGNER_KEY:jwtSecretKey12345678901234567890123456789012345678901234567890}

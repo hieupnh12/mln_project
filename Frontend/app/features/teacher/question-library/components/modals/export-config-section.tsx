@@ -47,16 +47,22 @@ export function ExportConfigSection({ config, onChange }: ExportConfigSectionPro
         </span>
         <div className="flex rounded-full bg-surface-container p-1">
           {exportStatusOptions.map((status) => (
-            <span
-              className="flex-1 rounded-full bg-surface-container-lowest py-2 text-center text-label-md font-medium text-primary shadow-sm"
+            <button
+              className={
+                config.statusFilter === status.id
+                  ? "flex-1 rounded-full bg-surface-container-lowest py-2 text-center text-label-md font-medium text-primary shadow-sm"
+                  : "flex-1 rounded-full py-2 text-center text-label-md font-medium text-on-surface-variant transition hover:text-primary"
+              }
               key={status.id}
+              onClick={() => onChange({ ...config, statusFilter: status.id })}
+              type="button"
             >
               {status.label}
-            </span>
+            </button>
           ))}
         </div>
         <p className="text-label-sm text-on-surface-variant">
-          Chỉ random từ câu hỏi đã duyệt trong phạm vi đã chọn.
+          Chỉ áp dụng cho dữ liệu trong modal export.
         </p>
       </div>
 
