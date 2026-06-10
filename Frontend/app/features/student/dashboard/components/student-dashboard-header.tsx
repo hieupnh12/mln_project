@@ -1,7 +1,8 @@
-import { Bell, Landmark } from "lucide-react";
+import { Bell } from "lucide-react";
 import { Link } from "react-router";
 
 import type { AuthUserViewModel } from "~/features/auth/hooks/use-auth-user";
+import { BrandLogo } from "~/shared/components/brand-logo";
 
 import { STUDENT_ROUTES } from "../../constants/student-routes.constants";
 import { studentDashboardNavItems } from "../constants/student-dashboard.constants";
@@ -20,12 +21,7 @@ export function StudentDashboardHeader({ user }: StudentDashboardHeaderProps) {
             className="inline-flex min-w-0 items-center gap-3 text-landing-text"
             to={STUDENT_ROUTES.dashboard}
           >
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-landing-red to-landing-red-dark text-on-primary shadow-lg shadow-landing-red/15">
-              <Landmark aria-hidden="true" className="h-5 w-5" />
-            </span>
-            <span className="min-w-0 truncate font-serif text-xl font-bold">
-              Mác - Lê Nin
-            </span>
+            <BrandLogo size="compact" />
           </Link>
 
           <nav aria-label="Điều hướng học viên" className="hidden items-center gap-1 lg:flex">

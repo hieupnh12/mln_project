@@ -1,8 +1,9 @@
-import { Compass, Landmark, LogIn } from "lucide-react";
+import { Compass, LogIn } from "lucide-react";
 import { useMotionValueEvent, useScroll } from "framer-motion";
 import { useState } from "react";
 import { Link } from "react-router";
 
+import { BrandLogo } from "~/shared/components/brand-logo";
 import { LANDING_NAV_ITEMS } from "../constants/landing-content";
 
 export function LandingNavbar() {
@@ -28,12 +29,7 @@ export function LandingNavbar() {
           className="flex min-w-0 items-center gap-3 rounded-full outline-none transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-landing-red"
           to="/"
         >
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-landing-red to-landing-red-dark text-on-primary shadow-md">
-            <Landmark aria-hidden="true" className="h-5 w-5" />
-          </span>
-          <span className="truncate font-serif text-lg font-bold sm:text-xl">
-            Mác - Lê Nin
-          </span>
+          <BrandLogo size="compact" />
         </Link>
 
         <div className="hidden items-center gap-6 lg:flex">
