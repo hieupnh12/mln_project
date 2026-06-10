@@ -1,5 +1,6 @@
 import { Link } from "react-router";
 
+import { BrandLogo } from "~/shared/components/brand-logo";
 import { LoginCard } from "../components/login-card";
 import { LoginHeroSection } from "../components/login-hero-section";
 import { LoginSupportNav } from "../components/login-support-nav";
@@ -34,10 +35,7 @@ export function LoginPage() {
               className="inline-flex min-w-0 items-center gap-3 rounded-full bg-landing-white/75 px-3 py-2 text-label-md font-semibold text-landing-text shadow-sm backdrop-blur-xl transition hover:text-landing-red focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-landing-red/40 lg:hidden"
               to="/"
             >
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-landing-red to-landing-red-dark text-label-sm text-on-primary">
-                ML
-              </span>
-              <span className="min-w-0 truncate">Mác - Lê Nin</span>
+              <BrandLogo size="compact" />
             </Link>
 
             <Link

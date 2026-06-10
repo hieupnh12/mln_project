@@ -1,6 +1,7 @@
-import { ArrowUpRight, Landmark } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { Link } from "react-router";
 
+import { BrandLogo } from "~/shared/components/brand-logo";
 import { FOOTER_GROUPS } from "../constants/landing-content";
 
 function FooterLinkItem({ href, label }: { href: string; label: string }) {
@@ -37,12 +38,7 @@ export function LandingFooter() {
       <div className="mx-auto grid w-full max-w-7xl gap-10 lg:grid-cols-[minmax(260px,420px)_1fr]">
         <div className="w-full min-w-[min(100%,22rem)] max-w-md">
           <Link className="inline-flex max-w-full min-w-0 items-center gap-3" to="/">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-landing-red to-landing-red-dark text-on-primary shadow-md">
-              <Landmark aria-hidden="true" className="h-5 w-5" />
-            </span>
-            <span className="min-w-0 truncate whitespace-nowrap font-serif text-xl font-bold text-landing-text sm:text-2xl">
-              Mác - Lê Nin
-            </span>
+            <BrandLogo />
           </Link>
           <p className="mt-5 w-full whitespace-normal text-body-md text-landing-text-soft [overflow-wrap:normal] [word-break:normal]">
             Dự án giới thiệu và hỗ trợ học tập học phần Mác - Lê Nin với tinh thần
