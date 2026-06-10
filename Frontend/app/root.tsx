@@ -16,6 +16,7 @@ import { AppQueryProvider } from "./shared/providers/query-provider";
 import "./app.css";
 
 export const links: Route.LinksFunction = () => [
+  { rel: "icon", type: "image/png", href: "/ml_logo.png" },
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {
     rel: "preconnect",

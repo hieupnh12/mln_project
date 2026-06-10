@@ -1,5 +1,6 @@
 import { Link } from "react-router";
 
+import { BrandLogo } from "~/shared/components/brand-logo";
 import { useSubjects } from "../hooks/dashboard.hooks";
 import { useAuthUser } from "~/features/auth/hooks/use-auth-user";
 
@@ -13,6 +14,7 @@ import {
 import { useStudentResumeQuery } from "../../student-progress/hooks/use-student-progress-queries";
 import { StudentAccountMenu } from "../components/student-account-menu";
 import { StudentCurriculumSection } from "../components/student-curriculum-section";
+import { StudentPdfDocumentsSection } from "../components/student-pdf-documents-section";
 import {
   studentDashboardBottomNavItems,
   studentDashboardNavItems,
@@ -40,10 +42,10 @@ export function StudentDashboardPage() {
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-margin-mobile py-4 md:px-margin-desktop">
           <div className="flex min-w-0 items-center gap-8">
             <Link
-              className="min-w-0 truncate text-headline-md font-bold text-primary"
+              className="min-w-0 shrink-0"
               to={STUDENT_ROUTES.dashboard}
             >
-              ML Learning
+              <BrandLogo />
             </Link>
             <nav className="hidden items-center gap-6 md:flex">
               {studentDashboardNavItems.map((item, index) => (
@@ -128,6 +130,7 @@ export function StudentDashboardPage() {
         </section>
 
         <StudentCurriculumSection />
+        <StudentPdfDocumentsSection />
 
         <section className="grid grid-cols-1 gap-gutter md:grid-cols-4" id="analytics">
           <article className="flex items-center gap-6 rounded-xl border border-outline-variant bg-white p-gutter shadow-[0_4px_20px_rgba(35,39,51,0.04)] md:col-span-2">

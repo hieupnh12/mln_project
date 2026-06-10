@@ -44,7 +44,7 @@ public class FileStorageService {
                 "folder", buildFolder(materialId),
                 "public_id", publicId,
                 "overwrite", true,
-                "resource_type", "auto");
+                "resource_type", "raw");
 
         return uploadAndGetUrl(fileBytes, params);
     }

@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router";
 import { useState } from "react";
 
+import { BrandLogo } from "~/shared/components/brand-logo";
 import { getGoogleLoginUrl } from "../services/auth.service";
 
 const supportLinks = ["Trợ giúp", "Điều khoản dịch vụ", "Bảo mật"];
@@ -45,10 +46,10 @@ export function LoginPage() {
           <div className="login-hero-accent-line pointer-events-none absolute inset-x-0 top-0 h-px" />
 
           <Link
-            className="login-hero-brand relative z-10 w-fit font-serif text-[28px] font-bold leading-none outline-none transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-white/70 sm:text-[34px]"
+            className="login-hero-brand relative z-10 w-fit rounded-lg outline-none transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-white/70"
             to="/"
           >
-            M-L Master
+            <BrandLogo size="large" />
           </Link>
 
           <div className="relative z-10 mx-auto mt-10 w-full max-w-2xl lg:mx-0 lg:mt-16">

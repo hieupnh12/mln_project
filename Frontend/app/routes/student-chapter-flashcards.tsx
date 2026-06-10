@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from "react-router";
 import { fetchChapterDetailApi } from "../features/teacher/course-structure/api/course-structure.api";
 import { fetchFlashcardsByChapter } from "../features/teacher/api/flashcard.api";
 import type { Flashcard } from "../features/teacher/types/flashcard.types";
+import { BrandLogo } from "~/shared/components/brand-logo";
 import { getAuthSession } from "~/shared/services/auth-session.service";
 import { showErrorToast, showSuccessToast } from "~/shared/utils/toast";
 import {
@@ -303,9 +304,9 @@ export default function StudentChapterFlashcardsPage() {
           <div className="flex min-w-0 items-center gap-8">
             <Link
               to="/student"
-              className="min-w-0 truncate text-headline-md font-bold text-primary hover:opacity-85"
+              className="min-w-0 shrink-0 transition-opacity hover:opacity-85"
             >
-              ML Learning
+              <BrandLogo />
             </Link>
             <nav className="hidden items-center gap-6 md:flex">
               <Link

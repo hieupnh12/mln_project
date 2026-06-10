@@ -1,6 +1,8 @@
 import { Link } from "react-router";
 import { useEffect } from "react";
 
+import { BrandLogo } from "~/shared/components/brand-logo";
+
 const heroImage =
   "https://lh3.googleusercontent.com/aida-public/AB6AXuDKAvYcH2oPbMM7eWMGf8zBnjAtOCwcHz-48N4v0oz2TXB1-Azt_jS-Ibn4rvp5rxvKV6iSd0i1ZfEgrNBR5L6h2ADDhzeSPuUfQjCXbbsYQ3y_RuX9oLNvkpRdKUcFqdj-H6er7ngo9jqV_TZHAubhKO4Y2yQX0pSPqJds3LW5ta3SW_XHiebyBuN9KnCr36iPillb9sHwaPVh5YlUl9F52BxQGB88Xz-bpMG-dFZ-guV22V3R-7WVZUTzW1YJ-hgItcxlnzeHfyqM";
 
@@ -108,34 +110,7 @@ export function HomePage() {
       <header className="fixed left-1/2 top-4 z-50 w-[calc(100%-24px)] max-w-7xl -translate-x-1/2 sm:w-[calc(100%-32px)] md:top-6 md:w-[calc(100%-128px)]">
         <nav className="glass-nav flex h-16 items-center justify-between gap-3 rounded-full px-4 shadow-[0_4px_20px_rgba(35,39,51,0.04)] sm:px-6 md:px-10">
           <a className="flex min-w-0 items-center gap-3" href="#">
-            <span
-              aria-hidden="true"
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary text-on-primary sm:h-10 sm:w-10"
-            >
-              <svg
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M3 7.25 12 3l9 4.25-9 4.25L3 7.25Z"
-                  stroke="currentColor"
-                  strokeLinejoin="round"
-                  strokeWidth="1.8"
-                />
-                <path
-                  d="M6.5 10.25v5.1c0 1.45 2.45 3 5.5 3s5.5-1.55 5.5-3v-5.1"
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="1.8"
-                />
-              </svg>
-            </span>
-            <span className="truncate font-headline-md text-lg font-bold text-primary sm:text-headline-md">
-              Marxist
-            </span>
+            <BrandLogo />
           </a>
 
           <div className="hidden items-center gap-8 md:flex">
@@ -304,34 +279,7 @@ export function HomePage() {
               className="mb-4 inline-flex max-w-full min-w-0 items-center gap-3 rounded-lg outline-none transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-secondary"
               to="/"
             >
-              <span
-                aria-hidden="true"
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary text-on-primary"
-              >
-                <svg
-                  className="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M3 7.25 12 3l9 4.25-9 4.25L3 7.25Z"
-                    stroke="currentColor"
-                    strokeLinejoin="round"
-                    strokeWidth="1.8"
-                  />
-                  <path
-                    d="M6.5 10.25v5.1c0 1.45 2.45 3 5.5 3s5.5-1.55 5.5-3v-5.1"
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="1.8"
-                  />
-                </svg>
-              </span>
-              <span className="min-w-0 truncate font-headline-md text-xl font-bold leading-tight text-primary sm:text-headline-md">
-                Marxist
-              </span>
+              <BrandLogo size="large" />
             </Link>
             <p className="max-w-[34ch] font-body-md text-body-md text-on-surface-variant">
               Nâng tầm kiến thức lý luận, đồng hành cùng thế hệ sinh viên Việt
