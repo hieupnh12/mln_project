@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 
+import { BrandLogo } from "~/shared/components/brand-logo";
 import { ApiRequestError } from "~/shared/services/api-client";
 import { StudentMaterialIcon as MaterialIcon } from "../../components/student-material-icon";
 import {
@@ -89,7 +90,7 @@ export function StudentExamReviewPage() {
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-background antialiased">
       <header className="z-50 flex h-16 shrink-0 items-center justify-between border-b border-outline-variant bg-surface-container-low px-margin-mobile shadow-sm md:px-margin-desktop">
-        <span className="text-headline-md font-bold text-primary">ML Learning</span>
+        <BrandLogo />
         <button
           className="rounded-lg bg-primary px-4 py-2 text-label-md text-on-primary transition-all hover:opacity-90 active:scale-95 md:px-6"
           onClick={() => navigate(getStudentExamSessionPath(String(subjectId), resolvedQuizId))}

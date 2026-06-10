@@ -21,4 +21,14 @@ public interface MaterialRepository extends JpaRepository<Material, Long> {
             ORDER BY s.slideIndex ASC
             """)
     Optional<Material> findByIdWithSlides(Long materialId);
+
+    @Query("""
+            SELECT m FROM Material m
+            JOIN FETCH m.lesson l
+            LEFT JOIN FETCH l.chapter c
+            LEFT JOIN FETCH c.subject s
+            WHERE m.resourceUrl IS NOT NULL
+            ORDER BY s.title, c.title, l.title, m.title
+            """)
+    List<Material> findAllWithHierarchyAndResource();
 }
