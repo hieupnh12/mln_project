@@ -48,7 +48,7 @@ export function FlashcardFormDialog({
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-primary/40 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-lg rounded-2xl border border-outline-variant/30 bg-white p-6 shadow-2xl transition-all sm:p-8">
+      <div className="w-full max-w-4xl rounded-2xl border border-outline-variant/30 bg-white p-6 shadow-2xl transition-all sm:p-8">
         <header className="flex items-center justify-between border-b border-outline-variant/20 pb-4">
           <h4 className="text-headline-md font-semibold text-primary">
             {flashcard ? "Chỉnh sửa thẻ ghi nhớ" : "Thêm thẻ ghi nhớ mới"}
@@ -63,39 +63,49 @@ export function FlashcardFormDialog({
           </button>
         </header>
 
-        <form className="mt-6 space-y-5" onSubmit={handleSubmit}>
+        <form className="mt-6 space-y-6" onSubmit={handleSubmit}>
           {error && (
             <div className="rounded-lg bg-error-container p-3 text-label-md font-semibold text-error">
               {error}
             </div>
           )}
 
-          <div>
-            <label className="block text-label-md font-semibold text-primary">
-              Mặt trước (Thuật ngữ / Câu hỏi)
-            </label>
-            <textarea
-              className="mt-2 min-h-20 w-full rounded-xl border border-outline-variant bg-surface-container-low p-3 text-body-md text-on-surface placeholder:text-on-surface-variant/50 focus:border-secondary focus:outline-none"
-              disabled={isSaving}
-              onChange={(e) => setTerm(e.target.value)}
-              placeholder="Ví dụ: Triết học là gì?"
-              rows={2}
-              value={term}
-            />
-          </div>
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+            {/* Left Side: Term */}
+            <div className="space-y-sm">
+              <div className="relative group">
+                <textarea
+                  className="w-full border-b-2 border-outline-variant py-md px-1 bg-transparent text-body-lg text-primary font-medium placeholder:text-on-surface-variant/30 focus:border-primary focus:outline-none transition-colors resize-none min-h-[120px]"
+                  disabled={isSaving}
+                  onChange={(e) => setTerm(e.target.value)}
+                  placeholder="Nhập thuật ngữ / câu hỏi (Mặt trước)..."
+                  rows={4}
+                  value={term}
+                />
+                <span className="absolute bottom-0 left-0 h-0.5 w-0 bg-primary group-focus-within:w-full transition-all duration-300" />
+              </div>
+              <label className="block text-label-sm font-bold text-on-surface-variant/70 uppercase tracking-wider pl-1">
+                Thuật ngữ (Mặt trước)
+              </label>
+            </div>
 
-          <div>
-            <label className="block text-label-md font-semibold text-primary">
-              Mặt sau (Định nghĩa / Câu trả lời)
-            </label>
-            <textarea
-              className="mt-2 min-h-28 w-full rounded-xl border border-outline-variant bg-surface-container-low p-3 text-body-md text-on-surface placeholder:text-on-surface-variant/50 focus:border-secondary focus:outline-none"
-              disabled={isSaving}
-              onChange={(e) => setDefinition(e.target.value)}
-              placeholder="Ví dụ: Hệ thống tri thức lý luận chung nhất..."
-              rows={3}
-              value={definition}
-            />
+            {/* Right Side: Definition */}
+            <div className="space-y-sm">
+              <div className="relative group">
+                <textarea
+                  className="w-full border-b-2 border-outline-variant py-md px-1 bg-transparent text-body-lg text-primary font-medium placeholder:text-on-surface-variant/30 focus:border-primary focus:outline-none transition-colors resize-none min-h-[120px]"
+                  disabled={isSaving}
+                  onChange={(e) => setDefinition(e.target.value)}
+                  placeholder="Nhập định nghĩa / câu trả lời (Mặt sau)..."
+                  rows={4}
+                  value={definition}
+                />
+                <span className="absolute bottom-0 left-0 h-0.5 w-0 bg-primary group-focus-within:w-full transition-all duration-300" />
+              </div>
+              <label className="block text-label-sm font-bold text-on-surface-variant/70 uppercase tracking-wider pl-1">
+                Định nghĩa (Mặt sau)
+              </label>
+            </div>
           </div>
 
           <div className="flex justify-end gap-3 border-t border-outline-variant/20 pt-5">

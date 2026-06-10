@@ -9,6 +9,7 @@ type ExamSessionHeaderProps = {
   onSubmit: () => void;
   submitDisabled?: boolean;
   isSubmitting?: boolean;
+  hasSubmitted?: boolean;
 };
 
 export function ExamSessionHeader({
@@ -20,6 +21,7 @@ export function ExamSessionHeader({
   onSubmit,
   submitDisabled = false,
   isSubmitting = false,
+  hasSubmitted = false,
 }: ExamSessionHeaderProps) {
   const timerClass = timerCritical
     ? "border-error bg-error-container text-error"
@@ -58,7 +60,7 @@ export function ExamSessionHeader({
           onClick={onSubmit}
           type="button"
         >
-          {isSubmitting ? "Đang nộp..." : "Nộp bài"}
+          {isSubmitting ? "Đang nộp..." : hasSubmitted ? "Đã nộp" : "Nộp bài"}
         </button>
       </div>
     </header>

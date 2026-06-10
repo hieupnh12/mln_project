@@ -173,7 +173,7 @@ public class StudentExamService {
 
         Map<Long, Long> selectedByQuestion = loadSelectedByQuestion(attemptId);
         List<Question> sessionQuestions = loadAttemptQuestions(attempt, quiz);
-        Map<Long, Answer> answersById = loadAnswersById(selectedByQuestion);
+        Map<Long, List<Answer>> answersByQuestion = loadAnswersByQuestion(sessionQuestions);
 
         List<StudentExamReviewQuestionResponse> questions = new ArrayList<>();
         int index = 1;
@@ -181,10 +181,11 @@ public class StudentExamService {
 
         for (Question question : sessionQuestions) {
             Long selectedAnswerId = selectedByQuestion.get(question.getId());
-            List<Answer> answers =
-                    answerRepository.findByQuestion_IdOrderBySortOrderAsc(question.getId());
+            List<Answer> answers = answersByQuestion.getOrDefault(question.getId(), List.of());
 
-            boolean questionCorrect = isQuestionCorrect(selectedAnswerId, answersById);
+            boolean questionCorrect = answers.stream().anyMatch(
+                    answer -> answer.getId().equals(selectedAnswerId)
+                            && Boolean.TRUE.equals(answer.getIsCorrect()));
             if (questionCorrect) {
                 correctCount++;
             }
@@ -235,6 +236,25 @@ public class StudentExamService {
                 .submittedAt(formatSubmittedAt(attempt.getAttemptedAt()))
                 .questions(questions)
                 .build();
+    }
+
+    private Map<Long, List<Answer>> loadAnswersByQuestion(List<Question> questions) {
+        Set<Long> questionIds = questions.stream()
+                .map(Question::getId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        if (questionIds.isEmpty()) {
+            return Map.of();
+        }
+
+        return answerRepository
+                .findByQuestion_IdInOrderByQuestion_IdAscSortOrderAsc(questionIds)
+                .stream()
+                .filter(answer -> answer.getQuestion() != null)
+                .collect(Collectors.groupingBy(
+                        answer -> answer.getQuestion().getId(),
+                        LinkedHashMap::new,
+                        Collectors.toList()));
     }
 
     private QuizAttempt loadAuthorizedAttempt(Long subjectId, Long attemptId, Long studentId) {
@@ -463,11 +483,24 @@ public class StudentExamService {
             links = links.subList(0, count);
         }
 
+        if (links.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<Long> questionIds = links.stream()
+                .map(link -> link.getQuestion().getId())
+                .filter(Objects::nonNull)
+                .toList();
+
+        // Batch load all answers
+        List<Answer> allAnswers = answerRepository.findByQuestion_IdInOrderByQuestion_IdAscSortOrderAsc(questionIds);
+        Map<Long, List<Answer>> answersByQuestionId = allAnswers.stream()
+                .collect(Collectors.groupingBy(answer -> answer.getQuestion().getId()));
+
         List<StudentExamQuestionResponse> result = new ArrayList<>();
         for (QuizQuestion link : links) {
             Question question = link.getQuestion();
-            List<Answer> answers = new ArrayList<>(
-                    answerRepository.findByQuestion_IdOrderBySortOrderAsc(question.getId()));
+            List<Answer> answers = new ArrayList<>(answersByQuestionId.getOrDefault(question.getId(), Collections.emptyList()));
             if (Boolean.TRUE.equals(quiz.getShuffleAnswers())) {
                 Collections.shuffle(answers);
             }
@@ -500,6 +533,13 @@ public class StudentExamService {
         }
         if (quiz.getSubject() == null || !quiz.getSubject().getId().equals(subjectId)) {
             throw new AppException(ErrorCode.QUIZ_SCOPE_INVALID);
+        }
+        LocalDateTime now = LocalDateTime.now();
+        if (quiz.getAvailableFrom() != null && now.isBefore(quiz.getAvailableFrom())) {
+            throw new AppException(ErrorCode.QUIZ_NOT_AVAILABLE);
+        }
+        if (quiz.getAvailableUntil() != null && now.isAfter(quiz.getAvailableUntil())) {
+            throw new AppException(ErrorCode.QUIZ_NOT_AVAILABLE);
         }
         return quiz;
     }

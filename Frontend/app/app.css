@@ -85,6 +85,16 @@
   --color-on-surface-variant: #46464c;
   --color-on-surface: #1c1b1c;
   --color-surface: #fcf8f9;
+  --color-landing-white: #ffffff;
+  --color-landing-cream: #f8f9fa;
+  --color-landing-gray: #f3f4f6;
+  --color-landing-red: #b91c1c;
+  --color-landing-red-deep: #991b1b;
+  --color-landing-red-dark: #7f1d1d;
+  --color-landing-gold: #d4a017;
+  --color-landing-text: #111827;
+  --color-landing-text-muted: #374151;
+  --color-landing-text-soft: #6b7280;
 
   --spacing-margin-desktop: 64px;
   --spacing-xl: 80px;
@@ -174,6 +184,77 @@ a {
     radial-gradient(circle at 18% 14%, rgba(255, 244, 237, 0.18) 0%, rgba(255, 244, 237, 0.05) 20%, transparent 46%),
     radial-gradient(circle at 82% 18%, rgba(255, 210, 210, 0.14) 0%, rgba(255, 210, 210, 0.04) 18%, transparent 40%),
     linear-gradient(135deg, #48070a 0%, #6b0e13 34%, #99151d 68%, #c6434a 100%);
+}
+
+.landing-paper-texture {
+  background-image:
+    radial-gradient(circle at 14% 18%, color-mix(in srgb, var(--color-landing-red) 13%, transparent) 0%, transparent 34%),
+    radial-gradient(circle at 82% 12%, color-mix(in srgb, var(--color-landing-gold) 18%, transparent) 0%, transparent 30%),
+    linear-gradient(135deg, var(--color-landing-white) 0%, var(--color-landing-cream) 48%, color-mix(in srgb, var(--color-landing-red) 8%, var(--color-landing-white)) 100%);
+}
+
+.landing-film-grain {
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--color-landing-red) 4%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--color-landing-red) 4%, transparent) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+.landing-vignette {
+  background:
+    radial-gradient(circle at 50% 24%, transparent 0%, color-mix(in srgb, var(--color-landing-white) 50%, transparent) 58%, color-mix(in srgb, var(--color-landing-red) 8%, transparent) 100%),
+    linear-gradient(180deg, color-mix(in srgb, var(--color-landing-white) 16%, transparent) 0%, color-mix(in srgb, var(--color-landing-white) 82%, transparent) 100%);
+}
+
+.landing-glow-button {
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-landing-red) 14%, transparent), 0 18px 48px color-mix(in srgb, var(--color-landing-red) 26%, transparent);
+}
+
+.landing-soviet-type {
+  text-shadow: 0 16px 42px color-mix(in srgb, var(--color-landing-red) 15%, transparent);
+}
+
+.landing-gradient-mesh {
+  background:
+    radial-gradient(circle at 12% 18%, color-mix(in srgb, var(--color-landing-red) 13%, transparent) 0%, transparent 28%),
+    radial-gradient(circle at 78% 8%, color-mix(in srgb, var(--color-landing-gold) 24%, transparent) 0%, transparent 26%),
+    radial-gradient(circle at 72% 72%, color-mix(in srgb, var(--color-landing-red-deep) 10%, transparent) 0%, transparent 32%),
+    linear-gradient(135deg, var(--color-landing-white) 0%, var(--color-landing-cream) 48%, var(--color-landing-gray) 100%);
+}
+
+.landing-soft-noise {
+  background-image:
+    radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--color-landing-text) 12%, transparent) 1px, transparent 0);
+  background-size: 18px 18px;
+}
+
+.landing-glass-panel {
+  border: 1px solid color-mix(in srgb, var(--color-landing-white) 70%, var(--color-outline-variant));
+  background: color-mix(in srgb, var(--color-landing-white) 78%, transparent);
+  box-shadow: 0 24px 70px color-mix(in srgb, var(--color-landing-text) 10%, transparent);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.landing-3d-card {
+  transform-style: preserve-3d;
+  transition: transform 280ms ease, box-shadow 280ms ease, border-color 280ms ease;
+}
+
+.landing-3d-card:hover {
+  box-shadow: 0 28px 70px color-mix(in srgb, var(--color-landing-red) 14%, transparent);
+}
+
+.landing-perspective {
+  perspective: 1200px;
+}
+
+.landing-magnetic {
+  transition: transform 220ms ease, box-shadow 220ms ease;
+}
+
+.landing-magnetic:hover {
+  transform: translateY(-2px) scale(1.02);
 }
 
 .login-hero-sheen {
@@ -395,3 +476,32 @@ a {
     transform: translateY(0);
   }
 }
+
+.teacher-theme-root {
+  --color-secondary: var(--color-landing-red);
+  --color-secondary-container: color-mix(in srgb, var(--color-landing-red) 10%, var(--color-landing-white));
+  --color-on-secondary-container: var(--color-landing-red-deep);
+  --color-secondary-fixed: var(--color-landing-red);
+  --color-secondary-fixed-dim: var(--color-landing-red-deep);
+}
+
+.theme-default {
+  --color-background: #fcf8f9;
+  --color-surface: #fcf8f9;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f6f3f4;
+  --color-surface-container: #f0edee;
+  --color-surface-container-high: #ebe7e8;
+  --color-surface-container-highest: #e5e2e3;
+  --color-primary: #0e121e;
+  --color-primary-container: #232733;
+  --color-secondary: #3f6564;
+  --color-secondary-container: #bfe8e6;
+  --color-on-secondary-container: #436968;
+  --color-on-primary: #ffffff;
+  --color-on-surface: #1c1b1c;
+  --color-on-surface-variant: #46464c;
+  --color-outline: #76777c;
+  --color-outline-variant: #c6c6cc;
+}
+

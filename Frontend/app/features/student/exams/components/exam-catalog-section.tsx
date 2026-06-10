@@ -20,25 +20,22 @@ export function ExamCatalogSection({
   children,
 }: ExamCatalogSectionProps) {
   return (
-    <section className="min-w-0 w-full">
-      <div className="mb-md flex min-w-0 flex-wrap items-center gap-2 border-b border-outline-variant pb-2">
-        <MaterialIcon
-          className={muted ? "text-outline" : "text-secondary"}
-          filled={iconFilled}
-        >
-          {icon}
-        </MaterialIcon>
-        <h2
+    <section className="w-full min-w-0">
+      <div className="mb-md flex min-w-0 flex-wrap items-center gap-3 border-b border-outline-variant/30 pb-3">
+        <span
           className={
             muted
-              ? "text-headline-md font-semibold text-on-surface-variant"
-              : "text-headline-md font-semibold text-primary"
+              ? "flex h-10 w-10 items-center justify-center rounded-xl bg-landing-gray text-landing-text-soft"
+              : "flex h-10 w-10 items-center justify-center rounded-xl bg-landing-red/10 text-landing-red"
           }
         >
+          <MaterialIcon filled={iconFilled}>{icon}</MaterialIcon>
+        </span>
+        <h2 className="font-serif text-headline-md font-semibold text-landing-text">
           {title}
         </h2>
         {badge ? (
-          <span className="ml-2 rounded-full bg-secondary-container px-2 py-0.5 text-label-sm font-semibold text-on-secondary-fixed-variant">
+          <span className="rounded-full bg-landing-red/10 px-3 py-1 text-label-sm font-semibold text-landing-red">
             {badge}
           </span>
         ) : null}

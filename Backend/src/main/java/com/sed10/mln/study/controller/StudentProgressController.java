@@ -3,6 +3,7 @@ package com.sed10.mln.study.controller;
 import com.sed10.mln.study.dto.request.UpdateStudentProgressRequest;
 import com.sed10.mln.study.dto.response.ApiResponse;
 import com.sed10.mln.study.dto.response.StudentProgressResponse;
+import com.sed10.mln.study.dto.response.StudentResumeResponse;
 import com.sed10.mln.study.exception.AppException;
 import com.sed10.mln.study.exception.ErrorCode;
 import com.sed10.mln.study.service.CurrentStudentResolver;
@@ -79,6 +80,16 @@ public class StudentProgressController {
         Long resolvedStudentId = requireStudentId(authorization, studentId);
         return ApiResponse.<List<StudentProgressResponse>>builder()
                 .result(studentProgressService.listProgressBySubject(resolvedStudentId, subjectId))
+                .build();
+    }
+
+    @GetMapping("/progress/resume")
+    public ApiResponse<StudentResumeResponse> getRecentResumePoint(
+            @RequestParam(required = false) Long studentId,
+            @RequestHeader(value = "Authorization", required = false) String authorization) {
+        Long resolvedStudentId = requireStudentId(authorization, studentId);
+        return ApiResponse.<StudentResumeResponse>builder()
+                .result(studentProgressService.getRecentResumePoint(resolvedStudentId))
                 .build();
     }
 }

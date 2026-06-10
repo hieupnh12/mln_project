@@ -1,8 +1,13 @@
-import { useCallback, useRef } from "react";
-import type { SubjectListItem } from "../../types/student.types";
-import { useYoutubeLessonProgress } from "../../student-progress/hooks/use-youtube-lesson-progress";
+import { RefreshCw } from "lucide-react";
+import { useCallback, useMemo } from "react";
+
 import { useSubjectLessonProgressQuery } from "../../student-progress/hooks/use-student-progress-queries";
-import { buildLessonProgressMap } from "../../student-progress/utils/student-progress-resume.util";
+import { useYoutubeLessonProgress } from "../../student-progress/hooks/use-youtube-lesson-progress";
+import {
+  buildLessonProgressMap,
+  findNextLessonAfterComplete,
+} from "../../student-progress/utils/student-progress-resume.util";
+import type { SubjectListItem } from "../../types/student.types";
 import { studentCourseFeaturedQuote } from "../constants/student-course.constants";
 import {
   useChapterLessonsQuery,
@@ -19,46 +24,42 @@ type CourseMaterialViewerProps = {
   subject: SubjectListItem | undefined;
   expandedChapterId: number | null;
   selectedMaterialId: number | null;
-  onLessonCompleted?: (lessonId: number) => void;
+  onGoToNextLesson?: (lessonId: number) => void;
 };
-
-function MaterialViewerSkeleton() {
-  return (
-    <div className="aspect-video animate-pulse rounded-xl border border-outline-variant/30 bg-surface-container-low" />
-  );
-}
 
 export function CourseMaterialViewer({
   subjectId,
   subject,
   expandedChapterId,
   selectedMaterialId,
-  onLessonCompleted,
+  onGoToNextLesson,
 }: CourseMaterialViewerProps) {
   const materialQuery = useMaterialDetailQuery(selectedMaterialId);
   const lessonsQuery = useChapterLessonsQuery(expandedChapterId);
   const progressQuery = useSubjectLessonProgressQuery(subjectId);
   const coverImageUrl = resolveCourseCoverImage(subject?.title ?? "Môn học");
-
   const material = materialQuery.data;
   const lesson = lessonsQuery.data?.find((item) => item.id === material?.lessonId);
   const progressMap = buildLessonProgressMap(progressQuery.data ?? []);
   const lessonProgress = material ? progressMap.get(material.lessonId) : undefined;
-  const onLessonCompletedRef = useRef(onLessonCompleted);
-  onLessonCompletedRef.current = onLessonCompleted;
-
-  const handleLessonCompleted = useCallback(() => {
-    if (material) {
-      onLessonCompletedRef.current?.(material.lessonId);
+  const nextLesson = useMemo(() => {
+    if (!material?.lessonId) {
+      return null;
     }
-  }, [material]);
+    return findNextLessonAfterComplete(progressQuery.data ?? [], material.lessonId);
+  }, [material?.lessonId, progressQuery.data]);
+
+  const handleGoToNextLesson = useCallback(() => {
+    if (material) {
+      onGoToNextLesson?.(material.lessonId);
+    }
+  }, [material, onGoToNextLesson]);
 
   useYoutubeLessonProgress({
     subjectId,
     lessonId: material?.lessonId ?? 0,
     currentStatus: lessonProgress?.status,
     enabled: material?.contentType === "YOUTUBE" && material.lessonId != null,
-    onLessonCompleted: material ? handleLessonCompleted : undefined,
   });
 
   if (selectedMaterialId == null) {
@@ -78,7 +79,9 @@ export function CourseMaterialViewer({
   }
 
   if (materialQuery.isLoading) {
-    return <MaterialViewerSkeleton />;
+    return (
+      <div className="aspect-video animate-pulse rounded-xl border border-outline-variant/35 bg-landing-white" />
+    );
   }
 
   if (materialQuery.isError) {
@@ -93,10 +96,11 @@ export function CourseMaterialViewer({
             : "Vui lòng thử lại sau."}
         </p>
         <button
-          className="mt-4 rounded-lg bg-primary px-5 py-2 text-label-md font-medium text-on-primary"
+          className="mt-4 inline-flex items-center gap-2 rounded-lg bg-landing-red px-5 py-2 text-label-md font-medium text-on-primary"
           onClick={() => materialQuery.refetch()}
           type="button"
         >
+          <RefreshCw aria-hidden="true" className="h-4 w-4" />
           Thử lại
         </button>
       </div>
@@ -107,19 +111,19 @@ export function CourseMaterialViewer({
     return null;
   }
 
+  const lessonTitle = lesson?.title || "Bài học chưa đặt tên";
+
   return (
     <div className="space-y-md">
       {material.contentType === "YOUTUBE" ? (
-        <CourseYoutubeViewer
-          lessonTitle={lesson?.title || "Bài học chưa đặt tên"}
-          material={material}
-        />
+        <CourseYoutubeViewer lessonTitle={lessonTitle} material={material} />
       ) : (
         <CourseSlideViewer
           lessonStatus={lessonProgress?.status}
-          lessonTitle={lesson?.title || "Bài học chưa đặt tên"}
+          lessonTitle={lessonTitle}
           material={material}
-          onLessonCompleted={handleLessonCompleted}
+          nextLesson={nextLesson ? { lessonTitle: nextLesson.lessonTitle } : undefined}
+          onGoToNextLesson={nextLesson ? handleGoToNextLesson : undefined}
           subjectId={subjectId}
         />
       )}

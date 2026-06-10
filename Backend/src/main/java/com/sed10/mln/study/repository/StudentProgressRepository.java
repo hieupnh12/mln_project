@@ -2,6 +2,7 @@ package com.sed10.mln.study.repository;
 
 import com.sed10.mln.study.entity.StudentProgress;
 import com.sed10.mln.study.entity.StudentProgressId;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -35,4 +36,16 @@ public interface StudentProgressRepository extends JpaRepository<StudentProgress
     List<StudentProgress> findByStudentIdAndSubjectId(
             @Param("studentId") Long studentId,
             @Param("subjectId") Long subjectId);
+
+    @Query("""
+            SELECT sp FROM StudentProgress sp
+            JOIN FETCH sp.lesson l
+            JOIN FETCH l.chapter c
+            JOIN FETCH c.subject
+            WHERE sp.id.studentId = :studentId
+            ORDER BY CASE WHEN sp.updatedAt IS NULL THEN 1 ELSE 0 END, sp.updatedAt DESC, sp.id.lessonId DESC
+            """)
+    List<StudentProgress> findRecentByStudentId(
+            @Param("studentId") Long studentId,
+            Pageable pageable);
 }

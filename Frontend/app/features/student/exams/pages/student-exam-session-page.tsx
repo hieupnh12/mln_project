@@ -205,11 +205,12 @@ export function StudentExamSessionPage() {
       <div className="pointer-events-none fixed -bottom-[10%] -right-[10%] -z-10 h-[30%] w-[30%] rounded-full bg-surface-container-high/30 blur-[100px]" />
 
       <ExamSessionHeader
-        courseTitle={session.courseTitle}
-        examTitle={session.title}
-        isSubmitting={submitFlow.isSubmitting}
-        onSubmit={submitFlow.requestSubmit}
-        submitDisabled={submitFlow.isSubmitting}
+        courseTitle={session.courseTitle}
+        examTitle={session.title}
+        hasSubmitted={submitFlow.hasSubmitted}
+        isSubmitting={submitFlow.isSubmitting}
+        onSubmit={submitFlow.requestSubmit}
+        submitDisabled={submitFlow.submitDisabled}
         timerCritical={timerCritical}
         timerLabel={timerLabel}
         timerUrgent={timerUrgent}
@@ -228,18 +229,18 @@ export function StudentExamSessionPage() {
         <ExamQuestionNav
           answeredCount={answeredCount}
           currentIndex={currentIndex}
-          flaggedIndices={flagged}
-          isAnswered={isAnswered}
-          onSelect={setCurrentIndex}
+          flaggedIndices={flagged}
+          hasNext={currentIndex < questions.length - 1}
+          hasPrevious={currentIndex > 0}
+          isAnswered={isAnswered}
+          onNext={() => setCurrentIndex((i) => Math.min(questions.length - 1, i + 1))}
+          onPrevious={() => setCurrentIndex((i) => Math.max(0, i - 1))}
+          onSelect={setCurrentIndex}
           questions={questions}
         />
 
         <ExamQuestionPanel
-          hasNext={currentIndex < questions.length - 1}
-          hasPrevious={currentIndex > 0}
-          isFlagged={flagged.has(currentIndex)}
-          onNext={() => setCurrentIndex((i) => Math.min(questions.length - 1, i + 1))}
-          onPrevious={() => setCurrentIndex((i) => Math.max(0, i - 1))}
+          isFlagged={flagged.has(currentIndex)}
           onSelectAnswer={handleSelectAnswer}
           onToggleFlag={handleToggleFlag}
           question={currentQuestion}

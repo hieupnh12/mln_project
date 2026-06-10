@@ -2,10 +2,10 @@ import { StudentDashboardPage } from "../features/student/dashboard/pages/studen
 
 export function meta() {
   return [
-    { title: "Học sinh | ML Learning" },
+    { title: "Học viên | Mác - Lê Nin" },
     {
       name: "description",
-      content: "Dashboard học tập dành cho học sinh ML Learning.",
+      content: "Không gian học tập và theo dõi tiến độ dành cho học viên Mác - Lê Nin.",
     },
   ];
 }

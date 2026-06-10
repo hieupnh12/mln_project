@@ -8,9 +8,10 @@ type RandomExamConfigSectionProps = {
   validation: RandomExamValidation;
   lessonOptions: LessonOptionDto[];
   onChange: (config: RandomExamConfig) => void;
-  onPreview: () => void;
+  onExportFile: () => void;
   onSaveDraft: () => void;
-  previewDisabled?: boolean;
+  actionDisabled?: boolean;
+  exporting?: boolean;
   savingDraft?: boolean;
 };
 
@@ -19,13 +20,14 @@ export function RandomExamConfigSection({
   validation,
   lessonOptions,
   onChange,
-  onPreview,
+  onExportFile,
   onSaveDraft,
-  previewDisabled = false,
+  actionDisabled = false,
+  exporting = false,
   savingDraft = false,
 }: RandomExamConfigSectionProps) {
-  const canPreview = validation.valid && !previewDisabled;
-  const canSaveDraft = validation.valid && !previewDisabled && !savingDraft;
+  const canExportFile = validation.valid && !actionDisabled && !exporting && !savingDraft;
+  const canSaveDraft = validation.valid && !actionDisabled && !savingDraft && !exporting;
 
   return (
     <div className="rounded-xl border border-outline-variant/10 bg-surface-container-lowest p-md shadow-sm">
@@ -139,12 +141,12 @@ export function RandomExamConfigSection({
       <div className="flex flex-col gap-3 sm:flex-row">
         <button
           className="flex flex-1 items-center justify-center gap-2 rounded-lg border-2 border-primary py-4 text-label-md font-medium text-primary transition hover:bg-primary hover:text-on-primary disabled:cursor-not-allowed disabled:border-outline-variant/30 disabled:text-on-surface-variant/40 disabled:hover:bg-transparent disabled:hover:text-on-surface-variant/40"
-          disabled={!canPreview}
-          onClick={onPreview}
+          disabled={!canExportFile}
+          onClick={onExportFile}
           type="button"
         >
-          <MaterialIcon>visibility</MaterialIcon>
-          Xem trước đề
+          <MaterialIcon>{exporting ? "sync" : "download"}</MaterialIcon>
+          {exporting ? "Đang xuất..." : "Xuất file"}
         </button>
         <button
           className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-secondary-container py-4 text-label-md font-medium text-primary transition hover:bg-secondary-fixed disabled:cursor-not-allowed disabled:opacity-60"

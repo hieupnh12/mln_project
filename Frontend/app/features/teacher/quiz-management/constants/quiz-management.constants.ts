@@ -7,6 +7,7 @@ export const QUIZ_MANAGEMENT_ENDPOINTS = {
   byId: (id: string) => `/teacher/quizzes/${encodeURIComponent(id)}`,
   publish: (id: string) => `/teacher/quizzes/${encodeURIComponent(id)}/publish`,
   duplicate: (id: string) => `/teacher/quizzes/${encodeURIComponent(id)}/duplicate`,
+  close: (id: string) => `/teacher/quizzes/${encodeURIComponent(id)}/close`,
 } as const;
 
 export const QUIZ_MANAGEMENT_QUERY_KEYS = {
@@ -21,7 +22,11 @@ export const QUIZ_MANAGEMENT_QUERY_KEYS = {
   ) => ["teacher", "quiz-management", "candidates", scope, page, size] as const,
 };
 
-export const QUIZ_CANDIDATE_PAGE_SIZE = 8;
+/** Số câu mỗi trang khi đã tìm kiếm hoặc lọc độ khó. */
+export const QUIZ_CANDIDATE_PAGE_SIZE = 6;
+
+/** Lưu/xuất bản quiz có thể mất lâu khi gắn nhiều câu hỏi. */
+export const QUIZ_SAVE_TIMEOUT_MS = 60_000;
 
 export const defaultQuizFilters: QuizFilters = {
   search: "",
@@ -32,13 +37,14 @@ export const defaultQuizFilters: QuizFilters = {
 export const defaultQuizSettings = {
   title: "Quiz mới",
   course: "",
-  chapter: "",
+  chapter: "all",
   lesson: "all",
   duration: 20,
   passingScore: 70,
   randomCount: 10,
   shuffleAnswers: true,
   randomQuestions: false,
+  availableUntil: "",
 };
 
 export const quizEditorTabLabels = {
@@ -48,7 +54,7 @@ export const quizEditorTabLabels = {
 } as const;
 
 export const quizEditorTabDescriptions = {
-  settings: "Tên, phạm vi môn/chương và quy tắc làm bài",
-  questions: "Chọn hoặc random câu từ ngân hàng đã duyệt",
-  publish: "Kiểm tra checklist và xuất bản cho sinh viên",
+  settings: "Tên & phạm vi",
+  questions: "Chọn câu",
+  publish: "Kiểm tra & publish",
 } as const;

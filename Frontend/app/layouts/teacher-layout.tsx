@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 
 import { TeacherMobileNav } from "../features/teacher/components/teacher-mobile-nav";
 import { TeacherSidebar } from "../features/teacher/components/teacher-sidebar";
+import { useTeacherSidebar } from "../features/teacher/hooks/use-teacher-sidebar";
 import { getFlashcardSets } from "~/features/teacher/services/flashcard.service";
 import {
   getQuestionMetadata,
@@ -21,6 +22,8 @@ import {
 
 export function TeacherLayout() {
   const queryClient = useQueryClient();
+  const { collapsed, mainOffsetClass, sidebarWidthClass, toggleCollapsed } =
+    useTeacherSidebar();
 
   useEffect(() => {
     // 1. Prefetch flashcard sets
@@ -60,13 +63,21 @@ export function TeacherLayout() {
   }, [queryClient]);
 
   return (
-    <div className="min-h-svh overflow-x-hidden bg-background font-body-md text-on-surface">
-      <TeacherSidebar />
+    <div className="teacher-theme-root min-h-svh overflow-x-hidden bg-background font-body-md text-on-surface">
 
-      <main className="px-margin-mobile pb-xl pt-md md:px-margin-desktop lg:ml-64">
-        <TeacherMobileNav />
+      <TeacherSidebar
+        collapsed={collapsed}
+        onToggle={toggleCollapsed}
+        sidebarWidthClass={sidebarWidthClass}
+      />
+
+      <main
+        className={`px-margin-mobile pb-24 pt-md transition-[margin] duration-200 ease-out md:px-margin-desktop lg:pb-xl ${mainOffsetClass}`}
+      >
         <Outlet />
       </main>
+
+      <TeacherMobileNav />
     </div>
   );
 }

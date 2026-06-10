@@ -11,5 +11,6 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BatchImportRequest {
     Long lessonId;
+    String targetStatus;
     List<BatchImportRowRequest> rows = new ArrayList<>();
 }

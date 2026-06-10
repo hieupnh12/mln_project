@@ -19,6 +19,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class QuizMapper {
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ISO_LOCAL_DATE;
+    private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
     private final QuestionMapper questionMapper;
 
@@ -32,12 +33,13 @@ public class QuizMapper {
                 .id(QuizConstant.publicId(quiz.getId()))
                 .title(quiz.getTitle())
                 .course(subject != null ? subject.getTitle() : "")
-                .chapter(chapter != null ? chapter.getTitle() : "")
+                .chapter(chapter != null ? chapter.getTitle() : "all")
                 .lesson(lesson != null ? lesson.getTitle() : "Tất cả bài")
                 .questionCount(Math.toIntExact(questionCount))
                 .duration(quiz.getTimeLimit() != null ? quiz.getTimeLimit() : 0)
                 .passingScore(quiz.getPassingScore() != null ? quiz.getPassingScore() : 0)
                 .status(QuizConstant.toLabel(quiz.getStatus()))
+                .availableUntil(formatDateTime(quiz.getAvailableUntil()))
                 .updatedAt(formatDate(quiz.getUpdatedAt()))
                 .createdAt(formatDate(quiz.getCreatedAt()))
                 .attemptCount(attemptCount)
@@ -57,7 +59,7 @@ public class QuizMapper {
                 .id(QuizConstant.publicId(quiz.getId()))
                 .title(quiz.getTitle())
                 .course(subject != null ? subject.getTitle() : "")
-                .chapter(chapter != null ? chapter.getTitle() : "")
+                .chapter(chapter != null ? chapter.getTitle() : "all")
                 .lesson(lesson != null ? lesson.getTitle() : "all")
                 .duration(quiz.getTimeLimit() != null ? quiz.getTimeLimit() : 0)
                 .passingScore(quiz.getPassingScore() != null ? quiz.getPassingScore() : 0)
@@ -65,6 +67,8 @@ public class QuizMapper {
                 .shuffleAnswers(Boolean.TRUE.equals(quiz.getShuffleAnswers()))
                 .randomQuestions(Boolean.TRUE.equals(quiz.getRandomQuestions()))
                 .status(QuizConstant.toLabel(quiz.getStatus()))
+                .availableFrom(formatDateTime(quiz.getAvailableFrom()))
+                .availableUntil(formatDateTime(quiz.getAvailableUntil()))
                 .updatedAt(formatDate(quiz.getUpdatedAt()))
                 .createdAt(formatDate(quiz.getCreatedAt()))
                 .attemptCount(attemptCount)
@@ -83,5 +87,9 @@ public class QuizMapper {
 
     private String formatDate(java.time.LocalDateTime value) {
         return value != null ? value.toLocalDate().format(DATE_FORMAT) : "";
+    }
+
+    private String formatDateTime(java.time.LocalDateTime value) {
+        return value != null ? value.format(DATE_TIME_FORMAT) : "";
     }
 }

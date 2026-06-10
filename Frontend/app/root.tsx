@@ -11,6 +11,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 import type { Route } from "./+types/root";
 import { AsyncActivityBar } from "./shared/components/async-activity-bar";
+import { GOOGLE_SITE_VERIFICATION_CODE } from "./shared/constants/site-verification.constants";
 import { NotFoundPage } from "./shared/components/not-found-page";
 import { AppQueryProvider } from "./shared/providers/query-provider";
 import "./app.css";
@@ -39,6 +40,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="google-site-verification" content={GOOGLE_SITE_VERIFICATION_CODE} />
         <Meta />
         <Links />
       </head>

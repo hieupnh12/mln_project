@@ -1,5 +1,9 @@
 import type { QuizListItem, QuizStatus } from "../types/quiz-management.types";
 
+export function hasActiveCandidateFilter(search: string, difficulty: string) {
+  return search.trim().length > 0 || difficulty !== "all";
+}
+
 export type QuizListSummary = {
   total: number;
   draftCount: number;
@@ -44,25 +48,25 @@ export function getQuizReadinessChecks(
       id: "title",
       label: "Tên quiz",
       passed: title.trim().length >= 3,
-      hint: "Tên quiz cần ít nhất 3 ký tự.",
+      hint: "Tên ≥ 3 ký tự.",
     },
     {
       id: "questions",
       label: "Số câu hỏi",
       passed: questionCount >= 1,
-      hint: "Thêm ít nhất 1 câu hỏi ở tab Câu hỏi.",
+      hint: "Thêm ≥ 1 câu.",
     },
     {
       id: "duration",
-      label: "Thời gian làm bài",
+      label: "Thời gian",
       passed: duration >= 5,
-      hint: "Thời gian tối thiểu 5 phút.",
+      hint: "≥ 5 phút.",
     },
     {
       id: "passing",
       label: "Điểm đạt",
       passed: passingScore >= 1 && passingScore <= 100,
-      hint: "Điểm đạt trong khoảng 1–100%.",
+      hint: "1–100%.",
     },
   ];
 }
@@ -72,8 +76,21 @@ export function isQuizReadyForPublish(checks: QuizReadinessCheck[]): boolean {
 }
 
 export function formatQuizScope(course: string, chapter: string, lesson: string): string {
-  const lessonLabel = lesson === "all" ? "Tất cả bài" : lesson;
-  return `${course} · ${chapter} · ${lessonLabel}`;
+  const chapterLabel = chapter === "all" || !chapter ? "Tất cả ch" : chapter;
+  const lessonLabel = lesson === "all" || !lesson ? "Tất cả bài" : lesson;
+  return `${course} · ${chapterLabel} · ${lessonLabel}`;
+}
+
+export function formatCloseDeadline(value: string | undefined): string {
+  if (!value?.trim()) return "";
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return value;
+  return parsed.toLocaleString("vi-VN", {
+    day: "2-digit",
+    month: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 export function formatRelativeDate(isoDate: string): string {
@@ -90,6 +107,9 @@ export function formatRelativeDate(isoDate: string): string {
 }
 
 export function filterStatusLabel(status: "all" | QuizStatus): string {
-  if (status === "all") return "Mọi trạng thái";
+  if (status === "all") return "TT";
+  if (status === "Bản nháp") return "Nháp";
+  if (status === "Đã xuất bản") return "Live";
+  if (status === "Đã tắt") return "Tắt";
   return status;
 }
