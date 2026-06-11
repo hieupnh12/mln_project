@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.sed10.mln.study.dto.request.MaterialRequest;
 import com.sed10.mln.study.dto.response.MaterialDetailResponse;
 import com.sed10.mln.study.dto.response.MaterialResponse;
+import com.sed10.mln.study.dto.response.PdfDocumentResponse;
 import com.sed10.mln.study.entity.Lesson;
 import com.sed10.mln.study.entity.Material;
 import com.sed10.mln.study.entity.Slide;
@@ -147,6 +148,14 @@ public class MaterialService {
     }
 
     @Transactional(readOnly = true)
+    public List<PdfDocumentResponse> listPdfDocuments() {
+        return materialRepo.findAllWithHierarchyAndResource().stream()
+                .filter(this::isPdfMaterial)
+                .map(this::toPdfDocumentResponse)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
     public MaterialResponse toMaterialResponseWithPreview(Material material) {
         MaterialResponse response = materialMap.toMaterialResponse(material);
         response.setPreviewImageUrl(resolvePreviewImageUrl(material));
@@ -251,6 +260,29 @@ public class MaterialService {
 
     private boolean hasYoutubeUrl(String youtubeUrl) {
         return StringUtils.hasText(youtubeUrl);
+    }
+
+    private boolean isPdfMaterial(Material material) {
+        return ContentType.SLIDE_DECK.name().equals(material.getContentType())
+                && StringUtils.hasText(material.getResourceUrl())
+                && material.getResourceUrl().toLowerCase().contains(".pdf");
+    }
+
+    private PdfDocumentResponse toPdfDocumentResponse(Material material) {
+        Lesson lesson = material.getLesson();
+        return PdfDocumentResponse.builder()
+                .materialId(material.getId())
+                .lessonId(lesson.getId())
+                .title(material.getTitle())
+                .resourceUrl(material.getResourceUrl())
+                .pageCount(material.getSlideCount())
+                .lessonTitle(lesson.getTitle())
+                .chapterTitle(lesson.getChapter() != null ? lesson.getChapter().getTitle() : null)
+                .subjectTitle(
+                        lesson.getChapter() != null && lesson.getChapter().getSubject() != null
+                                ? lesson.getChapter().getSubject().getTitle()
+                                : null)
+                .build();
     }
 
     private String normalizeYoutubeUrl(String youtubeUrl) {

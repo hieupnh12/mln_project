@@ -1,6 +1,7 @@
 import { Link, NavLink } from "react-router";
 
 import { useAuthUser } from "~/features/auth/hooks/use-auth-user";
+import { BrandLogo } from "~/shared/components/brand-logo";
 import {
   TEACHER_ROUTES,
   teacherNavItems,
@@ -39,13 +40,8 @@ export function TeacherSidebar({
         ) : (
           <>
             <Link className="flex min-w-0 flex-1 items-center gap-sm" to={TEACHER_ROUTES.dashboard}>
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary-container text-white">
-                <MaterialIcon filled>school</MaterialIcon>
-              </div>
               <div className="min-w-0">
-                <h1 className="truncate text-headline-md font-bold text-primary">
-                  M-L Master
-                </h1>
+                <BrandLogo />
                 <p className="text-label-sm font-semibold text-on-surface-variant/70">
                   Teacher Portal
                 </p>

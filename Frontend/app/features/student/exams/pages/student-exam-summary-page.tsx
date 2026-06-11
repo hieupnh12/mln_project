@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router";
 
+import { BrandLogo } from "~/shared/components/brand-logo";
 import { showErrorToast } from "~/shared/utils/toast";
 
 import { StudentMaterialIcon as MaterialIcon } from "../../components/student-material-icon";
@@ -136,7 +137,7 @@ export function StudentExamSummaryPage() {
           >
             <MaterialIcon>close</MaterialIcon>
           </button>
-          <span className="text-headline-md font-bold text-primary">ML Learning</span>
+          <BrandLogo />
         </div>
         <span className="max-w-[40%] truncate text-right text-label-md font-semibold text-secondary sm:max-w-none">
           {summary.scoreLabel}
