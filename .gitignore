@@ -206,7 +206,3 @@ secrets.yaml
 # Environment Variables
 .env
 ENVIRONMENTS.md
-
-# Load test generated outputs
-scripts/load-test/tokens.json
-scripts/load-test/seed-users.sql
