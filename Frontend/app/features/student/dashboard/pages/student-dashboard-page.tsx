@@ -9,6 +9,7 @@ import { StudentCurriculumSection } from "../components/student-curriculum-secti
 import { StudentDashboardHeader } from "../components/student-dashboard-header";
 import { StudentDashboardOverview } from "../components/student-dashboard-overview";
 import { StudentMobileNavigation } from "../components/student-mobile-navigation";
+import { StudentPdfDocumentsSection } from "../components/student-pdf-documents-section";
 import { StudentWelcomePanel } from "../components/student-welcome-panel";
 import { useSubjects } from "../hooks/dashboard.hooks";
 
@@ -38,6 +39,7 @@ export function StudentDashboardPage() {
           userName={authUser.name}
         />
         <StudentCurriculumSection />
+        <StudentPdfDocumentsSection />
         <StudentDashboardOverview />
       </main>
 

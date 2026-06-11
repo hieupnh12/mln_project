@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
-import { Landmark, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { Link } from "react-router";
 
+import { BrandLogo } from "~/shared/components/brand-logo";
 import {
   LOGIN_FEATURES,
   LOGIN_HERO_ASSET,
@@ -32,10 +33,7 @@ export function LoginHeroSection() {
           className="inline-flex min-w-0 items-center gap-3 rounded-full bg-landing-white/70 px-4 py-2 text-label-md font-semibold text-landing-text shadow-sm backdrop-blur-xl transition hover:text-landing-red focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-landing-red/40"
           to="/"
         >
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-landing-red to-landing-red-dark text-on-primary">
-            <Landmark aria-hidden="true" className="h-4 w-4" />
-          </span>
-          <span className="min-w-0 truncate">Mác - Lê Nin</span>
+          <BrandLogo size="compact" />
         </Link>
       </div>
 

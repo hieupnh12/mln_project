@@ -10,6 +10,7 @@ import com.sed10.mln.study.dto.request.MaterialRequest;
 import com.sed10.mln.study.dto.response.ApiResponse;
 import com.sed10.mln.study.dto.response.MaterialDetailResponse;
 import com.sed10.mln.study.dto.response.MaterialResponse;
+import com.sed10.mln.study.dto.response.PdfDocumentResponse;
 import com.sed10.mln.study.service.MaterialService;
 
 import lombok.AccessLevel;
@@ -25,6 +26,15 @@ import lombok.extern.slf4j.Slf4j;
 public class MaterialController {
 
     final MaterialService materialSer;
+
+    @GetMapping("/pdfs")
+    public ApiResponse<List<PdfDocumentResponse>> listPdfDocuments() {
+        return ApiResponse.<List<PdfDocumentResponse>>builder()
+                .result(materialSer.listPdfDocuments())
+                .message("List PDF documents successfully")
+                .code(1021)
+                .build();
+    }
 
     /**
      * Tạo material — bắt buộc một trong hai:
