@@ -55,7 +55,7 @@ export function CourseCurriculumSidebar({
     <aside className="flex max-h-[75vh] flex-col rounded-xl border border-outline-variant/35 bg-landing-white p-4 shadow-xl shadow-landing-text/5 xl:h-full xl:max-h-[calc(100vh-10rem)]">
       <div className="mb-md flex items-start justify-between gap-3 border-b border-outline-variant/25 pb-4">
         <div>
-          <p className="flex items-center gap-2 text-label-md font-semibold text-landing-red">
+          <p className="flex items-center gap-2 text-label-md font-semibold text-secondary">
             <ListTree aria-hidden="true" className="h-5 w-5" />
             Lộ trình môn học
           </p>
@@ -63,7 +63,7 @@ export function CourseCurriculumSidebar({
             Chọn bài học và tài liệu
           </p>
         </div>
-        <span className="rounded-full bg-landing-red/10 px-3 py-1 text-label-sm font-semibold text-landing-red">
+        <span className="rounded-full bg-secondary-container/55 px-3 py-1 text-label-sm font-semibold text-secondary">
           {chapters.length} chương
         </span>
       </div>

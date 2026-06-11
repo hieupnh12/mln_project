@@ -1,4 +1,4 @@
-import { ArrowRight, BookOpen, RefreshCw } from "lucide-react";
+import { ArrowRight, BookOpen, RefreshCw, Route } from "lucide-react";
 import { Link } from "react-router";
 
 import { StudentMaterialIcon as MaterialIcon } from "../../components/student-material-icon";
@@ -15,6 +15,7 @@ import type { SubjectListItem } from "../../types/student.types";
 import { courseToneClass } from "../constants/student-dashboard.constants";
 import { useSubjects } from "../hooks/dashboard.hooks";
 import { mapSubjectToCourseCard } from "../utils/map-subject-to-course-card";
+import { StudentDashboardSectionHeader } from "./student-dashboard-section-header";
 
 function CurriculumSkeleton() {
   return (
@@ -57,18 +58,28 @@ function SubjectCourseCard({ subject, index }: SubjectCourseCardProps) {
 
   return (
     <Link
-      className={`group flex min-h-64 min-w-0 flex-col justify-between rounded-xl border p-gutter shadow-lg shadow-landing-text/5 transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-landing-red/10 ${tone.card} ${tone.border}`}
+      className={`group relative flex min-h-64 min-w-0 flex-col justify-between overflow-hidden rounded-xl border p-gutter shadow-lg shadow-landing-text/5 transition duration-300 hover:-translate-y-1 hover:shadow-xl ${tone.card} ${tone.border}`}
       to={coursePath}
     >
+      <div
+        aria-hidden="true"
+        className={`pointer-events-none absolute -right-12 -top-12 h-32 w-32 rounded-full blur-2xl ${tone.glow}`}
+      />
+      <span
+        aria-hidden="true"
+        className="absolute right-5 top-16 font-serif text-6xl font-bold text-landing-text/5"
+      >
+        {String(index + 1).padStart(2, "0")}
+      </span>
       <div className="min-w-0">
         <div className="mb-5 flex items-start justify-between gap-4">
           <span
-            className={`max-w-[70%] truncate rounded-full bg-landing-white px-3 py-1 text-label-sm font-semibold shadow-sm ${tone.text}`}
+            className={`relative max-w-[70%] truncate rounded-full px-3 py-1 text-label-sm font-semibold shadow-md ${tone.badge}`}
           >
             {course.status}
           </span>
           <span
-            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-landing-white shadow-sm ${tone.text}`}
+            className={`relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl shadow-lg ${tone.icon}`}
           >
             <MaterialIcon>{course.icon}</MaterialIcon>
           </span>
@@ -82,9 +93,9 @@ function SubjectCourseCard({ subject, index }: SubjectCourseCardProps) {
       </div>
 
       <div className="mt-8 space-y-4">
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-landing-white">
+        <div className="h-2 w-full overflow-hidden rounded-full bg-outline-variant/20">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-landing-red to-landing-gold transition-all duration-500"
+            className={`h-full min-w-1.5 rounded-full bg-gradient-to-r transition-all duration-500 ${tone.progress}`}
             style={{ width: `${progressPercent}%` }}
           />
         </div>
@@ -92,7 +103,9 @@ function SubjectCourseCard({ subject, index }: SubjectCourseCardProps) {
           <span className="text-landing-text-soft">
             {progressQuery.isLoading ? "Đang tải..." : `${progressPercent}% hoàn thành`}
           </span>
-          <span className="inline-flex items-center gap-1 text-landing-red">
+          <span
+            className={`inline-flex items-center gap-1 rounded-lg bg-landing-white/80 px-3 py-2 shadow-sm transition group-hover:bg-landing-white ${tone.action}`}
+          >
             {actionLabel}
             <ArrowRight
               aria-hidden="true"
@@ -106,28 +119,16 @@ function SubjectCourseCard({ subject, index }: SubjectCourseCardProps) {
 }
 
 export function StudentCurriculumSection() {
-  const { data: subjects, isLoading, isError, error, refetch, isFetching } =
-    useSubjects();
+  const { data: subjects, isLoading, isError, error, refetch } = useSubjects();
 
   return (
     <section className="space-y-md scroll-mt-24" id="curriculum">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-label-md font-semibold text-landing-red">Lộ trình của bạn</p>
-          <h2 className="mt-2 font-serif text-headline-lg font-semibold text-landing-text">
-            Chương trình học tập
-          </h2>
-          <p className="mt-2 text-body-md text-landing-text-soft">
-            Các học phần lý luận chính trị trọng tâm trong học kỳ này.
-          </p>
-        </div>
-        {!isLoading && (subjects?.length ?? 0) > 0 ? (
-          <span className="flex w-fit items-center gap-2 rounded-full border border-outline-variant/35 bg-landing-white px-4 py-2 text-label-md font-medium text-landing-text-soft">
-            {subjects?.length} khóa học
-            {isFetching ? <RefreshCw aria-hidden="true" className="h-4 w-4 animate-spin" /> : null}
-          </span>
-        ) : null}
-      </div>
+      <StudentDashboardSectionHeader
+        description="Các học phần lý luận chính trị trong học kỳ này."
+        eyebrow="Lộ trình của bạn"
+        icon={Route}
+        title="Chương trình học tập"
+      />
 
       {isLoading ? (
         <div className="grid grid-cols-1 gap-gutter md:grid-cols-2 xl:grid-cols-3">

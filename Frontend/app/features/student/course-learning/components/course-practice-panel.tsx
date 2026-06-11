@@ -74,7 +74,7 @@ function QuestionPane({
   }
 
   return (
-    <article className="relative rounded-xl border border-outline-variant/35 bg-landing-white p-4 shadow-xl shadow-landing-text/5 md:p-6">
+    <article className="relative flex min-h-[520px] flex-col rounded-xl border border-outline-variant/35 bg-landing-white p-4 shadow-xl shadow-landing-text/5 md:min-h-[500px] md:p-6">
       {isFetching ? (
         <div className="absolute inset-x-0 top-0 h-1 overflow-hidden rounded-t-xl bg-landing-gray">
           <div className="h-full w-1/3 animate-pulse rounded-full bg-landing-red" />
@@ -101,16 +101,6 @@ export function CoursePracticePanel({ subjectId, active }: CoursePracticePanelPr
 
   return (
     <section>
-      <div className="mb-md">
-        <p className="text-label-md font-semibold text-landing-red">Luyện tập thích ứng</p>
-        <h2 className="mt-2 font-serif text-headline-lg font-semibold text-landing-text">
-          Củng cố kiến thức
-        </h2>
-        <p className="mt-2 text-body-md text-landing-text-soft">
-          Chọn phạm vi và luyện từng câu với phản hồi ngay lập tức.
-        </p>
-      </div>
-
       <div className="grid grid-cols-1 gap-gutter xl:grid-cols-[minmax(0,1fr)_340px]">
         <div className="min-w-0">
           <QuestionPane

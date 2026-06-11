@@ -27,7 +27,7 @@ type CourseExamCatalogPanelProps = {
 
 function ExamCatalogSkeleton() {
   return (
-    <div className="flex flex-col gap-lg">
+    <div className="flex flex-col gap-xl">
       {Array.from({ length: 3 }).map((_, index) => (
         <div className="space-y-md" key={index}>
           <div className="h-8 w-48 animate-pulse rounded-lg bg-landing-gray" />
@@ -122,9 +122,8 @@ export function CourseExamCatalogPanel({
     <div className="flex flex-col gap-lg">
       {!isLoggedIn ? <ExamLoginBanner /> : null}
 
-      <header>
-        <p className="text-label-md font-semibold text-landing-red">Đánh giá kiến thức</p>
-        <h1 className="mt-2 font-serif text-headline-lg font-semibold text-landing-text">
+      <header className="border-b border-outline-variant/30 pb-md">
+        <h1 className="mt-2 font-serif text-headline-md font-semibold text-landing-text md:text-headline-lg">
           Danh sách bài kiểm tra
         </h1>
         <p className="mt-2 max-w-3xl text-body-md text-landing-text-soft">
@@ -145,53 +144,59 @@ export function CourseExamCatalogPanel({
         />
       ) : (
         <>
-          <ExamCatalogSection
-            badge={catalog.ongoing.length > 0 ? `${catalog.ongoing.length} bài` : undefined}
-            icon="play_circle"
-            iconFilled
-            title="Đang diễn ra"
-          >
-            {catalog.ongoing.length === 0 ? (
-              <ExamEmptyState
-                description="Hiện không có bài kiểm tra nào đang mở."
-                icon="event_available"
-                title="Chưa có bài đang mở"
-              />
-            ) : (
-              <div className="grid grid-cols-1 gap-gutter lg:grid-cols-2">
-                {catalog.ongoing.map((exam) => (
-                  <ExamOngoingCard
-                    exam={exam}
-                    isRetake={retakeQuizIds.has(exam.id)}
-                    key={exam.id}
-                    onStart={handleStartExam}
-                  />
-                ))}
-              </div>
-            )}
-          </ExamCatalogSection>
+          <div className="grid grid-cols-1 items-start gap-lg xl:grid-cols-[minmax(0,1.65fr)_minmax(320px,0.75fr)]">
+            <ExamCatalogSection
+              badge={catalog.ongoing.length > 0 ? `${catalog.ongoing.length} bài` : undefined}
+              icon="play_circle"
+              iconFilled
+              title="Đang diễn ra"
+              tone="active"
+            >
+              {catalog.ongoing.length === 0 ? (
+                <ExamEmptyState
+                  description="Hiện không có bài kiểm tra nào đang mở."
+                  icon="event_available"
+                  title="Chưa có bài đang mở"
+                  tone="active"
+                />
+              ) : (
+                <div className="grid grid-cols-1 gap-gutter 2xl:grid-cols-2">
+                  {catalog.ongoing.map((exam) => (
+                    <ExamOngoingCard
+                      exam={exam}
+                      isRetake={retakeQuizIds.has(exam.id)}
+                      key={exam.id}
+                      onStart={handleStartExam}
+                    />
+                  ))}
+                </div>
+              )}
+            </ExamCatalogSection>
 
-          <ExamCatalogSection icon="event" title="Sắp tới">
-            {catalog.upcoming.length === 0 ? (
-              <ExamEmptyState
-                description="Các bài sắp mở sẽ xuất hiện tại đây."
-                icon="schedule"
-                title="Không có bài kiểm tra sắp mở"
-              />
-            ) : (
-              <div className="grid grid-cols-1 gap-gutter md:grid-cols-2 xl:grid-cols-3">
-                {catalog.upcoming.map((exam) => (
-                  <ExamUpcomingCard
-                    exam={exam}
-                    key={exam.id}
-                    subjectTitle={displayCourseTitle}
-                  />
-                ))}
-              </div>
-            )}
-          </ExamCatalogSection>
+            <ExamCatalogSection icon="event" title="Sắp tới" tone="upcoming">
+              {catalog.upcoming.length === 0 ? (
+                <ExamEmptyState
+                  compact
+                  description="Các bài sắp mở sẽ xuất hiện tại đây."
+                  icon="schedule"
+                  title="Không có bài kiểm tra sắp mở"
+                  tone="upcoming"
+                />
+              ) : (
+                <div className="grid grid-cols-1 gap-gutter md:grid-cols-2 xl:grid-cols-1">
+                  {catalog.upcoming.map((exam) => (
+                    <ExamUpcomingCard
+                      exam={exam}
+                      key={exam.id}
+                      subjectTitle={displayCourseTitle}
+                    />
+                  ))}
+                </div>
+              )}
+            </ExamCatalogSection>
+          </div>
 
-          <ExamCatalogSection icon="check_circle" muted title="Đã hoàn thành">
+          <ExamCatalogSection icon="check_circle" title="Đã hoàn thành" tone="neutral">
             {catalog.completed.length === 0 ? (
               <ExamEmptyState
                 description="Kết quả các bài bạn đã nộp sẽ xuất hiện tại đây."

@@ -43,7 +43,7 @@ export function PracticeSessionContent({
   const showFeedback = answerState === "answered";
 
   return (
-    <div className="relative flex flex-col gap-3 pb-8 md:gap-4">
+    <div className="relative flex flex-1 flex-col gap-4 pb-8 md:gap-5">
       <PracticeCountdownBar
         progressPercent={progressPercent}
         variant={countdownVariant}
