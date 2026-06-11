@@ -11,6 +11,14 @@ import java.util.List;
 public interface QuizQuestionRepository extends JpaRepository<QuizQuestion, QuizQuestionId> {
     List<QuizQuestion> findByQuiz_IdOrderBySortOrderAsc(Long quizId);
 
+    @Query("SELECT qq FROM QuizQuestion qq " +
+           "JOIN FETCH qq.question q " +
+           "LEFT JOIN FETCH q.lesson l " +
+           "LEFT JOIN FETCH l.chapter c " +
+           "WHERE qq.quiz.id = :quizId " +
+           "ORDER BY qq.sortOrder ASC")
+    List<QuizQuestion> findByQuizIdWithQuestionDetails(@Param("quizId") Long quizId);
+
     void deleteByQuiz_Id(Long quizId);
 
     long countByQuiz_Id(Long quizId);

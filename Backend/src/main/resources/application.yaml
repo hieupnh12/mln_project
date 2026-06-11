@@ -49,9 +49,11 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:mln_database}?sslMode=${MYSQL_SSL_MODE:DISABLED}&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:mln_database}?sslMode=${MYSQL_SSL_MODE:DISABLED}&allowPublicKeyRetrieval=true&serverTimezone=UTC&rewriteBatchedStatements=true}
     username: ${SPRING_DATASOURCE_USERNAME:${MYSQL_USER:root}}
     password: ${SPRING_DATASOURCE_PASSWORD:${MYSQL_PASSWORD:}}
+    hikari:
+      maximum-pool-size: 50
 
   jpa:
     hibernate:
@@ -59,11 +61,15 @@ spring:
       naming:
         # Giữ đúng tên bảng trong @Table (vd. questionTag), không đổi thành question_tag
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
-        format_sql: true
+        format_sql: false
+        jdbc:
+          batch_size: 50
+        order_inserts: true
+        order_updates: true
 
   servlet:
     multipart:
