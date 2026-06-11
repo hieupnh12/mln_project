@@ -34,6 +34,10 @@ import com.sed10.mln.study.repository.QuizQuestionRepository;
 import com.sed10.mln.study.repository.QuizRepository;
 import com.sed10.mln.study.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,6 +68,7 @@ public class StudentExamService {
     private final QuizAttemptDetailRepository quizAttemptDetailRepository;
     private final QuizAttemptQuestionRepository quizAttemptQuestionRepository;
     private final UserRepository userRepository;
+    private final JdbcTemplate jdbcTemplate;
 
     @Transactional(readOnly = true)
     public StudentExamSessionResponse getSession(Long subjectId, Long quizId) {
@@ -107,11 +112,11 @@ public class StudentExamService {
                 .build();
         attempt = quizAttemptRepository.save(attempt);
 
-        persistAttemptQuestions(attempt, sessionQuestions);
+        persistAttemptQuestionsBatch(attempt.getId(), sessionQuestions);
 
         Map<Long, Answer> answersById = loadAnswersById(selectedByQuestion);
         AttemptGrade grade = gradeQuestions(sessionQuestions, selectedByQuestion, answersById);
-        persistAttemptDetails(attempt, sessionQuestions, selectedByQuestion, answersById);
+        persistAttemptDetailsBatch(attempt.getId(), sessionQuestions, selectedByQuestion);
 
         float scoreOnTen = grade.total() == 0 ? 0f : ((float) grade.correct() / grade.total()) * 10f;
         attempt.setScore(scoreOnTen);
@@ -338,42 +343,52 @@ public class StudentExamService {
         return new AttemptGrade(correct, total, accuracyPercent, difficultyStats, chapterStats);
     }
 
-    private void persistAttemptDetails(
-            QuizAttempt attempt,
-            List<Question> sessionQuestions,
-            Map<Long, Long> selectedByQuestion,
-            Map<Long, Answer> answersById) {
-        for (Question question : sessionQuestions) {
-            Long selectedAnswerId = selectedByQuestion.get(question.getId());
-            if (selectedAnswerId == null) {
-                continue;
+    private void persistAttemptQuestionsBatch(Long attemptId, List<Question> sessionQuestions) {
+        String sql = "INSERT INTO quiz_attempt_question (attempt_id, question_id, sort_order) VALUES (?, ?, ?)";
+        jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
+            @Override
+            public void setValues(PreparedStatement ps, int i) throws SQLException {
+                ps.setLong(1, attemptId);
+                ps.setLong(2, sessionQuestions.get(i).getId());
+                ps.setInt(3, i);
             }
-            Answer selectedAnswer = answersById.get(selectedAnswerId);
-            if (selectedAnswer == null) {
-                continue;
+
+            @Override
+            public int getBatchSize() {
+                return sessionQuestions.size();
             }
-            quizAttemptDetailRepository.save(QuizAttemptDetail.builder()
-                    .attempt(attempt)
-                    .question(question)
-                    .selectedAnswer(selectedAnswer)
-                    .build());
-        }
+        });
     }
 
-    private void persistAttemptQuestions(QuizAttempt attempt, List<Question> sessionQuestions) {
-        int order = 0;
-        for (Question question : sessionQuestions) {
-            quizAttemptQuestionRepository.save(QuizAttemptQuestion.builder()
-                    .attempt(attempt)
-                    .question(question)
-                    .sortOrder(order++)
-                    .build());
+    private void persistAttemptDetailsBatch(Long attemptId, List<Question> sessionQuestions, Map<Long, Long> selectedByQuestion) {
+        String sql = "INSERT INTO quiz_attempt_detail (attempt_id, question_id, selected_answer_id) VALUES (?, ?, ?)";
+        List<Question> answeredQuestions = sessionQuestions.stream()
+                .filter(q -> selectedByQuestion.containsKey(q.getId()))
+                .toList();
+
+        if (answeredQuestions.isEmpty()) {
+            return;
         }
+
+        jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
+            @Override
+            public void setValues(PreparedStatement ps, int i) throws SQLException {
+                Question question = answeredQuestions.get(i);
+                ps.setLong(1, attemptId);
+                ps.setLong(2, question.getId());
+                ps.setLong(3, selectedByQuestion.get(question.getId()));
+            }
+
+            @Override
+            public int getBatchSize() {
+                return answeredQuestions.size();
+            }
+        });
     }
 
     private List<Question> resolveSessionQuestions(Quiz quiz, List<String> questionIds) {
         List<QuizQuestion> links =
-                quizQuestionRepository.findByQuiz_IdOrderBySortOrderAsc(quiz.getId());
+                quizQuestionRepository.findByQuizIdWithQuestionDetails(quiz.getId());
         Map<Long, Question> questionById = links.stream()
                 .map(QuizQuestion::getQuestion)
                 .filter(Objects::nonNull)
@@ -424,7 +439,7 @@ public class StudentExamService {
                     .toList();
         }
 
-        return quizQuestionRepository.findByQuiz_IdOrderBySortOrderAsc(quiz.getId()).stream()
+        return quizQuestionRepository.findByQuizIdWithQuestionDetails(quiz.getId()).stream()
                 .map(QuizQuestion::getQuestion)
                 .filter(Objects::nonNull)
                 .toList();
@@ -475,7 +490,7 @@ public class StudentExamService {
 
     private List<StudentExamQuestionResponse> buildExamQuestions(Quiz quiz) {
         List<QuizQuestion> links = new ArrayList<>(
-                quizQuestionRepository.findByQuiz_IdOrderBySortOrderAsc(quiz.getId()));
+                quizQuestionRepository.findByQuizIdWithQuestionDetails(quiz.getId()));
 
         if (Boolean.TRUE.equals(quiz.getRandomQuestions()) && quiz.getRandomQuestionCount() != null) {
             int count = Math.min(quiz.getRandomQuestionCount(), links.size());
