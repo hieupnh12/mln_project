@@ -11,7 +11,7 @@ type PracticeOptionButtonProps = {
 
 function optionClassName(state: PracticeOptionVisualState): string {
   const base =
-    "group flex w-full items-start gap-3 rounded-xl border px-4 py-3 text-left transition-all duration-250";
+    "group flex min-h-16 w-full items-center gap-3 rounded-xl border px-4 py-3 text-left transition-all duration-250 md:min-h-[72px]";
 
   switch (state) {
     case "correct":
@@ -62,7 +62,7 @@ export function PracticeOptionButton({
           label
         )}
       </span>
-      <span className="min-w-0 pt-0.5 text-body-sm leading-relaxed md:text-body-md">{text}</span>
+      <span className="min-w-0 text-body-sm leading-relaxed md:text-body-md">{text}</span>
     </button>
   );
 }

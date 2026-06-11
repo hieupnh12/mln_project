@@ -34,7 +34,7 @@ export function CourseFlashcardCatalog({
   if (chapters.length === 0) {
     return (
       <div className="flex min-h-72 flex-col items-center justify-center rounded-xl border border-outline-variant/35 bg-landing-white p-md text-center shadow-lg shadow-landing-text/5">
-        <span className="flex h-14 w-14 items-center justify-center rounded-xl bg-landing-red/10 text-landing-red">
+        <span className="flex h-14 w-14 items-center justify-center rounded-xl bg-secondary-container/55 text-secondary">
           <Layers3 aria-hidden="true" className="h-7 w-7" />
         </span>
         <h3 className="mt-5 text-headline-md font-semibold text-landing-text">
@@ -49,8 +49,8 @@ export function CourseFlashcardCatalog({
 
   return (
     <section>
-      <div className="mb-md">
-        <p className="text-label-md font-semibold text-landing-red">Ôn tập chủ động</p>
+      <div className="mb-md border-b border-outline-variant/30 pb-5">
+        <p className="text-label-md font-semibold text-secondary">Ôn tập chủ động</p>
         <h2 className="mt-2 font-serif text-headline-lg font-semibold text-landing-text">
           Flashcard theo chương
         </h2>
@@ -67,15 +67,19 @@ export function CourseFlashcardCatalog({
 
           return (
             <article
-              className="flex min-h-60 flex-col justify-between rounded-xl border border-outline-variant/35 bg-landing-white p-gutter shadow-lg shadow-landing-text/5 transition hover:-translate-y-1 hover:border-landing-red/20 hover:shadow-xl hover:shadow-landing-red/10"
+              className="group relative flex min-h-60 flex-col justify-between overflow-hidden rounded-xl border border-outline-variant/35 bg-landing-white p-gutter shadow-lg shadow-landing-text/5 transition duration-300 hover:-translate-y-1 hover:border-landing-gold/35 hover:shadow-xl"
               key={chapter.id}
             >
+              <div
+                aria-hidden="true"
+                className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-landing-gold to-secondary"
+              />
               <div>
                 <div className="flex items-center justify-between gap-3">
-                  <span className="rounded-full bg-landing-red/10 px-3 py-1 text-label-sm font-semibold text-landing-red">
+                  <span className="rounded-full border border-landing-gold/30 bg-landing-gold/10 px-3 py-1 text-label-sm font-semibold text-landing-text-muted">
                     Chương {chapter.orderIndex}
                   </span>
-                  <span className="inline-flex items-center gap-1.5 text-label-md font-semibold text-landing-text-soft">
+                  <span className="inline-flex items-center gap-1.5 rounded-lg bg-secondary-container/45 px-2.5 py-1 text-label-md font-semibold text-secondary">
                     <Layers3 aria-hidden="true" className="h-4 w-4" />
                     {cardsCount} thẻ
                   </span>
@@ -89,14 +93,14 @@ export function CourseFlashcardCatalog({
                 <span
                   className={
                     isReady
-                      ? "inline-flex items-center gap-2 text-label-sm font-medium text-landing-red"
+                      ? "inline-flex items-center gap-2 text-label-sm font-medium text-secondary"
                       : "inline-flex items-center gap-2 text-label-sm text-landing-text-soft"
                   }
                 >
                   <span
                     className={
                       isReady
-                        ? "h-2 w-2 rounded-full bg-landing-red"
+                        ? "h-2 w-2 rounded-full bg-secondary"
                         : "h-2 w-2 rounded-full bg-outline-variant"
                     }
                   />
@@ -106,7 +110,7 @@ export function CourseFlashcardCatalog({
                 <button
                   className={
                     isReady
-                      ? "inline-flex items-center gap-1.5 rounded-lg bg-landing-red px-4 py-2 text-label-md font-semibold text-on-primary transition hover:bg-landing-red-deep active:scale-95"
+                      ? "inline-flex items-center gap-1.5 rounded-lg bg-secondary px-4 py-2 text-label-md font-semibold text-on-secondary shadow-sm shadow-secondary/15 transition hover:bg-tertiary-container active:scale-95"
                       : "inline-flex cursor-not-allowed items-center gap-1.5 rounded-lg bg-landing-gray px-4 py-2 text-label-md font-semibold text-landing-text-soft"
                   }
                   disabled={!isReady}

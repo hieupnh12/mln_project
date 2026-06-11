@@ -29,7 +29,7 @@ export function CourseLearningHeader() {
               <Landmark aria-hidden="true" className="h-5 w-5" />
             </span>
             <span className="min-w-0 truncate font-serif text-lg font-bold sm:text-xl">
-              Mác - Lê Nin
+              ML Learning
             </span>
           </Link>
         </div>

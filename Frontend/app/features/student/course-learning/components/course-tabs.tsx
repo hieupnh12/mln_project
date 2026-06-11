@@ -19,7 +19,7 @@ export function CourseTabs({ activeTab, onTabChange }: CourseTabsProps) {
   return (
     <nav
       aria-label="Nội dung khóa học"
-      className="sticky top-16 z-40 mb-md border-y border-outline-variant/35 bg-landing-cream/90 py-2 backdrop-blur-xl"
+      className="sticky top-16 z-40 mb-md rounded-x1 border-y border-outline-variant/55 bg-landing-cream/70 py-2 backdrop-blur-xl"
     >
       <div className="flex gap-2 overflow-x-auto scroll-hide">
         {studentCourseTabs.map((tab) => {
@@ -31,7 +31,7 @@ export function CourseTabs({ activeTab, onTabChange }: CourseTabsProps) {
               aria-pressed={isActive}
               className={
                 isActive
-                  ? "inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl bg-landing-red px-4 py-2 text-label-md font-semibold text-on-primary shadow-lg shadow-landing-red/15"
+                  ? "inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl bg-secondary px-4 py-2 text-label-md font-semibold text-on-secondary shadow-lg shadow-secondary/15"
                   : "inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-4 py-2 text-label-md font-medium text-landing-text-soft transition hover:bg-landing-white hover:text-landing-text"
               }
               key={tab.id}

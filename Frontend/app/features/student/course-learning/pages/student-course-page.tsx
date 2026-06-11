@@ -18,7 +18,7 @@ export function StudentCoursePage() {
 
   if (coursePage.subjectId == null) {
     return (
-      <div className="flex min-h-svh items-center justify-center bg-landing-cream p-gutter">
+      <div className="flex min-h-svh items-center justify-center bg-landing-gray p-gutter">
         <div className="max-w-md rounded-xl border border-error/30 bg-error-container/30 p-gutter text-center">
           <p className="text-body-md font-medium text-error">Khóa học không hợp lệ.</p>
           <Link
@@ -53,7 +53,7 @@ export function StudentCoursePage() {
   const isWideContent = activeTab === "practice" || activeTab === "exams";
 
   return (
-    <div className="min-h-svh bg-landing-cream pb-24 font-body-md text-landing-text md:pb-0">
+    <div className="min-h-svh bg-landing-gray pb-24 font-body-md text-landing-text md:pb-0">
       <CourseLearningHeader />
 
       <main className="mx-auto w-full max-w-[1600px] px-margin-mobile py-md md:px-margin-desktop">

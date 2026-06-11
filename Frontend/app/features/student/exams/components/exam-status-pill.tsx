@@ -6,10 +6,10 @@ type ExamStatusPillProps = {
 };
 
 const variantClass: Record<ExamStatusPillVariant, string> = {
-  ongoing: "bg-landing-red/10 text-landing-red",
+  ongoing: "bg-secondary-container/55 text-secondary",
   upcoming: "bg-landing-gold/15 text-landing-text-muted",
   completed: "bg-landing-gray text-landing-text-soft",
-  passed: "bg-landing-red/10 text-landing-red",
+  passed: "bg-secondary-container/55 text-secondary",
   failed: "bg-error-container text-error",
 };
 
