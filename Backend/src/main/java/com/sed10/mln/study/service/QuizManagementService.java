@@ -113,7 +113,7 @@ public class QuizManagementService {
     @Transactional(readOnly = true)
     public QuizDetailResponse getQuiz(Long id) {
         Quiz quiz = getQuizEntity(id);
-        List<QuizQuestion> links = quizQuestionRepository.findByQuiz_IdOrderBySortOrderAsc(id);
+        List<QuizQuestion> links = quizQuestionRepository.findByQuizIdWithQuestionDetails(id);
         List<String> questionIds = new ArrayList<>();
         List<Question> questionEntities = new ArrayList<>();
 
@@ -239,7 +239,7 @@ public class QuizManagementService {
                 .build();
         copy = quizRepository.save(copy);
 
-        List<QuizQuestion> links = quizQuestionRepository.findByQuiz_IdOrderBySortOrderAsc(id);
+        List<QuizQuestion> links = quizQuestionRepository.findByQuizIdWithQuestionDetails(id);
         int order = 1;
         for (QuizQuestion link : links) {
             quizQuestionRepository.save(QuizQuestion.builder()

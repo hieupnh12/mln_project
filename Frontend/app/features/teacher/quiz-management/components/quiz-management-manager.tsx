@@ -57,9 +57,10 @@ export function QuizManagementManager() {
         chapterOptions={controller.chapterOptions}
         courseOptions={controller.courseOptions}
         difficultyFilter={controller.candidateDifficulty}
-        hasActiveFilter={controller.hasCandidateFilter}
-        isCandidateSearchPending={controller.isCandidateSearchPending}
-        isGeneratingRandom={controller.isGeneratingRandom}
+        hasActiveFilter={controller.hasCandidateFilter}
+        isCandidateSearchPending={controller.isCandidateSearchPending}
+        isDetailError={controller.isDetailError}
+        isGeneratingRandom={controller.isGeneratingRandom}
         isLoadingDetail={controller.isLoadingDetail}
         isNew={controller.editorQuizId == null}
         isPublished={controller.isPublished}
@@ -85,9 +86,12 @@ export function QuizManagementManager() {
         }}
         onGenerateRandom={controller.generateRandomQuiz}
         onMoveQuestion={controller.moveQuestion}
-        onPublish={controller.handlePublish}
-        onRemoveQuestion={controller.removeQuestion}
-        onSaveDraft={controller.saveDraft}
+        onPublish={controller.handlePublish}
+        onRemoveQuestion={controller.removeQuestion}
+        onRetryDetail={() => {
+          void controller.retryQuizDetail();
+        }}
+        onSaveDraft={controller.saveDraft}
         onSearchChange={(value) => {
           controller.setCandidateSearch(value);
           controller.setCandidatePage(0);
@@ -101,7 +105,6 @@ export function QuizManagementManager() {
         selectedQuestions={controller.selectedQuestions}
         settings={controller.settings}
       />
-    </div>
-  );
-}
-
+    </div>
+  );
+}

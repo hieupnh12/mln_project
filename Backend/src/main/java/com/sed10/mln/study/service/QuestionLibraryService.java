@@ -289,22 +289,32 @@ public class QuestionLibraryService {
                 .orElseThrow(() -> new AppException(ErrorCode.LESSON_NOT_FOUND));
 
         String statusCode = resolveImportStatus(request.getTargetStatus());
+        List<BatchImportRowRequest> rows = request.getRows() == null ? List.of() : request.getRows();
 
         Map<String, String> internalHashes = new HashMap<>();
+        Map<Long, Lesson> lessonCache = new HashMap<>();
+        Map<Long, List<Question>> duplicateCandidatesByLesson = new HashMap<>();
         List<BatchImportRowResult> rowResults = new ArrayList<>();
         int saved = 0;
         int skippedExact = 0;
         int markedSimilar = 0;
         int failedValidation = 0;
 
-        for (BatchImportRowRequest row : request.getRows()) {
+        lessonCache.put(lesson.getId(), lesson);
+
+        for (BatchImportRowRequest row : rows) {
+            if (row == null) {
+                failedValidation++;
+                rowResults.add(rowResult(null, "FAILED", "Dòng dữ liệu không hợp lệ", null));
+                continue;
+            }
             if (row.getContent() == null || row.getContent().isBlank()) {
                 failedValidation++;
                 rowResults.add(rowResult(row.getRowId(), "FAILED", "Nội dung trống", null));
                 continue;
             }
 
-            Lesson rowLesson = resolveImportLesson(lesson, row);
+            Lesson rowLesson = resolveImportLesson(lesson, row, lessonCache);
             if (rowLesson == null) {
                 failedValidation++;
                 rowResults.add(rowResult(
@@ -327,8 +337,15 @@ public class QuestionLibraryService {
             }
             internalHashes.put(hashKey, row.getRowId());
 
-            DuplicateCheckResult duplicate =
-                    duplicateService.check(rowLesson.getId(), type, row.getContent(), null);
+            List<Question> duplicateCandidates = duplicateCandidatesByLesson.computeIfAbsent(
+                    rowLesson.getId(),
+                    questionRepository::findByLesson_Id);
+            DuplicateCheckResult duplicate = duplicateService.checkAgainstCandidates(
+                    rowLesson.getId(),
+                    type,
+                    row.getContent(),
+                    null,
+                    duplicateCandidates);
             if (duplicate.isExactDuplicate()) {
                 skippedExact++;
                 rowResults.add(rowResult(
@@ -355,7 +372,8 @@ public class QuestionLibraryService {
             createRequest.setExplanation(row.getExplanation());
             createRequest.setAllowSimilarSave(true);
 
-            Question savedQuestion = persistImportedQuestion(createRequest, duplicate);
+            Question savedQuestion = persistImportedQuestion(createRequest, duplicate, rowLesson);
+            duplicateCandidates.add(savedQuestion);
             if (duplicate.isSimilarDuplicate()) {
                 markedSimilar++;
             }
@@ -368,7 +386,7 @@ public class QuestionLibraryService {
         }
 
         return BatchImportReportResponse.builder()
-                .totalRows(request.getRows().size())
+                .totalRows(rows.size())
                 .savedCount(saved)
                 .skippedExactDuplicate(skippedExact)
                 .markedSimilar(markedSimilar)
@@ -394,8 +412,10 @@ public class QuestionLibraryService {
         }
     }
 
-    private Question persistImportedQuestion(CreateQuestionRequest request, DuplicateCheckResult duplicate) {
-        Lesson lesson = lessonRepository.findById(request.getLessonId()).orElseThrow();
+    private Question persistImportedQuestion(
+            CreateQuestionRequest request,
+            DuplicateCheckResult duplicate,
+            Lesson lesson) {
         User teacher = com.sed10.mln.study.security.SecurityUtils.getCurrentUser();
         LocalDateTime now = LocalDateTime.now();
         String statusCode = QuestionConstant.fromLabel(request.getStatus());
@@ -592,9 +612,14 @@ public class QuestionLibraryService {
         return Arrays.stream(raw.split(",")).map(String::trim).filter(s -> !s.isEmpty()).toList();
     }
 
-    private Lesson resolveImportLesson(Lesson defaultLesson, BatchImportRowRequest row) {
+    private Lesson resolveImportLesson(
+            Lesson defaultLesson,
+            BatchImportRowRequest row,
+            Map<Long, Lesson> lessonCache) {
         if (row.getLessonId() != null) {
-            return lessonRepository.findById(row.getLessonId()).orElse(null);
+            return lessonCache.computeIfAbsent(
+                    row.getLessonId(),
+                    lessonId -> lessonRepository.findById(lessonId).orElse(null));
         }
         if (hasImportText(row.getSubjectTitle())
                 && hasImportText(row.getChapterTitle())

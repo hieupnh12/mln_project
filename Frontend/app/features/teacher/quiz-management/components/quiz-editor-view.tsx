@@ -4,6 +4,7 @@ import {
   getQuizReadinessChecks,
   isQuizReadyForPublish,
 } from "../utils/quiz-ui.helpers";
+import { QuizEditorDetailState } from "./quiz-editor-detail-state";
 import { QuizEditorFooter } from "./quiz-editor-footer";
 import { QuizEditorNav } from "./quiz-editor-nav";
 import { QuizEditorHeader } from "./quiz-management-header";
@@ -24,6 +25,7 @@ type QuizEditorViewProps = {
   chapterOptions: string[];
   courseOptions: string[];
   difficultyFilter: string;
+  isDetailError?: boolean;
   isLoadingDetail?: boolean;
   isNew: boolean;
   isPublished: boolean;
@@ -37,6 +39,7 @@ type QuizEditorViewProps = {
   onGenerateRandom: () => void;
   onClose: () => void;
   onDelete: () => void;
+  onRetryDetail: () => void;
   onMoveQuestion: (fromIndex: number, toIndex: number) => void;
   onPublish: () => void;
   onRemoveQuestion: (id: string) => void;
@@ -65,6 +68,7 @@ export function QuizEditorView({
   chapterOptions,
   courseOptions,
   difficultyFilter,
+  isDetailError = false,
   isLoadingDetail = false,
   isNew,
   isPublished,
@@ -78,6 +82,7 @@ export function QuizEditorView({
   onGenerateRandom,
   onClose,
   onDelete,
+  onRetryDetail,
   onMoveQuestion,
   onPublish,
   onRemoveQuestion,
@@ -92,6 +97,16 @@ export function QuizEditorView({
   selectedQuestions,
   settings,
 }: QuizEditorViewProps) {
+  if (isLoadingDetail || isDetailError) {
+    return (
+      <QuizEditorDetailState
+        isError={isDetailError}
+        onBack={onBack}
+        onRetry={onRetryDetail}
+      />
+    );
+  }
+
   const stepComplete = {
     settings: settings.title.trim().length >= 3,
     questions: selectedIds.length >= 1,
@@ -121,9 +136,7 @@ export function QuizEditorView({
         stepComplete={stepComplete}
       />
 
-      {isLoadingDetail ? <EditorSkeleton activeTab={activeTab} /> : null}
-
-      {!isLoadingDetail && activeTab === "settings" ? (
+      {activeTab === "settings" ? (
         <>
           <QuizSettingsSectionHint />
           <QuizSettingsTab
@@ -139,7 +152,7 @@ export function QuizEditorView({
         </>
       ) : null}
 
-      {!isLoadingDetail && activeTab === "questions" ? (
+      {activeTab === "questions" ? (
         <QuizQuestionWorkspace
           candidateCount={candidateCount}
           candidateLoading={candidateLoading}
@@ -167,7 +180,7 @@ export function QuizEditorView({
         />
       ) : null}
 
-      {!isLoadingDetail && activeTab === "publish" ? (
+      {activeTab === "publish" ? (
         <QuizPublishPanel
           isPublished={isPublished}
           onRemove={onRemoveQuestion}
@@ -176,31 +189,19 @@ export function QuizEditorView({
         />
       ) : null}
 
-      {!isLoadingDetail ? (
-        <QuizEditorFooter
-          activeTab={activeTab}
-          canClose={quiz?.status === "Đã xuất bản"}
-          canDelete={!isNew && quiz?.status === "Bản nháp"}
-          canPublish={stepComplete.publish}
-          canReopen={quiz?.status === "Đã tắt"}
-          isPublished={isPublished || isSaving}
-          onClose={onClose}
-          onDelete={onDelete}
-          onGoToTab={onTabChange}
-          onPublish={onPublish}
-          onSaveDraft={onSaveDraft}
-        />
-      ) : null}
+      <QuizEditorFooter
+        activeTab={activeTab}
+        canClose={quiz?.status === "Đã xuất bản"}
+        canDelete={!isNew && quiz?.status === "Bản nháp"}
+        canPublish={stepComplete.publish}
+        canReopen={quiz?.status === "Đã tắt"}
+        isPublished={isPublished || isSaving}
+        onClose={onClose}
+        onDelete={onDelete}
+        onGoToTab={onTabChange}
+        onPublish={onPublish}
+        onSaveDraft={onSaveDraft}
+      />
     </section>
-  );
-}
-
-function EditorSkeleton({ activeTab }: { activeTab: QuizEditorTab }) {
-  return (
-    <div aria-busy="true" aria-label={`Đang tải tab ${activeTab}`} className="space-y-sm">
-      <div className="h-12 animate-pulse rounded-xl bg-surface-container-low" />
-      <div className="h-48 animate-pulse rounded-xl bg-surface-container-low" />
-      <div className="h-64 animate-pulse rounded-xl bg-surface-container-low" />
-    </div>
   );
 }

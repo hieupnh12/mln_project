@@ -28,6 +28,9 @@ export const QUIZ_CANDIDATE_PAGE_SIZE = 6;
 /** Lưu/xuất bản quiz có thể mất lâu khi gắn nhiều câu hỏi. */
 export const QUIZ_SAVE_TIMEOUT_MS = 60_000;
 
+/** Chi tiết quiz gồm toàn bộ câu hỏi, đáp án và tag nên cần timeout riêng. */
+export const QUIZ_DETAIL_TIMEOUT_MS = 60_000;
+
 export const defaultQuizFilters: QuizFilters = {
   search: "",
   course: "all",
