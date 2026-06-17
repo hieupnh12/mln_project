@@ -12,7 +12,11 @@ import {
 } from "../hooks/use-question-library-mutations";
 import { checkQuestionDuplicate, getQuestion } from "../services/question-library.service";
 import type { ImportPreviewRow } from "../types/import-batch.types";
-import type { CreateQuestionPayload, LessonOptionDto } from "../types/question-library-api.types";
+import type {
+  BatchImportReportDto,
+  CreateQuestionPayload,
+  LessonOptionDto,
+} from "../types/question-library-api.types";
 import type {
   QuestionDraft,
   QuestionItem,
@@ -223,8 +227,7 @@ export function useQuestionEditorController({
     rows: ImportPreviewRow[],
     defaultLessonId: number,
     targetStatus: "PENDING" | "PUBLISHED",
-  ) {
-    closeModal();
+  ): Promise<BatchImportReportDto> {
     const importingPublished = targetStatus === "PUBLISHED";
 
     try {
@@ -252,12 +255,14 @@ export function useQuestionEditorController({
           ? `Import xong: ${report.savedCount} câu đã duyệt, ${report.skippedExactDuplicate} trùng, ${report.markedSimilar} tương tự.`
           : `Import xong: ${report.savedCount} câu đang chờ duyệt, ${report.skippedExactDuplicate} trùng, ${report.markedSimilar} tương tự.`,
       );
+      return report;
     } catch (error) {
       showErrorToast(
         error instanceof ApiRequestError
           ? error.message
           : "Không thể import câu hỏi. Vui lòng thử lại.",
       );
+      throw error;
     }
   }
 

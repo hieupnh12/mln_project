@@ -4,7 +4,10 @@ import { useRunningAsyncActivity } from "~/shared/hooks/use-running-async-activi
 import { showErrorToast, showSuccessToast } from "~/shared/utils/toast";
 
 import { useImportBatch } from "../../hooks/use-import-batch";
-import type { LessonOptionDto } from "../../types/question-library-api.types";
+import type {
+  BatchImportReportDto,
+  LessonOptionDto,
+} from "../../types/question-library-api.types";
 import type { ImportPreviewRow, ImportTargetStatus } from "../../types/import-batch.types";
 import { downloadImportTemplate } from "../../utils/download-import-template";
 import { ImportBatchHeader } from "./import-batch/import-batch-header";
@@ -13,6 +16,7 @@ import {
   ImportReviewPlaceholder,
   ImportReviewSection,
 } from "./import-batch/import-review-section";
+import { ImportSuccessModal } from "./import-batch/import-success-modal";
 import { ImportUploadZone } from "./import-batch/import-upload-zone";
 import { ModalOverlay } from "./modal-overlay";
 
@@ -25,7 +29,7 @@ type ImportBatchModalProps = {
     rows: ImportPreviewRow[],
     defaultLessonId: number,
     targetStatus: ImportTargetStatus,
-  ) => Promise<void>;
+  ) => Promise<BatchImportReportDto>;
 };
 
 export function ImportBatchModal({
@@ -54,6 +58,7 @@ export function ImportBatchModal({
   });
 
   const [submittingStatus, setSubmittingStatus] = useState<ImportTargetStatus | null>(null);
+  const [importReport, setImportReport] = useState<BatchImportReportDto | null>(null);
   const parseActivity = useRunningAsyncActivity((id) => id.startsWith("import-parse-"));
   const isReview = step === "review";
   const busy = isParsingFile || submittingStatus !== null;
@@ -62,6 +67,7 @@ export function ImportBatchModal({
     if (!open) {
       reset();
       setSubmittingStatus(null);
+      setImportReport(null);
     }
   }, [open, reset]);
 
@@ -69,6 +75,12 @@ export function ImportBatchModal({
     if (busy) {
       return;
     }
+    reset();
+    onClose();
+  }
+
+  function handleReportClose() {
+    setImportReport(null);
     reset();
     onClose();
   }
@@ -89,9 +101,10 @@ export function ImportBatchModal({
 
     setSubmittingStatus(targetStatus);
     try {
-      await onImportComplete(previewRows, fallbackLessonId, targetStatus);
+      const report = await onImportComplete(previewRows, fallbackLessonId, targetStatus);
+      setImportReport(report);
     } catch {
-      // The global activity bar keeps the API error visible after the modal closes.
+      // The controller presents the API error toast; keep the review open for retry.
     } finally {
       setSubmittingStatus(null);
     }
@@ -107,52 +120,59 @@ export function ImportBatchModal({
   }
 
   return (
-    <ModalOverlay glass labelledBy="import-batch-title" onClose={handleClose} open={open}>
-      <div className="custom-scrollbar mx-auto flex max-h-[calc(100vh-32px)] w-full max-w-6xl flex-col overflow-hidden rounded-xl border border-outline-variant/20 bg-background shadow-2xl">
-        <div className="custom-scrollbar flex-1 overflow-y-auto p-md lg:p-xl">
-          <div className="mx-auto max-w-6xl space-y-gutter">
-            <ImportBatchHeader
-              onClose={handleClose}
-              onDownloadTemplate={handleDownloadTemplate}
-            />
-
-            {parseActivity ? (
-              <ImportInlineProgress
-                detail={parseActivity.detail}
-                label={parseActivity.label}
-                progress={parseActivity.progress}
+    <>
+      <ModalOverlay glass labelledBy="import-batch-title" onClose={handleClose} open={open}>
+        <div className="custom-scrollbar mx-auto flex max-h-[calc(100vh-32px)] w-full max-w-6xl flex-col overflow-hidden rounded-xl border border-outline-variant/20 bg-background shadow-2xl">
+          <div className="custom-scrollbar flex-1 overflow-y-auto p-md lg:p-xl">
+            <div className="mx-auto max-w-6xl space-y-gutter">
+              <ImportBatchHeader
+                onClose={handleClose}
+                onDownloadTemplate={handleDownloadTemplate}
               />
-            ) : null}
 
-            <ImportUploadZone
-              compact={isReview}
-              disabled={busy}
-              fileName={fileName}
-              onFileSelect={handleFile}
-            />
+              {parseActivity ? (
+                <ImportInlineProgress
+                  detail={parseActivity.detail}
+                  label={parseActivity.label}
+                  progress={parseActivity.progress}
+                />
+              ) : null}
 
-            {isReview ? (
-              <ImportReviewSection
-                defaultLessonId={selectedDefaultLessonId}
-                fieldMappings={fieldMappings}
-                isProcessing={busy}
-                submittingStatus={submittingStatus}
-                lessonIssueCount={lessonIssueCount}
-                lessonOptions={lessonOptions}
-                matchedColumnCount={matchedColumnCount}
-                onCancel={handleClose}
-                onDefaultLessonChange={updateDefaultLessonId}
-                onImportPending={() => handleFinalize("PENDING")}
-                onImportPublished={() => handleFinalize("PUBLISHED")}
-                previewRows={previewRows}
-                rowCount={rowCount}
+              <ImportUploadZone
+                compact={isReview}
+                disabled={busy}
+                fileName={fileName}
+                onFileSelect={handleFile}
               />
-            ) : (
-              <ImportReviewPlaceholder />
-            )}
+
+              {isReview ? (
+                <ImportReviewSection
+                  defaultLessonId={selectedDefaultLessonId}
+                  fieldMappings={fieldMappings}
+                  isProcessing={busy}
+                  submittingStatus={submittingStatus}
+                  lessonIssueCount={lessonIssueCount}
+                  lessonOptions={lessonOptions}
+                  matchedColumnCount={matchedColumnCount}
+                  onCancel={handleClose}
+                  onDefaultLessonChange={updateDefaultLessonId}
+                  onImportPending={() => handleFinalize("PENDING")}
+                  onImportPublished={() => handleFinalize("PUBLISHED")}
+                  previewRows={previewRows}
+                  rowCount={rowCount}
+                />
+              ) : (
+                <ImportReviewPlaceholder />
+              )}
+            </div>
           </div>
         </div>
-      </div>
-    </ModalOverlay>
+      </ModalOverlay>
+      <ImportSuccessModal
+        onClose={handleReportClose}
+        open={importReport !== null}
+        report={importReport}
+      />
+    </>
   );
 }
