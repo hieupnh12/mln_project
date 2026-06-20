@@ -17,12 +17,6 @@ export type StudentNavItem = {
   active?: boolean;
 };
 
-export type StudentResource = {
-  title: string;
-  type: string;
-  icon: string;
-};
-
 export type LearningTab = "lectures" | "flashcards" | "practice" | "exams";
 
 export type StudentChapterState = "done" | "active" | "open" | "locked";

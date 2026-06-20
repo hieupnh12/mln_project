@@ -4,6 +4,7 @@ import { useDebouncedValue } from "~/shared/hooks/use-debounced-value";
 import { showErrorToast, showSuccessToast } from "~/shared/utils/toast";
 import { runWithAsyncActivity } from "~/shared/utils/run-with-async-activity";
 
+import { TeacherPageShell } from "../../components/teacher-page-shell";
 import { useApproveQuestionMutation } from "../hooks/use-question-library-mutations";
 import { useBulkApproveSelected } from "../hooks/use-bulk-approve-selected";
 import { useQuestionDeleteController } from "../hooks/use-question-delete-controller";
@@ -188,7 +189,8 @@ export function QuestionLibraryManager() {
   const tableLoading = isPageLoading || isSearchPending;
 
   return (
-    <div className="space-y-gutter">
+    <TeacherPageShell>
+      <div className="space-y-md">
       <QuestionLibraryHeader onOpenModal={openModal} />
 
       {(metadataQuery.isError || questionsQuery.isError) && (
@@ -313,6 +315,7 @@ export function QuestionLibraryManager() {
         saving={createMutation.isPending}
         warningMessage={duplicateCompare?.warningMessage}
       />
-    </div>
+      </div>
+    </TeacherPageShell>
   );
 }

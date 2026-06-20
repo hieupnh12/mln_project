@@ -442,7 +442,10 @@ export function useQuizManagementController() {
     selectedQuestions,
     isPublished,
     activeQuiz,
-    isLoadingDetail: detailQuery.isLoading && Boolean(editorQuizId),
+    isDetailError: detailQuery.isError && Boolean(editorQuizId),
+    isLoadingDetail:
+      Boolean(editorQuizId) && !detailQuery.data && (detailQuery.isPending || detailQuery.isFetching),
+    retryQuizDetail: detailQuery.refetch,
     isSaving: saveMutation.isPending || publishMutation.isPending,
     courseOptions,
     chapterOptions,

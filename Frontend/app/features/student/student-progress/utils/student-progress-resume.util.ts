@@ -99,3 +99,22 @@ export function findNextLessonAfterComplete(
     items.slice(completedIndex + 1).find((item) => item.status !== "COMPLETED") ?? null
   );
 }
+
+export function findAdjacentLessons(
+  items: StudentLessonProgress[],
+  currentLessonId: number,
+): {
+  previous: StudentLessonProgress | null;
+  next: StudentLessonProgress | null;
+} {
+  const currentIndex = items.findIndex((item) => item.lessonId === currentLessonId);
+  if (currentIndex === -1) {
+    return { previous: null, next: null };
+  }
+
+  return {
+    previous: currentIndex > 0 ? (items[currentIndex - 1] ?? null) : null,
+    next:
+      currentIndex < items.length - 1 ? (items[currentIndex + 1] ?? null) : null,
+  };
+}

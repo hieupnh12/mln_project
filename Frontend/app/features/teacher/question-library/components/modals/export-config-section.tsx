@@ -1,4 +1,5 @@
 import { MaterialIcon } from "../../../components/teacher-icons";
+import { TEACHER_MODAL_PANEL } from "../../../constants/teacher-ui.constants";
 import {
   exportColumnOptions,
   exportFormatOptions,
@@ -13,22 +14,22 @@ type ExportConfigSectionProps = {
 
 export function ExportConfigSection({ config, onChange }: ExportConfigSectionProps) {
   return (
-    <div className="glass-card rounded-xl p-md shadow-sm">
+    <div className={TEACHER_MODAL_PANEL}>
       <div className="mb-6 flex items-center gap-3">
-        <div className="rounded-lg bg-secondary-container p-2">
-          <MaterialIcon className="text-secondary">ios_share</MaterialIcon>
+        <div className="rounded-xl bg-catalog-cyan/12 p-2 text-catalog-cobalt">
+          <MaterialIcon>ios_share</MaterialIcon>
         </div>
-        <h3 className="text-headline-md font-semibold text-primary">Cấu hình xuất dữ liệu</h3>
+        <h3 className="text-headline-md font-semibold text-landing-text">Cấu hình xuất dữ liệu</h3>
       </div>
 
       <div className="mb-8 space-y-4">
-        <span className="text-label-sm font-semibold uppercase tracking-wider text-on-surface-variant">
+        <span className="text-label-sm font-semibold uppercase tracking-wider text-landing-text-soft">
           Định dạng xuất
         </span>
         <div className="flex gap-3">
           {exportFormatOptions.map((format) => (
             <div
-              className="flex flex-1 flex-col items-center gap-2 rounded-lg border-2 border-primary bg-primary py-4 text-on-primary"
+              className="flex flex-1 flex-col items-center gap-2 rounded-xl border border-outline-variant/30 bg-landing-white py-4 text-landing-text"
               key={format.id}
             >
               <MaterialIcon className="text-[24px]">{format.icon}</MaterialIcon>
@@ -36,22 +37,22 @@ export function ExportConfigSection({ config, onChange }: ExportConfigSectionPro
             </div>
           ))}
         </div>
-        <p className="text-label-sm text-on-surface-variant">
+        <p className="text-label-sm text-landing-text-soft">
           File Wayground / Quizizz (sheet &quot;Create a Quiz&quot;).
         </p>
       </div>
 
       <div className="mb-8 space-y-4">
-        <span className="text-label-sm font-semibold uppercase tracking-wider text-on-surface-variant">
+        <span className="text-label-sm font-semibold uppercase tracking-wider text-landing-text-soft">
           Lọc theo trạng thái
         </span>
-        <div className="flex rounded-full bg-surface-container p-1">
+        <div className="flex rounded-full bg-landing-gray/50 p-1">
           {exportStatusOptions.map((status) => (
             <button
               className={
                 config.statusFilter === status.id
-                  ? "flex-1 rounded-full bg-surface-container-lowest py-2 text-center text-label-md font-medium text-primary shadow-sm"
-                  : "flex-1 rounded-full py-2 text-center text-label-md font-medium text-on-surface-variant transition hover:text-primary"
+                  ? "flex-1 rounded-full bg-landing-white py-2 text-center text-label-md font-medium text-landing-text shadow-sm ring-1 ring-outline-variant/20"
+                  : "flex-1 rounded-full py-2 text-center text-label-md font-medium text-landing-text-soft transition hover:text-landing-text"
               }
               key={status.id}
               onClick={() => onChange({ ...config, statusFilter: status.id })}
@@ -61,13 +62,13 @@ export function ExportConfigSection({ config, onChange }: ExportConfigSectionPro
             </button>
           ))}
         </div>
-        <p className="text-label-sm text-on-surface-variant">
+        <p className="text-label-sm text-landing-text-soft">
           Chỉ áp dụng cho dữ liệu trong modal export.
         </p>
       </div>
 
       <div className="mb-8 space-y-4">
-        <span className="text-label-sm font-semibold uppercase tracking-wider text-on-surface-variant">
+        <span className="text-label-sm font-semibold uppercase tracking-wider text-landing-text-soft">
           Cột dữ liệu
         </span>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -75,8 +76,8 @@ export function ExportConfigSection({ config, onChange }: ExportConfigSectionPro
             <label
               className={
                 column.locked
-                  ? "flex cursor-default items-center gap-3 rounded-lg bg-surface-container-low p-3 opacity-80"
-                  : "flex cursor-pointer items-center gap-3 rounded-lg bg-surface-container-low p-3 transition hover:bg-surface-container"
+                  ? "flex cursor-default items-center gap-3 rounded-xl bg-landing-gray/35 p-3 opacity-80"
+                  : "flex cursor-pointer items-center gap-3 rounded-xl bg-landing-gray/35 p-3 transition hover:bg-landing-gray/55"
               }
               key={column.id}
             >
@@ -98,7 +99,7 @@ export function ExportConfigSection({ config, onChange }: ExportConfigSectionPro
               <span className="text-body-md">
                 {column.label}
                 {column.hint ? (
-                  <span className="mt-0.5 block text-label-sm text-on-surface-variant">
+                  <span className="mt-0.5 block text-label-sm text-landing-text-soft">
                     {column.hint}
                   </span>
                 ) : null}
@@ -109,15 +110,15 @@ export function ExportConfigSection({ config, onChange }: ExportConfigSectionPro
       </div>
 
       <div className="space-y-3">
-        <span className="text-label-sm font-semibold uppercase tracking-wider text-on-surface-variant">
+        <span className="text-label-sm font-semibold uppercase tracking-wider text-landing-text-soft">
           Thời gian mỗi câu
         </span>
-        <div className="rounded-lg bg-surface-container-low p-3">
-          <label className="block text-body-md font-medium" htmlFor="time-per-question">
+        <div className="rounded-xl bg-landing-gray/35 p-3">
+          <label className="block text-body-md font-medium text-landing-text" htmlFor="time-per-question">
             Time in seconds (Wayground)
           </label>
           <input
-            className="mt-3 w-full rounded-lg border-none bg-white p-3 text-center text-headline-md font-semibold focus:ring-2 focus:ring-primary/20"
+            className="mt-3 w-full rounded-xl border-0 bg-landing-white p-3 text-center text-headline-md font-semibold text-landing-text outline-none ring-1 ring-outline-variant/15 focus:ring-primary/25"
             id="time-per-question"
             min={5}
             onChange={(event) =>

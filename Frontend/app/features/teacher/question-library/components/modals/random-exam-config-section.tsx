@@ -1,4 +1,9 @@
 import { MaterialIcon } from "../../../components/teacher-icons";
+import {
+  TEACHER_MODAL_BTN_PRIMARY,
+  TEACHER_MODAL_BTN_SECONDARY,
+  TEACHER_MODAL_PANEL,
+} from "../../../constants/teacher-ui.constants";
 import type { LessonOptionDto } from "../../types/question-library-api.types";
 import type { RandomExamConfig, RandomExamValidation } from "../../types/export-exam.types";
 import { ExamScopeSelector } from "./exam-scope-selector";
@@ -30,25 +35,25 @@ export function RandomExamConfigSection({
   const canSaveDraft = validation.valid && !actionDisabled && !savingDraft && !exporting;
 
   return (
-    <div className="rounded-xl border border-outline-variant/10 bg-surface-container-lowest p-md shadow-sm">
+    <div className={TEACHER_MODAL_PANEL}>
       <div className="mb-8 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="rounded-lg bg-secondary-container p-2">
-            <MaterialIcon className="text-on-secondary-container">shuffle</MaterialIcon>
+          <div className="rounded-xl bg-catalog-cyan/12 p-2 text-catalog-cobalt">
+            <MaterialIcon>shuffle</MaterialIcon>
           </div>
-          <h3 className="text-headline-md font-semibold text-primary">Tạo đề ngẫu nhiên</h3>
+          <h3 className="text-headline-md font-semibold text-landing-text">Tạo đề ngẫu nhiên</h3>
         </div>
       </div>
 
       <div className="space-y-8">
       <div className="grid grid-cols-1 gap-md md:grid-cols-2">
         <div className="space-y-4">
-          <span className="text-label-sm font-semibold uppercase tracking-wider text-on-surface-variant">
+          <span className="text-label-sm font-semibold uppercase tracking-wider text-landing-text-soft">
             Tổng số câu
           </span>
           <div className="relative">
             <input
-              className="w-full rounded-lg border-none bg-surface-container-low p-4 text-center text-headline-md font-semibold focus:ring-2 focus:ring-secondary/20"
+              className="w-full rounded-xl border-0 bg-landing-white p-4 text-center text-headline-md font-semibold text-landing-text outline-none ring-1 ring-outline-variant/15 focus:ring-primary/25"
               min={1}
               onChange={(event) =>
                 onChange({ ...config, totalCount: Number(event.target.value) || 1 })
@@ -80,9 +85,9 @@ export function RandomExamConfigSection({
               </button>
             </div>
           </div>
-          <p className="text-center text-label-sm text-on-surface-variant">
+          <p className="text-center text-label-sm text-landing-text-soft">
             Có sẵn trong phạm vi:{" "}
-            <span className="font-semibold text-primary">
+            <span className="font-semibold text-catalog-cobalt">
               {validation.poolSize.toLocaleString("vi-VN")} câu
             </span>
           </p>
@@ -131,7 +136,7 @@ export function RandomExamConfigSection({
           </ul>
         </div>
       ) : (
-        <div className="rounded-lg bg-secondary-container/20 px-4 py-3 text-body-md text-on-surface-variant">
+        <div className="rounded-xl bg-landing-gray/35 px-4 py-3 text-body-md text-landing-text-soft">
           Phân bổ yêu cầu: Cơ bản {validation.requiredByDifficulty["Cơ bản"]}, Vận dụng{" "}
           {validation.requiredByDifficulty["Vận dụng"]}, Nâng cao{" "}
           {validation.requiredByDifficulty["Nâng cao"]}.
@@ -140,7 +145,7 @@ export function RandomExamConfigSection({
 
       <div className="flex flex-col gap-3 sm:flex-row">
         <button
-          className="flex flex-1 items-center justify-center gap-2 rounded-lg border-2 border-primary py-4 text-label-md font-medium text-primary transition hover:bg-primary hover:text-on-primary disabled:cursor-not-allowed disabled:border-outline-variant/30 disabled:text-on-surface-variant/40 disabled:hover:bg-transparent disabled:hover:text-on-surface-variant/40"
+          className={`${TEACHER_MODAL_BTN_PRIMARY} flex-1 py-4`}
           disabled={!canExportFile}
           onClick={onExportFile}
           type="button"
@@ -149,7 +154,7 @@ export function RandomExamConfigSection({
           {exporting ? "Đang xuất..." : "Xuất file"}
         </button>
         <button
-          className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-secondary-container py-4 text-label-md font-medium text-primary transition hover:bg-secondary-fixed disabled:cursor-not-allowed disabled:opacity-60"
+          className={`${TEACHER_MODAL_BTN_SECONDARY} flex-1 py-4`}
           disabled={!canSaveDraft}
           onClick={onSaveDraft}
           type="button"

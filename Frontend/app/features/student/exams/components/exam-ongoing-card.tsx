@@ -13,14 +13,15 @@ type ExamOngoingCardProps = {
 
 export function ExamOngoingCard({ exam, isRetake = false, onStart }: ExamOngoingCardProps) {
   return (
-    <article className="group rounded-xl border border-landing-red/15 bg-landing-white p-md shadow-lg shadow-landing-red/5 transition hover:-translate-y-1 hover:shadow-xl">
-      <div className="mb-5 flex items-start justify-between gap-3">
+    <article className="group relative overflow-hidden rounded-xl border border-secondary/20 bg-landing-white p-md shadow-lg shadow-landing-text/5 transition hover:-translate-y-1 hover:border-secondary/35 hover:shadow-xl">
+      <div aria-hidden="true" className="absolute inset-x-0 top-0 h-1 bg-secondary" />
+      <div className="mb-5 flex items-start justify-between gap-4">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <ExamStatusPill label="Đang mở" variant="ongoing" />
             {isRetake ? <ExamStatusPill label="Làm lại" variant="failed" /> : null}
           </div>
-          <h3 className="mt-4 text-headline-md font-semibold text-landing-text">
+          <h3 className="mt-4 text-headline-sm font-semibold leading-snug text-landing-text md:text-headline-md">
             {exam.title}
           </h3>
           {exam.chapter || exam.lesson !== "Tất cả bài" ? (
@@ -31,29 +32,31 @@ export function ExamOngoingCard({ exam, isRetake = false, onStart }: ExamOngoing
             </p>
           ) : null}
         </div>
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-landing-red/10 text-landing-red">
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-landing-gold/15 text-landing-text-muted">
           <MaterialIcon>{exam.icon}</MaterialIcon>
         </span>
       </div>
 
-      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <p className="text-label-md text-landing-text-soft">
+      <div className="mb-5 grid grid-cols-2 gap-px overflow-hidden rounded-xl bg-outline-variant/25 sm:grid-cols-3">
+        <p className="bg-landing-gray px-3 py-3 text-center text-label-md font-semibold text-landing-text-muted">
           {formatExamDuration(exam.durationMinutes)}
         </p>
-        <p className="text-label-md text-landing-text-soft">{exam.questionCount} câu</p>
-        <p className="col-span-2 text-label-md text-landing-text-soft sm:col-span-1">
+        <p className="bg-landing-gray px-3 py-3 text-center text-label-md font-semibold text-landing-text-muted">
+          {exam.questionCount} câu
+        </p>
+        <p className="col-span-2 bg-landing-gray px-3 py-3 text-center text-label-md font-semibold text-landing-text-muted sm:col-span-1">
           Đạt {exam.passingScore}%
         </p>
       </div>
 
       {exam.scheduleLabel ? (
-        <p className="mb-4 text-label-sm text-landing-text-soft">
+        <p className="mb-4 border-t border-outline-variant/25 pt-4 text-label-sm text-landing-text-soft">
           Hạn: {exam.scheduleLabel}
         </p>
       ) : null}
 
       <button
-        className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-landing-red to-landing-red-dark px-4 py-3 text-label-md font-semibold text-on-primary transition hover:-translate-y-0.5 active:translate-y-0"
+        className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-secondary px-4 py-3 text-label-md font-semibold text-on-secondary shadow-sm shadow-secondary/15 transition hover:bg-tertiary-container active:scale-[0.99]"
         onClick={() => onStart(exam.id)}
         type="button"
       >

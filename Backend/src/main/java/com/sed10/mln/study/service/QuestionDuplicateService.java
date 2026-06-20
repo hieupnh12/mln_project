@@ -34,7 +34,44 @@ public class QuestionDuplicateService {
                     .build();
         }
 
-        List<Question> candidates = questionRepository.findByLesson_Id(lessonId);
+        return checkSimilarCandidates(
+                normalized,
+                hash,
+                questionRepository.findByLesson_Id(lessonId),
+                excludeQuestionId);
+    }
+
+    public DuplicateCheckResult checkAgainstCandidates(
+            Long lessonId,
+            String type,
+            String content,
+            Long excludeQuestionId,
+            List<Question> candidates) {
+        String normalized = QuestionContentNormalizer.normalize(content);
+        String hash = QuestionContentHasher.hash(lessonId, type, normalized);
+
+        Optional<Question> exact = candidates.stream()
+                .filter(candidate -> excludeQuestionId == null || !candidate.getId().equals(excludeQuestionId))
+                .filter(candidate -> hash.equals(candidate.getContentHash()))
+                .findFirst();
+        if (exact.isPresent()) {
+            return DuplicateCheckResult.builder()
+                    .contentHash(hash)
+                    .normalizedContent(normalized)
+                    .exactDuplicate(true)
+                    .matchedQuestionId(exact.get().getId())
+                    .warningMessage("Câu hỏi trùng hoàn toàn với ID " + exact.get().getId())
+                    .build();
+        }
+
+        return checkSimilarCandidates(normalized, hash, candidates, excludeQuestionId);
+    }
+
+    private DuplicateCheckResult checkSimilarCandidates(
+            String normalized,
+            String hash,
+            List<Question> candidates,
+            Long excludeQuestionId) {
         for (Question candidate : candidates) {
             if (excludeQuestionId != null && candidate.getId().equals(excludeQuestionId)) {
                 continue;

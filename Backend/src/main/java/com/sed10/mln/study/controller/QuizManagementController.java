@@ -1,7 +1,9 @@
 package com.sed10.mln.study.controller;
 
 import com.sed10.mln.study.constant.QuizConstant;
+import com.sed10.mln.study.dto.request.ImportExamAsQuizRequest;
 import com.sed10.mln.study.dto.request.SaveQuizRequest;
+import com.sed10.mln.study.dto.response.ImportExamAsQuizResponse;
 import com.sed10.mln.study.dto.response.ApiResponse;
 import com.sed10.mln.study.dto.response.QuestionListResponse;
 import com.sed10.mln.study.dto.response.QuizDetailResponse;
@@ -63,6 +65,15 @@ public class QuizManagementController {
         return ApiResponse.<QuizDetailResponse>builder()
                 .message("Đã tạo quiz")
                 .result(quizManagementService.createQuiz(request))
+                .build();
+    }
+
+    @PostMapping("/import-exam")
+    public ApiResponse<ImportExamAsQuizResponse> importExamAsQuiz(
+            @RequestBody ImportExamAsQuizRequest request) {
+        return ApiResponse.<ImportExamAsQuizResponse>builder()
+                .message("Đã import đề và tạo quiz bản nháp")
+                .result(quizManagementService.importExamAsQuiz(request))
                 .build();
     }
 

@@ -1,6 +1,7 @@
 import { useRef, useState, type DragEvent } from "react";
 
 import { MaterialIcon } from "../../../../components/teacher-icons";
+import { TEACHER_MODAL_BTN_SECONDARY } from "../../../../constants/teacher-ui.constants";
 
 type ImportUploadZoneProps = {
   fileName: string | null;
@@ -38,20 +39,20 @@ export function ImportUploadZone({
 
   if (hasFile && compact) {
     return (
-      <div className="flex flex-col gap-3 rounded-xl border border-outline-variant/20 bg-surface-container-low p-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 rounded-2xl border border-outline-variant/25 bg-landing-gray/25 p-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-secondary-container/40">
-            <MaterialIcon className="text-secondary">description</MaterialIcon>
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-catalog-cyan/12 text-catalog-cobalt">
+            <MaterialIcon>description</MaterialIcon>
           </div>
           <div>
-            <p className="text-label-sm font-semibold uppercase tracking-wider text-on-surface-variant">
+            <p className="text-label-sm font-semibold uppercase tracking-wider text-landing-text-soft">
               File đã chọn
             </p>
-            <p className="text-body-md font-medium text-primary">{fileName}</p>
+            <p className="text-body-md font-medium text-landing-text">{fileName}</p>
           </div>
         </div>
         <button
-          className="flex items-center justify-center gap-2 rounded-lg border border-outline-variant px-4 py-2 text-label-md font-medium text-secondary transition hover:bg-surface-container disabled:opacity-50"
+          className={`${TEACHER_MODAL_BTN_SECONDARY} disabled:opacity-50`}
           disabled={disabled}
           onClick={openPicker}
           type="button"
@@ -77,14 +78,13 @@ export function ImportUploadZone({
 
   return (
     <div className="group relative transition-all duration-300">
-      <div className="absolute -inset-1 rounded-xl bg-gradient-to-r from-secondary-container to-secondary-fixed opacity-20 blur transition duration-300 group-hover:opacity-40" />
       <div
         className={
           isDragging
-            ? "relative flex flex-col items-center justify-center space-y-4 rounded-xl border-2 border-dashed border-secondary bg-surface-container-low p-lg text-center"
+            ? "relative flex flex-col items-center justify-center space-y-4 rounded-2xl border-2 border-dashed border-catalog-cobalt/40 bg-catalog-cyan/8 p-lg text-center"
             : hasFile
-              ? "relative flex flex-col items-center justify-center space-y-4 rounded-xl border-2 border-dashed border-secondary bg-secondary-container/10 p-lg text-center"
-              : "relative flex cursor-pointer flex-col items-center justify-center space-y-4 rounded-xl border-2 border-dashed border-secondary-container bg-surface-container-low p-lg text-center transition-colors hover:border-secondary disabled:cursor-not-allowed disabled:opacity-60"
+              ? "relative flex flex-col items-center justify-center space-y-4 rounded-2xl border-2 border-dashed border-outline-variant/40 bg-landing-gray/25 p-lg text-center"
+              : "relative flex cursor-pointer flex-col items-center justify-center space-y-4 rounded-2xl border-2 border-dashed border-outline-variant/45 bg-landing-gray/20 p-lg text-center transition-colors hover:border-outline-variant/70 hover:bg-landing-gray/30 disabled:cursor-not-allowed disabled:opacity-60"
         }
         onClick={hasFile || disabled ? undefined : openPicker}
         onDragLeave={() => setIsDragging(false)}
@@ -99,28 +99,28 @@ export function ImportUploadZone({
         <div
           className={
             hasFile
-              ? "mb-2 flex h-16 w-16 items-center justify-center rounded-full bg-secondary-container/50"
-              : "mb-2 flex h-16 w-16 items-center justify-center rounded-full bg-secondary-container/30"
+              ? "mb-2 flex h-16 w-16 items-center justify-center rounded-full bg-catalog-cyan/12 text-catalog-cobalt"
+              : "mb-2 flex h-16 w-16 items-center justify-center rounded-full bg-landing-gray/50 text-landing-text-soft"
           }
         >
-          <MaterialIcon className="text-4xl text-secondary">
+          <MaterialIcon className="text-4xl">
             {hasFile ? "check_circle" : "cloud_upload"}
           </MaterialIcon>
         </div>
         <div>
           {hasFile ? (
             <>
-              <p className="text-headline-md font-semibold text-on-surface">{fileName}</p>
-              <p className="mt-1 text-on-surface-variant">
+              <p className="text-headline-md font-semibold text-landing-text">{fileName}</p>
+              <p className="mt-1 text-landing-text-soft">
                 File hợp lệ — xem trước và ánh xạ bên dưới
               </p>
             </>
           ) : (
             <>
-              <p className="text-headline-md font-semibold text-on-surface">
+              <p className="text-headline-md font-semibold text-landing-text">
                 Kéo thả file vào đây
               </p>
-              <p className="mt-1 text-on-surface-variant">
+              <p className="mt-1 text-landing-text-soft">
                 hoặc nhấn để chọn từ máy tính ·{" "}
                 <span className="text-label-sm">Dùng file Excel theo mẫu chuẩn</span>
               </p>
@@ -128,15 +128,15 @@ export function ImportUploadZone({
           )}
         </div>
         <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-          <span className="rounded bg-surface-container-highest px-3 py-1 text-label-sm text-on-surface-variant">
+          <span className="rounded-full bg-landing-gray px-3 py-1 text-label-sm text-landing-text-soft">
             .XLSX
           </span>
-          <span className="rounded bg-surface-container-highest px-3 py-1 text-label-sm text-on-surface-variant">
+          <span className="rounded-full bg-landing-gray px-3 py-1 text-label-sm text-landing-text-soft">
             .CSV
           </span>
           {hasFile ? (
             <button
-              className="rounded-lg border border-outline-variant px-3 py-1 text-label-sm font-medium text-secondary transition hover:bg-white"
+              className="rounded-xl border border-outline-variant/40 px-3 py-1 text-label-sm font-medium text-landing-text transition hover:bg-landing-gray/50"
               onClick={(e) => {
                 e.stopPropagation();
                 openPicker();

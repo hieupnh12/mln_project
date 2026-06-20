@@ -2,6 +2,7 @@ import { apiClient } from "~/shared/services/api-client";
 
 import {
   QUIZ_MANAGEMENT_ENDPOINTS,
+  QUIZ_DETAIL_TIMEOUT_MS,
   QUIZ_SAVE_TIMEOUT_MS,
 } from "../constants/quiz-management.constants";
 import type {
@@ -44,6 +45,7 @@ export async function fetchQuizStats() {
 export async function fetchQuizDetail(id: string) {
   const response = await apiClient.get<BackendApiResponse<QuizDetailDto>>(
     QUIZ_MANAGEMENT_ENDPOINTS.byId(id),
+    { timeout: QUIZ_DETAIL_TIMEOUT_MS },
   );
   return unwrap(response);
 }

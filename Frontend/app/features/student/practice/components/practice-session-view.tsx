@@ -15,11 +15,12 @@ type PracticeSessionViewProps = {
   currentQuestion: PracticeQuestion;
   displayIndex: number;
   answerState: PracticeAnswerState;
-  selectedOptionIndex: number | null;
+  selectedOptionIndices: number[];
   stats: PracticeSessionStats;
   countdownActive: boolean;
   onEnd: () => void;
   onSelectOption: (index: number) => void;
+  onSubmitAnswer: () => void;
   onContinue: () => void;
   onCountdownComplete: () => void;
 };
@@ -31,11 +32,12 @@ export function PracticeSessionView({
   currentQuestion,
   displayIndex,
   answerState,
-  selectedOptionIndex,
+  selectedOptionIndices,
   stats,
   countdownActive,
   onEnd,
   onSelectOption,
+  onSubmitAnswer,
   onContinue,
   onCountdownComplete,
 }: PracticeSessionViewProps) {
@@ -59,7 +61,8 @@ export function PracticeSessionView({
           onContinue={onContinue}
           onCountdownComplete={onCountdownComplete}
           onSelectOption={onSelectOption}
-          selectedOptionIndex={selectedOptionIndex}
+          onSubmitAnswer={onSubmitAnswer}
+          selectedOptionIndices={selectedOptionIndices}
           settings={settings}
         />
       </div>

@@ -2,6 +2,10 @@ import type { MouseEvent, ReactNode } from "react";
 
 import { MaterialIcon } from "../../components/teacher-icons";
 import { statusDisplayLabels } from "../constants/question-library.constants";
+import {
+  TEACHER_QUESTION_DIFFICULTY_BADGE,
+  TEACHER_QUESTION_STATUS_BADGE,
+} from "../../constants/teacher-ui.constants";
 import type { Difficulty, QuestionListItem, QuestionStatus } from "../types/question-library.types";
 import { truncateText } from "../utils/truncate-text";
 import { QuestionTableSkeleton } from "./question-table-skeleton";
@@ -39,7 +43,7 @@ export function QuestionTable({
   const showEmpty = !showSkeleton && questions.length === 0;
 
   return (
-    <section className="overflow-hidden rounded-lg border border-outline-variant/20 bg-white shadow-sm">
+    <section className="overflow-hidden rounded-2xl border border-outline-variant/25 bg-landing-white shadow-[0_4px_20px_rgb(17,24,39,0.05)]">
       <div className="relative overflow-x-auto">
         {isPageLoading && !isInitialLoading ? (
           <div
@@ -58,7 +62,7 @@ export function QuestionTable({
             <col className="w-[108px]" />
             <col className="w-[112px]" />
           </colgroup>
-          <thead className="border-b border-outline-variant/10 bg-surface-container-lowest">
+          <thead className="border-b border-outline-variant/15 bg-landing-gray/35">
             <tr>
               <th className="px-4 py-4 text-center">
                 <input
@@ -69,25 +73,25 @@ export function QuestionTable({
                   type="checkbox"
                 />
               </th>
-              <th className="px-3 py-4 text-center text-label-md font-medium text-on-surface-variant">
+              <th className="px-3 py-4 text-center text-label-md font-medium text-landing-text-soft">
                 ID
               </th>
-              <th className="px-4 py-4 text-label-md font-medium text-on-surface-variant">
+              <th className="px-4 py-4 text-label-md font-medium text-landing-text-soft">
                 Nội dung
               </th>
-              <th className="hidden px-3 py-4 text-label-md font-medium text-on-surface-variant md:table-cell">
+              <th className="hidden px-3 py-4 text-label-md font-medium text-landing-text-soft md:table-cell">
                 Môn học
               </th>
-              <th className="px-3 py-4 text-center text-label-md font-medium text-on-surface-variant">
+              <th className="px-3 py-4 text-center text-label-md font-medium text-landing-text-soft">
                 Độ khó
               </th>
-              <th className="hidden px-3 py-4 text-label-md font-medium text-on-surface-variant sm:table-cell">
+              <th className="hidden px-3 py-4 text-label-md font-medium text-landing-text-soft sm:table-cell">
                 Loại
               </th>
-              <th className="px-3 py-4 text-label-md font-medium text-on-surface-variant">
+              <th className="px-3 py-4 text-label-md font-medium text-landing-text-soft">
                 Trạng thái
               </th>
-              <th className="px-3 py-4 text-right text-label-md font-medium text-on-surface-variant">
+              <th className="px-3 py-4 text-right text-label-md font-medium text-landing-text-soft">
                 <span className="sr-only">Hành động</span>
               </th>
             </tr>
@@ -100,7 +104,7 @@ export function QuestionTable({
               <QuestionTableSkeleton />
             ) : showEmpty ? (
               <tr>
-                <td className="px-6 py-12 text-center text-on-surface-variant" colSpan={8}>
+                <td className="px-6 py-12 text-center text-landing-text-soft" colSpan={8}>
                   Không có câu hỏi phù hợp với bộ lọc hiện tại.
                 </td>
               </tr>
@@ -143,8 +147,6 @@ function QuestionRow({
   onEdit: () => void;
   onViewDetail: () => void;
 }) {
-  const canEdit = question.status !== "Đã xuất bản";
-
   function handleRowClick() {
     onViewDetail();
   }
@@ -155,7 +157,7 @@ function QuestionRow({
 
   return (
     <tr
-      className="group cursor-pointer transition-colors hover:bg-surface-container-low"
+      className="group cursor-pointer transition-colors hover:bg-landing-gray/40"
       onClick={handleRowClick}
       onKeyDown={(event) => {
         if (event.key === "Enter" || event.key === " ") {
@@ -174,19 +176,19 @@ function QuestionRow({
           type="checkbox"
         />
       </td>
-      <td className="px-3 py-4 text-center font-mono text-label-sm text-on-surface-variant/80">
+      <td className="px-3 py-4 text-center font-mono text-label-sm text-landing-text-muted">
         {question.id.replace("Q-", "")}
       </td>
       <td className="px-4 py-4">
-        <p className="line-clamp-2 text-body-md font-medium text-on-surface" title={question.question}>
+        <p className="line-clamp-2 text-body-md font-medium text-landing-text" title={question.question}>
           {truncateText(question.question, 120)}
         </p>
-        <p className="mt-1 line-clamp-1 text-label-sm text-on-surface-variant/60 md:hidden">
+        <p className="mt-1 line-clamp-1 text-label-sm text-landing-text-soft md:hidden">
           {truncateText(question.course, 28)}
         </p>
       </td>
       <td className="hidden px-3 py-4 md:table-cell">
-        <p className="truncate text-label-md text-on-surface" title={question.course}>
+        <p className="truncate text-label-md text-landing-text" title={question.course}>
           {truncateText(question.course, 24)}
         </p>
       </td>
@@ -194,7 +196,7 @@ function QuestionRow({
         <DifficultyBadge difficulty={question.difficulty} />
       </td>
       <td className="hidden px-3 py-4 sm:table-cell">
-        <p className="truncate text-label-md text-on-surface-variant" title={question.type}>
+        <p className="truncate text-label-md text-landing-text-soft" title={question.type}>
           {question.type}
         </p>
       </td>
@@ -205,25 +207,16 @@ function QuestionRow({
         <div className="flex justify-end gap-1">
           <RowIconButton
             ariaLabel="Xem chi tiết"
-            className="text-primary hover:bg-primary-fixed"
+            className="text-landing-text hover:bg-landing-gray/70"
             icon="visibility"
             onClick={onViewDetail}
           />
-          {canEdit ? (
-            <RowIconButton
-              ariaLabel="Chỉnh sửa"
-              className="text-secondary hover:bg-secondary-container/40"
-              icon="edit"
-              onClick={onEdit}
-            />
-          ) : (
-            <RowIconButton
-              ariaLabel="Câu hỏi đã duyệt, không thể chỉnh sửa"
-              className="cursor-not-allowed text-on-surface-variant/30"
-              disabled
-              icon="edit_off"
-            />
-          )}
+          <RowIconButton
+            ariaLabel="Chỉnh sửa"
+            className="text-landing-text-soft hover:bg-landing-gray/70"
+            icon="edit"
+            onClick={onEdit}
+          />
           <RowIconButton
             ariaLabel={isDeleting ? "Đang xóa" : "Xóa"}
             className="text-error hover:bg-error-container"
@@ -238,15 +231,9 @@ function QuestionRow({
 }
 
 function DifficultyBadge({ difficulty }: { difficulty: Difficulty }) {
-  const styles: Record<Difficulty, string> = {
-    "Cơ bản": "bg-secondary-container text-on-secondary-fixed-variant",
-    "Vận dụng": "bg-secondary-fixed text-on-secondary-container",
-    "Nâng cao": "bg-surface-container-high text-on-secondary-fixed-variant",
-  };
-
   return (
     <span
-      className={`inline-block max-w-full truncate rounded-full px-2.5 py-1 text-label-sm font-semibold ${styles[difficulty]}`}
+      className={`inline-block max-w-full truncate rounded-full px-2.5 py-1 text-label-sm font-semibold ${TEACHER_QUESTION_DIFFICULTY_BADGE[difficulty]}`}
       title={difficulty}
     >
       {difficulty}
@@ -255,21 +242,12 @@ function DifficultyBadge({ difficulty }: { difficulty: Difficulty }) {
 }
 
 function StatusBadge({ status }: { status: QuestionStatus }) {
-  const isPublished = status === "Đã xuất bản";
-
   return (
     <span
-      className={
-        isPublished
-          ? "inline-flex max-w-full items-center gap-1 truncate text-label-sm font-medium text-secondary"
-          : "inline-flex max-w-full items-center gap-1 truncate text-label-sm font-medium text-on-surface-variant opacity-70"
-      }
+      className={`inline-flex max-w-full truncate rounded-full px-2.5 py-1 text-label-sm font-medium ${TEACHER_QUESTION_STATUS_BADGE[status]}`}
       title={statusDisplayLabels[status]}
     >
-      <span
-        className={`h-1.5 w-1.5 shrink-0 rounded-full ${isPublished ? "bg-secondary" : "bg-on-surface-variant"}`}
-      />
-      <span className="truncate">{statusDisplayLabels[status]}</span>
+      {statusDisplayLabels[status]}
     </span>
   );
 }

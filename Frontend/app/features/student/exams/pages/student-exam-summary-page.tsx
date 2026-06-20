@@ -14,6 +14,7 @@ import { ExamSummaryDifficultyPanel } from "../components/exam-summary/exam-summ
 import { ExamSummaryHero } from "../components/exam-summary/exam-summary-hero";
 import { ExamSummaryImprovePanel } from "../components/exam-summary/exam-summary-improve-panel";
 import { ExamSummaryMeta } from "../components/exam-summary/exam-summary-meta";
+import { ExamSummarySkeleton } from "../components/exam-summary/exam-summary-skeleton";
 import { ExamSummaryStats } from "../components/exam-summary/exam-summary-stats";
 import { getAuthSession } from "~/shared/services/auth-session.service";
 
@@ -93,11 +94,7 @@ export function StudentExamSummaryPage() {
   }
 
   if (!summary && summaryQuery.isLoading) {
-    return (
-      <div className="flex min-h-svh items-center justify-center bg-background">
-        <p className="text-on-surface-variant">Đang tải tổng kết...</p>
-      </div>
-    );
+    return <ExamSummarySkeleton />;
   }
 
   if (!summary) {

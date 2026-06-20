@@ -33,7 +33,7 @@ export const IMPORT_TEMPLATE_HEADER_LABELS: Record<(typeof IMPORT_TEMPLATE_HEADE
   option_b: "Đáp án B",
   option_c: "Đáp án C",
   option_d: "Đáp án D",
-  correct_answer: "Đáp án đúng",
+  correct_answer: "Đáp án đúng (A hoặc A,C hoặc 1,3)",
   explanation: "Giải thích",
 };
 

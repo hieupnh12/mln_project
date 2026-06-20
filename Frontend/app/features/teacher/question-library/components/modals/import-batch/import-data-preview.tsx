@@ -21,18 +21,18 @@ export function ImportDataPreview({ rows, rowCount }: ImportDataPreviewProps) {
   return (
     <div className="space-y-4 lg:col-span-2">
       <div className="flex items-center justify-between">
-        <h3 className="flex items-center gap-2 text-headline-md font-semibold text-primary">
-          <MaterialIcon className="text-secondary">visibility</MaterialIcon>
+        <h3 className="flex items-center gap-2 text-headline-md font-semibold text-landing-text">
+          <MaterialIcon className="text-catalog-cobalt">visibility</MaterialIcon>
           Xem trước dữ liệu
         </h3>
-        <span className="rounded bg-surface-container px-2 py-1 text-label-sm text-on-surface-variant">
+        <span className="rounded-full bg-landing-gray px-2.5 py-1 text-label-sm text-landing-text-soft">
           {rowCount} dòng được phát hiện
         </span>
       </div>
-      <div className="overflow-hidden rounded-lg border border-outline-variant/10 bg-surface-container-lowest shadow-sm">
+      <div className="overflow-hidden rounded-2xl border border-outline-variant/25 bg-landing-white shadow-[0_4px_20px_rgb(17,24,39,0.05)]">
         <div className="hide-scrollbar overflow-x-auto">
           <table className="w-full min-w-[920px] text-left">
-            <thead className="bg-surface-container text-label-sm uppercase tracking-wider text-on-surface-variant">
+            <thead className="bg-landing-gray/35 text-label-sm uppercase tracking-wider text-landing-text-soft">
               <tr>
                 <th className="px-4 py-4 font-semibold">Nội dung</th>
                 <th className="px-4 py-4 font-semibold">Bài học</th>
@@ -44,9 +44,9 @@ export function ImportDataPreview({ rows, rowCount }: ImportDataPreviewProps) {
             </thead>
             <tbody className="divide-y divide-outline-variant/10 text-body-md">
               {rows.map((row) => (
-                <tr className="transition-colors hover:bg-surface-container-low" key={row.id}>
+                <tr className="transition-colors hover:bg-landing-gray/35" key={row.id}>
                   <td className="max-w-xs px-4 py-4">
-                    <p className="line-clamp-2" title={row.content}>
+                    <p className="line-clamp-2 text-landing-text" title={row.content}>
                       {truncateText(row.content, 80)}
                     </p>
                   </td>
@@ -56,25 +56,25 @@ export function ImportDataPreview({ rows, rowCount }: ImportDataPreviewProps) {
                         {truncateText(row.lessonLabel ?? "Lỗi gán bài", 36)}
                       </span>
                     ) : (
-                      <span className="text-label-sm text-on-surface-variant" title={row.lessonLabel}>
+                      <span className="text-label-sm text-landing-text-soft" title={row.lessonLabel}>
                         {truncateText(row.lessonLabel ?? "—", 36)}
                       </span>
                     )}
                   </td>
                   <td className="px-4 py-4">
-                    <span className="rounded bg-secondary-container px-2 py-1 text-label-sm text-on-secondary-container">
+                    <span className="rounded-full bg-landing-gray px-2.5 py-1 text-label-sm text-landing-text-soft">
                       {row.typeLabel}
                     </span>
                   </td>
-                  <td className="px-4 py-4 text-label-sm text-on-surface" title={row.answer}>
+                  <td className="px-4 py-4 text-label-sm text-landing-text" title={row.answer}>
                     {formatAnswerPreview(row)}
                   </td>
-                  <td className="max-w-[140px] px-4 py-4 text-label-sm text-on-surface-variant">
+                  <td className="max-w-[140px] px-4 py-4 text-label-sm text-landing-text-soft">
                     <p className="line-clamp-2" title={row.explanation}>
                       {row.explanation ? truncateText(row.explanation, 40) : "—"}
                     </p>
                   </td>
-                  <td className="px-4 py-4">{row.difficulty}</td>
+                  <td className="px-4 py-4 text-landing-text">{row.difficulty}</td>
                 </tr>
               ))}
             </tbody>

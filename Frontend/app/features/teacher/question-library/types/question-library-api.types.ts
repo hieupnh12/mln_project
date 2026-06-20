@@ -125,6 +125,9 @@ export type BatchImportReportDto = {
   totalRows: number;
   savedCount: number;
   skippedExactDuplicate: number;
+  linkedExistingCount?: number;
+  linkedInternalCount?: number;
+  quizQuestionCount?: number;
   markedSimilar: number;
   failedValidation: number;
   rows: {

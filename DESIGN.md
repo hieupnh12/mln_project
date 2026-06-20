@@ -91,8 +91,20 @@ linear-gradient(135deg, #bfe8e6 0%, #ffffff 50%, #f6e6de 100%)
 Quy định:
 
 - Chỉ dùng gradient này cho hero/login/brand surface khi cần hiệu ứng mềm.
-- Không tạo thêm gradient tím/xanh neon/cam nếu không cập nhật tài liệu này.
+- **Catalog card hero** (Flashcard / Kiểm tra): dùng token `catalog-*` trong `app.css` — tối đa 10 tổ hợp gradient, chữ trắng trên nền gradient.
+- Không tạo thêm gradient tím/xanh neon/cam ngoài token `catalog-*` nếu không cập nhật tài liệu này.
 - Blur/glass chỉ dùng nhẹ: border mỏng, background trắng trong suốt, shadow thấp.
+
+| Token | Hex | Dùng cho |
+| --- | --- | --- |
+| `catalog-cyan` | `#06b6d4` | Gradient hero card — xanh ngọc |
+| `catalog-sky` | `#0ea5e9` | Gradient hero card — xanh trời |
+| `catalog-cobalt` | `#2563eb` | Gradient hero card — xanh coban |
+| `catalog-indigo` | `#4f46e5` | Gradient hero card — chàm |
+| `catalog-violet` | `#7c3aed` | Gradient hero card — tím |
+| `catalog-magenta` | `#d946ef` | Gradient hero card — magenta |
+| `catalog-coral` | `#fb923c` | Gradient hero card — cam san hô |
+| `catalog-amber` | `#fbbf24` | Gradient hero card — vàng amber |
 
 ## 3. Typography
 

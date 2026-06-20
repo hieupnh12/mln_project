@@ -6,6 +6,7 @@ import type {
   PracticeQuestion,
   PracticeSessionStats,
 } from "../types/practice.types";
+import { arePracticeSelectionsEqual } from "../utils/compare-practice-answers";
 import { pickRandomQuestion } from "../utils/pick-random-question";
 
 type UsePracticeSessionOptions = {
@@ -16,6 +17,12 @@ type UsePracticeSessionOptions = {
   sessionActive?: boolean;
 };
 
+function toggleSelection(indices: number[], optionIndex: number): number[] {
+  return indices.includes(optionIndex)
+    ? indices.filter((value) => value !== optionIndex)
+    : [...indices, optionIndex].sort((a, b) => a - b);
+}
+
 export function usePracticeSession({
   questions,
   settings,
@@ -24,7 +31,7 @@ export function usePracticeSession({
 }: UsePracticeSessionOptions) {
   const [currentQuestion, setCurrentQuestion] = useState<PracticeQuestion | null>(null);
   const [answerState, setAnswerState] = useState<PracticeAnswerState>("idle");
-  const [selectedOptionIndex, setSelectedOptionIndex] = useState<number | null>(null);
+  const [selectedOptionIndices, setSelectedOptionIndices] = useState<number[]>([]);
   const [displayIndex, setDisplayIndex] = useState(1);
   const [stats, setStats] = useState<PracticeSessionStats>({
     answeredCount: 0,
@@ -38,27 +45,29 @@ export function usePracticeSession({
     [questions],
   );
 
+  const resetAnswerState = useCallback(() => {
+    setAnswerState("idle");
+    setSelectedOptionIndices([]);
+    setCountdownActive(false);
+  }, []);
+
   const loadNextQuestion = useCallback(() => {
     const next = pickRandomQuestion(pool, currentQuestion?.id ?? null);
     if (!next) {
       return;
     }
     setCurrentQuestion(next);
-    setAnswerState("idle");
-    setSelectedOptionIndex(null);
-    setCountdownActive(false);
+    resetAnswerState();
     setDisplayIndex((value) => value + 1);
-  }, [currentQuestion?.id, pool]);
+  }, [currentQuestion?.id, pool, resetAnswerState]);
 
   const startSession = useCallback(() => {
     const first = pickRandomQuestion(pool, null);
     setCurrentQuestion(first);
-    setAnswerState("idle");
-    setSelectedOptionIndex(null);
+    resetAnswerState();
     setDisplayIndex(1);
     setStats({ answeredCount: 0, correctCount: 0, sessionSeconds: 0 });
-    setCountdownActive(false);
-  }, [pool]);
+  }, [pool, resetAnswerState]);
 
   useEffect(() => {
     if (!sessionActive) {
@@ -70,14 +79,18 @@ export function usePracticeSession({
     return () => window.clearInterval(timerId);
   }, [sessionActive]);
 
-  const handleSelectOption = useCallback(
-    (optionIndex: number) => {
-      if (answerState === "answered" || currentQuestion == null) {
+  const submitAnswer = useCallback(
+    (nextSelectedIndices: number[]) => {
+      if (answerState === "answered" || currentQuestion == null || nextSelectedIndices.length === 0) {
         return;
       }
 
-      const isCorrect = optionIndex === currentQuestion.correctOptionIndex;
-      setSelectedOptionIndex(optionIndex);
+      const isCorrect = arePracticeSelectionsEqual(
+        nextSelectedIndices,
+        currentQuestion.correctOptionIndices,
+      );
+
+      setSelectedOptionIndices(nextSelectedIndices);
       setAnswerState("answered");
       setStats((prev) => ({
         ...prev,
@@ -92,7 +105,28 @@ export function usePracticeSession({
     [answerState, currentQuestion, settings.autoAdvance],
   );
 
+  const handleSelectOption = useCallback(
+    (optionIndex: number) => {
+      if (answerState === "answered" || currentQuestion == null) {
+        return;
+      }
+
+      if (currentQuestion.isMultipleChoice) {
+        setSelectedOptionIndices((current) => toggleSelection(current, optionIndex));
+        return;
+      }
+
+      submitAnswer([optionIndex]);
+    },
+    [answerState, currentQuestion, submitAnswer],
+  );
+
+  const handleSubmitAnswer = useCallback(() => {
+    submitAnswer(selectedOptionIndices);
+  }, [selectedOptionIndices, submitAnswer]);
+
   const handleContinue = useCallback(() => {
+    setCountdownActive(false);
     loadNextQuestion();
   }, [loadNextQuestion]);
 
@@ -103,14 +137,17 @@ export function usePracticeSession({
   }, [loadNextQuestion, onAutoAdvance]);
 
   const isCorrect =
-    selectedOptionIndex != null &&
-    currentQuestion != null &&
-    selectedOptionIndex === currentQuestion.correctOptionIndex;
+    currentQuestion != null
+    && answerState === "answered"
+    && arePracticeSelectionsEqual(
+      selectedOptionIndices,
+      currentQuestion.correctOptionIndices,
+    );
 
   return {
     currentQuestion,
     answerState,
-    selectedOptionIndex,
+    selectedOptionIndices,
     displayIndex,
     stats,
     countdownActive,
@@ -118,6 +155,7 @@ export function usePracticeSession({
     poolEmpty: pool.length === 0,
     startSession,
     handleSelectOption,
+    handleSubmitAnswer,
     handleContinue,
     handleCountdownComplete,
     loadNextQuestion,

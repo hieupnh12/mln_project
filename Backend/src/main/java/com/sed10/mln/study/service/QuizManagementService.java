@@ -2,7 +2,11 @@ package com.sed10.mln.study.service;
 
 import com.sed10.mln.study.constant.QuestionConstant;
 import com.sed10.mln.study.constant.QuizConstant;
+import com.sed10.mln.study.dto.request.BatchImportRequest;
+import com.sed10.mln.study.dto.request.ImportExamAsQuizRequest;
 import com.sed10.mln.study.dto.request.SaveQuizRequest;
+import com.sed10.mln.study.dto.response.ExamBatchImportResult;
+import com.sed10.mln.study.dto.response.ImportExamAsQuizResponse;
 import com.sed10.mln.study.dto.response.QuestionListResponse;
 import com.sed10.mln.study.dto.response.QuestionResponse;
 import com.sed10.mln.study.dto.response.QuizDetailResponse;
@@ -113,7 +117,7 @@ public class QuizManagementService {
     @Transactional(readOnly = true)
     public QuizDetailResponse getQuiz(Long id) {
         Quiz quiz = getQuizEntity(id);
-        List<QuizQuestion> links = quizQuestionRepository.findByQuiz_IdOrderBySortOrderAsc(id);
+        List<QuizQuestion> links = quizQuestionRepository.findByQuizIdWithQuestionDetails(id);
         List<String> questionIds = new ArrayList<>();
         List<Question> questionEntities = new ArrayList<>();
 
@@ -180,6 +184,38 @@ public class QuizManagementService {
     }
 
     @Transactional
+    public ImportExamAsQuizResponse importExamAsQuiz(ImportExamAsQuizRequest request) {
+        BatchImportRequest importRequest = new BatchImportRequest();
+        importRequest.setLessonId(request.getLessonId());
+        importRequest.setTargetStatus(request.getTargetStatus());
+        importRequest.setRows(request.getRows());
+
+        ExamBatchImportResult importResult = questionLibraryService.batchImportForExam(importRequest);
+        if (importResult.getQuestionIds() == null || importResult.getQuestionIds().isEmpty()) {
+            throw new AppException(ErrorCode.QUIZ_IMPORT_NO_QUESTIONS);
+        }
+
+        SaveQuizRequest quizRequest = new SaveQuizRequest();
+        quizRequest.setTitle(request.getTitle());
+        quizRequest.setCourse(request.getCourse());
+        quizRequest.setChapter(request.getChapter());
+        quizRequest.setLesson(request.getLesson());
+        quizRequest.setDuration(request.getDuration());
+        quizRequest.setPassingScore(request.getPassingScore());
+        quizRequest.setShuffleAnswers(request.getShuffleAnswers());
+        quizRequest.setRandomQuestions(false);
+        quizRequest.setRandomCount(importResult.getQuestionIds().size());
+        quizRequest.setQuestionIds(importResult.getQuestionIds());
+
+        QuizDetailResponse quiz = createQuiz(quizRequest);
+
+        return ImportExamAsQuizResponse.builder()
+                .quiz(quiz)
+                .importReport(importResult.getReport())
+                .build();
+    }
+
+    @Transactional
     public QuizDetailResponse updateQuiz(Long id, SaveQuizRequest request) {
         Quiz quiz = getQuizEntity(id);
         QuizScope scope = resolveScope(request.getCourse(), request.getChapter(), request.getLesson());
@@ -239,7 +275,7 @@ public class QuizManagementService {
                 .build();
         copy = quizRepository.save(copy);
 
-        List<QuizQuestion> links = quizQuestionRepository.findByQuiz_IdOrderBySortOrderAsc(id);
+        List<QuizQuestion> links = quizQuestionRepository.findByQuizIdWithQuestionDetails(id);
         int order = 1;
         for (QuizQuestion link : links) {
             quizQuestionRepository.save(QuizQuestion.builder()

@@ -4,27 +4,31 @@ import { PracticeOptionButton } from "./practice-option-button";
 
 type PracticeOptionsListProps = {
   options: string[];
-  correctOptionIndex: number;
+  isMultipleChoice: boolean;
+  correctOptionIndices: number[];
   answerState: PracticeAnswerState;
-  selectedOptionIndex: number | null;
+  selectedOptionIndices: number[];
   onSelect: (index: number) => void;
 };
 
 function resolveVisualState(
   index: number,
   answerState: PracticeAnswerState,
-  selectedOptionIndex: number | null,
-  correctOptionIndex: number,
+  selectedOptionIndices: number[],
+  correctOptionIndices: number[],
 ): PracticeOptionVisualState {
   if (answerState === "idle") {
-    return "default";
+    return selectedOptionIndices.includes(index) ? "selected" : "default";
   }
 
-  if (index === correctOptionIndex) {
+  const isCorrectOption = correctOptionIndices.includes(index);
+  const isSelected = selectedOptionIndices.includes(index);
+
+  if (isCorrectOption) {
     return "correct";
   }
 
-  if (selectedOptionIndex === index && index !== correctOptionIndex) {
+  if (isSelected) {
     return "incorrect";
   }
 
@@ -33,24 +37,27 @@ function resolveVisualState(
 
 export function PracticeOptionsList({
   options,
-  correctOptionIndex,
+  isMultipleChoice,
+  correctOptionIndices,
   answerState,
-  selectedOptionIndex,
+  selectedOptionIndices,
   onSelect,
 }: PracticeOptionsListProps) {
   return (
-    <section className="grid grid-cols-1 gap-2 lg:grid-cols-2">
+    <section className="grid grid-cols-1 gap-3 lg:grid-cols-2">
       {options.map((text, index) => (
         <PracticeOptionButton
           index={index}
+          isMultipleChoice={isMultipleChoice}
+          isSelected={selectedOptionIndices.includes(index)}
           key={`${index}-${text.slice(0, 12)}`}
           onSelect={onSelect}
           text={text}
           visualState={resolveVisualState(
             index,
             answerState,
-            selectedOptionIndex,
-            correctOptionIndex,
+            selectedOptionIndices,
+            correctOptionIndices,
           )}
         />
       ))}

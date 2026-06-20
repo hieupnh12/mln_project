@@ -4,6 +4,7 @@ export const QUIZ_MANAGEMENT_ENDPOINTS = {
   root: "/teacher/quizzes",
   stats: "/teacher/quizzes/stats",
   candidateQuestions: "/teacher/quizzes/candidate-questions",
+  importExam: "/teacher/quizzes/import-exam",
   byId: (id: string) => `/teacher/quizzes/${encodeURIComponent(id)}`,
   publish: (id: string) => `/teacher/quizzes/${encodeURIComponent(id)}/publish`,
   duplicate: (id: string) => `/teacher/quizzes/${encodeURIComponent(id)}/duplicate`,
@@ -26,7 +27,13 @@ export const QUIZ_MANAGEMENT_QUERY_KEYS = {
 export const QUIZ_CANDIDATE_PAGE_SIZE = 6;
 
 /** Lưu/xuất bản quiz có thể mất lâu khi gắn nhiều câu hỏi. */
-export const QUIZ_SAVE_TIMEOUT_MS = 60_000;
+export const QUIZ_SAVE_TIMEOUT_MS = 120_000;
+
+/** Chi tiết quiz gồm toàn bộ câu hỏi, đáp án và tag nên cần timeout riêng. */
+export const QUIZ_DETAIL_TIMEOUT_MS = 120_000;
+
+/** Import đề Excel → quiz có thể mất rất lâu với file lớn. */
+export const QUIZ_EXAM_IMPORT_TIMEOUT_MS = 600_000;
 
 export const defaultQuizFilters: QuizFilters = {
   search: "",

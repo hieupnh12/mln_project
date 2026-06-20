@@ -8,16 +8,17 @@ import { normalizeApiError } from "~/shared/services/api-client";
 import { showErrorToast } from "~/shared/utils/toast";
 
 import { getStudentExamSessionPath } from "../../constants/student-routes.constants";
-import { useStudentExamsQuery } from "../hooks/use-student-exams-query";
 import { EXAMS_QUERY_KEYS } from "../constants/exams-api.constants";
+import { useStudentExamsQuery } from "../hooks/use-student-exams-query";
 import { getExamSession } from "../services/exams.service";
+import { ExamCatalogGrid } from "./exam-catalog-grid";
+import { ExamCatalogIntro } from "./exam-catalog-intro";
 import { ExamCatalogSection } from "./exam-catalog-section";
+import { ExamCatalogSkeleton } from "./exam-catalog-skeleton";
 import { ExamCompletedList } from "./exam-completed-list";
 import { ExamCompletedTable } from "./exam-completed-table";
 import { ExamEmptyState } from "./exam-empty-state";
 import { ExamLoginBanner } from "./exam-login-banner";
-import { ExamOngoingCard } from "./exam-ongoing-card";
-import { ExamUpcomingCard } from "./exam-upcoming-card";
 
 type CourseExamCatalogPanelProps = {
   subjectId: number;
@@ -25,26 +26,9 @@ type CourseExamCatalogPanelProps = {
   courseTitle?: string;
 };
 
-function ExamCatalogSkeleton() {
-  return (
-    <div className="flex flex-col gap-lg">
-      {Array.from({ length: 3 }).map((_, index) => (
-        <div className="space-y-md" key={index}>
-          <div className="h-8 w-48 animate-pulse rounded-lg bg-landing-gray" />
-          <div className="grid grid-cols-1 gap-gutter lg:grid-cols-2">
-            <div className="h-56 animate-pulse rounded-xl bg-landing-white" />
-            <div className="h-56 animate-pulse rounded-xl bg-landing-white" />
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
 export function CourseExamCatalogPanel({
   subjectId,
   active,
-  courseTitle,
 }: CourseExamCatalogPanelProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -112,7 +96,6 @@ export function CourseExamCatalogPanel({
     upcoming: [],
     completed: [],
   };
-  const displayCourseTitle = courseTitle || catalog.subjectTitle;
   const isCatalogEmpty =
     catalog.ongoing.length === 0 &&
     catalog.upcoming.length === 0 &&
@@ -122,20 +105,11 @@ export function CourseExamCatalogPanel({
     <div className="flex flex-col gap-lg">
       {!isLoggedIn ? <ExamLoginBanner /> : null}
 
-      <header>
-        <p className="text-label-md font-semibold text-landing-red">Đánh giá kiến thức</p>
-        <h1 className="mt-2 font-serif text-headline-lg font-semibold text-landing-text">
-          Danh sách bài kiểm tra
-        </h1>
-        <p className="mt-2 max-w-3xl text-body-md text-landing-text-soft">
-          {displayCourseTitle
-            ? `Theo dõi các bài kiểm tra của môn ${displayCourseTitle} và hoàn thành đúng hạn.`
-            : "Hoàn thành bài kiểm tra đúng hạn để duy trì kết quả học tập."}
-        </p>
-        {examsQuery.isFetching && !examsQuery.isLoading ? (
-          <p className="mt-2 text-label-sm text-landing-text-soft">Đang cập nhật...</p>
-        ) : null}
-      </header>
+      <ExamCatalogIntro />
+
+      {examsQuery.isFetching && !examsQuery.isLoading ? (
+        <p className="-mt-sm text-label-sm text-landing-text-soft">Đang cập nhật...</p>
+      ) : null}
 
       {isCatalogEmpty ? (
         <ExamEmptyState
@@ -150,48 +124,31 @@ export function CourseExamCatalogPanel({
             icon="play_circle"
             iconFilled
             title="Đang diễn ra"
+            tone="active"
           >
             {catalog.ongoing.length === 0 ? (
               <ExamEmptyState
                 description="Hiện không có bài kiểm tra nào đang mở."
                 icon="event_available"
                 title="Chưa có bài đang mở"
+                tone="active"
               />
             ) : (
-              <div className="grid grid-cols-1 gap-gutter lg:grid-cols-2">
-                {catalog.ongoing.map((exam) => (
-                  <ExamOngoingCard
-                    exam={exam}
-                    isRetake={retakeQuizIds.has(exam.id)}
-                    key={exam.id}
-                    onStart={handleStartExam}
-                  />
-                ))}
-              </div>
+              <ExamCatalogGrid
+                exams={catalog.ongoing}
+                onStart={handleStartExam}
+                retakeQuizIds={retakeQuizIds}
+              />
             )}
           </ExamCatalogSection>
 
-          <ExamCatalogSection icon="event" title="Sắp tới">
-            {catalog.upcoming.length === 0 ? (
-              <ExamEmptyState
-                description="Các bài sắp mở sẽ xuất hiện tại đây."
-                icon="schedule"
-                title="Không có bài kiểm tra sắp mở"
-              />
-            ) : (
-              <div className="grid grid-cols-1 gap-gutter md:grid-cols-2 xl:grid-cols-3">
-                {catalog.upcoming.map((exam) => (
-                  <ExamUpcomingCard
-                    exam={exam}
-                    key={exam.id}
-                    subjectTitle={displayCourseTitle}
-                  />
-                ))}
-              </div>
-            )}
-          </ExamCatalogSection>
+          {catalog.upcoming.length > 0 ? (
+            <ExamCatalogSection icon="event" title="Sắp tới" tone="upcoming">
+              <ExamCatalogGrid exams={catalog.upcoming} locked />
+            </ExamCatalogSection>
+          ) : null}
 
-          <ExamCatalogSection icon="check_circle" muted title="Đã hoàn thành">
+          <ExamCatalogSection icon="check_circle" title="Đã hoàn thành" tone="neutral">
             {catalog.completed.length === 0 ? (
               <ExamEmptyState
                 description="Kết quả các bài bạn đã nộp sẽ xuất hiện tại đây."
@@ -205,7 +162,6 @@ export function CourseExamCatalogPanel({
                   <ExamCompletedTable
                     courseId={String(subjectId)}
                     rows={catalog.completed}
-                    subjectTitle={displayCourseTitle}
                   />
                 </div>
               </>

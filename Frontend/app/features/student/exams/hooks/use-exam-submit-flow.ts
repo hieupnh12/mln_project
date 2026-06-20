@@ -12,6 +12,7 @@ import { submitExamAttempt } from "../services/exams.service";
 import type { ExamAnswerMap, ExamSession } from "../types/exam-session.types";
 import type { SubmitExamResultDto } from "../types/exam-session-api.types";
 import { clearExamDraft } from "../utils/exam-draft-storage";
+import { countAnsweredQuestions, flattenExamAnswers } from "../utils/exam-answer.helpers";
 import { saveExamSummary } from "../utils/exam-summary-storage";
 
 type UseExamSubmitFlowOptions = {
@@ -48,7 +49,11 @@ export function useExamSubmitFlow({
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [autoSubmitMode, setAutoSubmitMode] = useState(false);
 
-  const unansweredCount = Math.max(0, (session?.questions.length ?? 0) - Object.keys(answers).length);
+  const unansweredCount = Math.max(
+    0,
+    (session?.questions.length ?? 0)
+      - countAnsweredQuestions((session?.questions ?? []).map((question) => question.id), answers),
+  );
 
   const performSubmit = useCallback(async () => {
     if (subjectId == null || !quizId || studentId == null) {
@@ -62,10 +67,7 @@ export function useExamSubmitFlow({
     submitInFlightRef.current = true;
     setIsSubmitting(true);
 
-    const payload = Object.entries(answers).map(([questionId, answerId]) => ({
-      questionId,
-      answerId,
-    }));
+    const payload = flattenExamAnswers(answers);
     const elapsedSeconds = Math.max(0, initialSeconds - remainingSeconds);
     const questionIds = (session?.questions ?? []).map((q) => q.id);
 

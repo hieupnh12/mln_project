@@ -1,4 +1,9 @@
 import { MaterialIcon } from "../../../components/teacher-icons";
+import {
+  TEACHER_MODAL_BTN_PRIMARY,
+  TEACHER_MODAL_BTN_SECONDARY,
+  TEACHER_MODAL_SHELL,
+} from "../../../constants/teacher-ui.constants";
 import { statusDisplayLabels } from "../../constants/question-library.constants";
 import type { CreateQuestionPayload } from "../../types/question-library-api.types";
 import type { QuestionItem } from "../../types/question-library.types";
@@ -33,14 +38,19 @@ export function DuplicateCompareModal({
 
   return (
     <ModalOverlay labelledBy="duplicate-compare-title" onClose={onClose} open={open}>
-      <div className="mx-auto flex max-h-[min(860px,calc(100vh-32px))] w-full max-w-5xl flex-col overflow-hidden rounded-xl border border-outline-variant/20 bg-surface-container-lowest shadow-2xl">
-        <header className="border-b border-outline-variant/10 px-md py-4 lg:px-lg">
+      <div
+        className={`mx-auto flex max-h-[min(860px,calc(100vh-32px))] w-full max-w-5xl flex-col ${TEACHER_MODAL_SHELL}`}
+      >
+        <header className="border-b border-outline-variant/25 px-md py-4 lg:px-lg">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h2 className="text-headline-md font-semibold text-on-surface" id="duplicate-compare-title">
+              <h2
+                className="text-headline-md font-semibold text-landing-text"
+                id="duplicate-compare-title"
+              >
                 {isExact ? "Câu hỏi trùng hoàn toàn" : "Phát hiện câu hỏi tương tự"}
               </h2>
-              <p className="mt-1 text-body-md text-on-surface-variant">
+              <p className="mt-1 text-body-md text-landing-text-soft">
                 {warningMessage ??
                   (isExact
                     ? "Câu hỏi mới trùng với câu hỏi đã có trong ngân hàng."
@@ -49,7 +59,7 @@ export function DuplicateCompareModal({
             </div>
             <button
               aria-label="Đóng"
-              className="rounded-lg p-2 text-on-surface-variant transition hover:bg-surface-container-high"
+              className="rounded-xl p-2 text-landing-text-soft transition hover:bg-landing-gray/60 hover:text-landing-text"
               onClick={onClose}
               type="button"
             >
@@ -62,7 +72,7 @@ export function DuplicateCompareModal({
           <div className="grid grid-cols-1 gap-gutter lg:grid-cols-2">
             <ComparePanel
               badge="Câu hỏi hiện có"
-              badgeClassName="bg-surface-container-high text-on-surface-variant"
+              badgeClassName="bg-landing-gray text-landing-text-soft"
               content={existingQuestion.question}
               difficulty={existingQuestion.difficulty}
               id={existingQuestion.id}
@@ -72,7 +82,7 @@ export function DuplicateCompareModal({
             />
             <ComparePanel
               badge="Câu hỏi mới"
-              badgeClassName="bg-secondary-container text-on-secondary-fixed-variant"
+              badgeClassName="bg-catalog-cyan/12 text-catalog-cobalt"
               content={pendingPayload.question}
               difficulty={pendingPayload.difficulty}
               id="Mới"
@@ -83,9 +93,9 @@ export function DuplicateCompareModal({
           </div>
         </div>
 
-        <footer className="flex flex-col-reverse gap-3 border-t border-outline-variant/10 bg-surface-container-low px-md py-4 sm:flex-row sm:justify-end lg:px-lg">
+        <footer className="flex flex-col-reverse gap-3 border-t border-outline-variant/25 bg-landing-gray/25 px-md py-4 sm:flex-row sm:justify-end lg:px-lg">
           <button
-            className="rounded-lg px-6 py-2.5 text-label-md font-medium text-on-surface-variant transition hover:bg-surface-container-high"
+            className="rounded-xl px-6 py-2.5 text-label-md font-medium text-landing-text-soft transition hover:bg-landing-gray/60 hover:text-landing-text"
             onClick={onClose}
             type="button"
           >
@@ -93,7 +103,7 @@ export function DuplicateCompareModal({
           </button>
           {!isExact && (
             <button
-              className="flex items-center justify-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-label-md font-medium text-on-primary transition hover:opacity-90 disabled:opacity-50"
+              className={`${TEACHER_MODAL_BTN_PRIMARY} disabled:opacity-50`}
               disabled={saving}
               onClick={onConfirmSave}
               type="button"
@@ -128,15 +138,15 @@ function ComparePanel({
   options: string[];
 }) {
   return (
-    <article className="flex flex-col rounded-lg border border-outline-variant/20 bg-white">
-      <div className="border-b border-outline-variant/10 px-4 py-3">
+    <article className="flex flex-col rounded-2xl border border-outline-variant/25 bg-landing-white">
+      <div className="border-b border-outline-variant/15 px-4 py-3">
         <span className={`inline-block rounded-full px-3 py-1 text-label-sm font-semibold ${badgeClassName}`}>
           {badge}
         </span>
-        <p className="mt-2 font-mono text-label-sm text-on-surface-variant">{id}</p>
+        <p className="mt-2 font-mono text-label-sm text-landing-text-soft">{id}</p>
       </div>
       <div className="space-y-3 px-4 py-4">
-        <p className="whitespace-pre-wrap text-body-md text-on-surface">{content}</p>
+        <p className="whitespace-pre-wrap text-body-md text-landing-text">{content}</p>
         <div className="grid grid-cols-2 gap-2 text-label-sm">
           <MetaChip label="Loại" value={type} />
           <MetaChip label="Độ khó" value={difficulty} />
@@ -144,11 +154,11 @@ function ComparePanel({
         </div>
         {options.length > 0 && (
           <div>
-            <p className="mb-2 text-label-sm font-medium text-on-surface-variant">Lựa chọn</p>
+            <p className="mb-2 text-label-sm font-medium text-landing-text-soft">Lựa chọn</p>
             <ul className="space-y-1.5">
               {options.map((option, index) => (
                 <li
-                  className="rounded-md bg-surface-container-low px-3 py-1.5 text-label-md text-on-surface"
+                  className="rounded-xl bg-landing-gray/35 px-3 py-1.5 text-label-md text-landing-text"
                   key={`${id}-compare-${index}`}
                 >
                   {option}
@@ -164,9 +174,9 @@ function ComparePanel({
 
 function MetaChip({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-md bg-surface-container-low px-2 py-1.5">
-      <span className="text-on-surface-variant/70">{label}: </span>
-      <span className="font-medium text-on-surface">{value}</span>
+    <div className="rounded-xl bg-landing-gray/35 px-2 py-1.5">
+      <span className="text-landing-text-soft">{label}: </span>
+      <span className="font-medium text-landing-text">{value}</span>
     </div>
   );
 }
