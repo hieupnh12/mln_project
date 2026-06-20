@@ -1,6 +1,24 @@
 import type { CreateQuestionPayload } from "../types/question-library-api.types";
 import type { QuestionDraft } from "../types/question-library.types";
 import { resolveLessonIdFromDraft } from "./lesson-options";
+import { formatCorrectAnswerFromIndices } from "./resolve-correct-option-indices";
+
+function isOptionBasedType(type: QuestionDraft["type"]) {
+  return type === "Trắc nghiệm" || type === "Nhiều đáp án";
+}
+
+function buildOptionPayload(draft: QuestionDraft, correctIndices: number[]) {
+  return draft.options
+    .map((content, index) => ({
+      content: content.trim(),
+      sourceIndex: index,
+    }))
+    .filter((entry) => entry.content.length > 0)
+    .map(({ content, sourceIndex }) => ({
+      content,
+      isCorrect: correctIndices.includes(sourceIndex),
+    }));
+}
 
 export function mapDraftToCreatePayload(
   draft: QuestionDraft,
@@ -13,12 +31,12 @@ export function mapDraftToCreatePayload(
   }
 
   const title = draft.title.trim() || draft.question.trim();
-  const options = draft.options
-    .filter((option) => option.trim().length > 0)
-    .map((content, index) => ({
-      content: content.trim(),
-      isCorrect: draft.type === "Trắc nghiệm" ? index === draft.correctOptionIndex : false,
-    }));
+  const correctIndices = isOptionBasedType(draft.type) ? (draft.correctOptionIndices ?? []) : [];
+  const options = buildOptionPayload(draft, correctIndices);
+  const trimmedOptions = draft.options.map((option) => option.trim());
+  const answer = isOptionBasedType(draft.type)
+    ? formatCorrectAnswerFromIndices(trimmedOptions, correctIndices) || draft.answer.trim()
+    : draft.answer.trim();
 
   return {
     lessonId,
@@ -29,12 +47,12 @@ export function mapDraftToCreatePayload(
     status,
     bloomLevel: draft.bloomLevel,
     explanation: draft.explanation,
-    answer: draft.answer,
+    answer,
     score: draft.score,
     estimatedTime: draft.estimatedTime,
     tags: draft.tags,
-    options,
-    correctOptionIndex: draft.correctOptionIndex,
+    options: options.length > 0 ? options : undefined,
+    correctOptionIndex: correctIndices[0],
     allowSimilarSave,
   };
 }

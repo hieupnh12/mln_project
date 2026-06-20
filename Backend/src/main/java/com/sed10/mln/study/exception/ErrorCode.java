@@ -21,6 +21,7 @@ public enum ErrorCode {
     QUIZ_DELETE_NOT_ALLOWED(3013, "Chỉ có thể xóa quiz bản nháp", HttpStatus.CONFLICT),
     QUIZ_CLOSE_INVALID(3014, "Chỉ có thể tắt quiz đang live", HttpStatus.CONFLICT),
     QUIZ_NOT_AVAILABLE(3015, "Quiz không còn trong thời gian làm bài", HttpStatus.CONFLICT),
+    QUIZ_IMPORT_NO_QUESTIONS(3016, "Không có câu hợp lệ để tạo quiz từ file import", HttpStatus.BAD_REQUEST),
     STUDENT_ACCESS_DENIED(3020, "Không có quyền truy cập dữ liệu học sinh khác", HttpStatus.FORBIDDEN),
     SUBJECT_NOT_FOUND(1000, "Subject not found", HttpStatus.NOT_FOUND),
     CHAPTER_NOT_FOUND(1001, "Chapter not found", HttpStatus.NOT_FOUND),

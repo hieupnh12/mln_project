@@ -31,7 +31,7 @@ function QuestionPane({
   session,
   settings,
 }: QuestionPaneProps) {
-  if (isLoading) {
+  if (isLoading && !session.currentQuestion) {
     return (
       <article className="space-y-3 rounded-xl border border-outline-variant/35 bg-landing-white p-gutter shadow-lg shadow-landing-text/5">
         <div className="h-10 w-full animate-pulse rounded-lg bg-landing-gray" />
@@ -88,7 +88,8 @@ function QuestionPane({
         onContinue={session.handleContinue}
         onCountdownComplete={session.handleCountdownComplete}
         onSelectOption={session.handleSelectOption}
-        selectedOptionIndex={session.selectedOptionIndex}
+        onSubmitAnswer={session.handleSubmitAnswer}
+        selectedOptionIndices={session.selectedOptionIndices}
         settings={settings}
       />
     </article>

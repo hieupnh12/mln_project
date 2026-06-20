@@ -4,6 +4,7 @@ import { Link } from "react-router";
 import type { SubjectListItem } from "~/features/student/types/student.types";
 
 import { MaterialIcon } from "../../../components/teacher-icons";
+import { TEACHER_PORTAL_ROW_SHADOW } from "../../../constants/teacher-ui.constants";
 import { TEACHER_ROUTES } from "../../../constants/teacher-dashboard.constants";
 import { ConfirmDeleteModal } from "../modals/confirm-delete-modal";
 import {
@@ -97,10 +98,10 @@ export function SubjectCard({
   };
 
   const cardClassName = [
-    "group flex min-h-40 flex-col justify-between rounded-2xl border p-gutter transition duration-200",
+    "group flex min-h-52 flex-col justify-between rounded-2xl border p-gutter transition duration-200",
     isEditing
-      ? "border-secondary-fixed-dim bg-white shadow-[0_0_0_3px_rgba(191,232,230,0.22),0_4px_16px_rgba(35,39,51,0.06)]"
-      : "border-outline-variant/20 bg-white shadow-[0_4px_20px_rgba(35,39,51,0.04)] hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(35,39,51,0.08)]",
+      ? "border-primary/25 bg-landing-white ring-1 ring-primary/15"
+      : `border-outline-variant/25 bg-landing-white hover:-translate-y-0.5 hover:border-outline-variant/45 ${TEACHER_PORTAL_ROW_SHADOW}`,
   ].join(" ");
 
   return (
@@ -116,7 +117,7 @@ export function SubjectCard({
 
             <div className="flex items-center gap-2 pt-0.5">
               <button
-                className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full bg-error-container text-on-error-container transition hover:bg-[#ffb4ab] active:scale-95"
+                className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-xl bg-error-container text-error transition hover:opacity-90 active:scale-95"
                 onClick={() => setDeleteModalOpen(true)}
                 title="Xóa"
                 type="button"
@@ -124,14 +125,14 @@ export function SubjectCard({
                 <MaterialIcon className="text-[17px]">delete</MaterialIcon>
               </button>
               <button
-                className="flex h-[34px] items-center justify-center rounded-full bg-surface-container px-3.5 text-[13px] font-medium text-on-surface-variant transition hover:bg-surface-container-high active:scale-[0.96]"
+                className="flex h-[34px] items-center justify-center rounded-xl border border-outline-variant/40 bg-landing-white px-3.5 text-[13px] font-medium text-landing-text-soft transition hover:bg-landing-gray/60 active:scale-[0.96]"
                 onClick={onCancelEdit}
                 type="button"
               >
                 Hủy
               </button>
               <button
-                className="flex h-[34px] flex-1 items-center justify-center gap-1 rounded-full bg-primary-container px-3.5 text-[13px] font-medium text-on-primary transition hover:bg-[#3a3f52] active:scale-[0.96] disabled:opacity-60"
+                className="flex h-[34px] flex-1 items-center justify-center gap-1 rounded-xl bg-landing-red px-3.5 text-[13px] font-semibold text-on-primary transition hover:bg-landing-red-deep active:scale-[0.96] disabled:opacity-60"
                 disabled={updateMutation.isPending}
                 onClick={() => void handleSave()}
                 type="button"
@@ -144,17 +145,12 @@ export function SubjectCard({
         ) : (
           <>
             <div>
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0 flex-1">
-                  <span className="inline-block rounded-full bg-secondary-container px-3 py-1 text-label-sm font-semibold text-secondary">
-                    {subject.code}
-                  </span>
-                  <h4 className="mt-4 text-headline-md font-semibold text-primary group-hover:text-secondary">
-                    {subject.title}
-                  </h4>
+              <div className="mb-4 flex items-start justify-between gap-3">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-catalog-cyan/12 text-catalog-cobalt">
+                  <MaterialIcon>menu_book</MaterialIcon>
                 </div>
                 <button
-                  className="mt-0.5 flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full bg-surface-container text-on-surface-variant transition hover:bg-secondary-container hover:text-secondary active:scale-95"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-outline-variant/35 bg-landing-gray/40 text-landing-text-soft transition hover:bg-landing-gray/70 hover:text-landing-text active:scale-95"
                   onClick={onStartEdit}
                   title="Chỉnh sửa"
                   type="button"
@@ -162,17 +158,24 @@ export function SubjectCard({
                   <MaterialIcon className="text-[17px]">edit</MaterialIcon>
                 </button>
               </div>
-              <p className="mt-2 line-clamp-2 text-label-md text-on-surface-variant">
+
+              <span className="inline-block rounded-full bg-landing-gray px-3 py-1 text-label-sm font-semibold text-landing-text-soft">
+                {subject.code}
+              </span>
+              <h4 className="mt-3 line-clamp-2 text-headline-md font-semibold text-landing-text">
+                {subject.title}
+              </h4>
+              <p className="mt-2 line-clamp-2 text-label-md text-landing-text-soft">
                 {subject.description || "Chưa có mô tả"}
               </p>
             </div>
 
             <Link
-              className="mt-4 inline-flex items-center gap-1 text-label-md font-medium text-primary transition hover:text-secondary"
+              className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-landing-red py-2.5 text-label-md font-semibold text-on-primary shadow-md shadow-landing-red/15 transition hover:bg-landing-red-deep"
               to={`${TEACHER_ROUTES.courses}/${subject.id}`}
             >
+              <MaterialIcon>account_tree</MaterialIcon>
               Quản lý cấu trúc
-              <MaterialIcon>arrow_forward</MaterialIcon>
             </Link>
           </>
         )}

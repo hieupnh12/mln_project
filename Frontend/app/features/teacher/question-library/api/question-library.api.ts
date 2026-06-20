@@ -1,5 +1,7 @@
 import { apiClient } from "~/shared/services/api-client";
 
+import { ApiRequestError } from "~/shared/services/api-client";
+
 import {
   QUESTION_BATCH_IMPORT_TIMEOUT_MS,
   QUESTION_LIBRARY_ENDPOINTS,
@@ -20,8 +22,28 @@ import type {
 } from "../types/question-library-api.types";
 import type { QuestionFilters } from "../types/question-library.types";
 
-function unwrap<T>(response: { data: BackendApiResponse<T> }): T {
-  return response.data.result;
+const API_SUCCESS_CODE = 1000;
+
+function unwrap<T>(response: { data: BackendApiResponse<T>; status?: number }): T {
+  const payload = response.data;
+
+  if (payload.code !== undefined && payload.code !== API_SUCCESS_CODE) {
+    throw new ApiRequestError({
+      message: payload.message ?? "Không thể xử lý phản hồi từ API.",
+      code: String(payload.code),
+      status: response.status,
+    });
+  }
+
+  if (payload.result == null) {
+    throw new ApiRequestError({
+      message: payload.message ?? "API không trả về dữ liệu kết quả.",
+      code: payload.code != null ? String(payload.code) : undefined,
+      status: response.status,
+    });
+  }
+
+  return payload.result;
 }
 
 export async function fetchQuestionMetadata() {

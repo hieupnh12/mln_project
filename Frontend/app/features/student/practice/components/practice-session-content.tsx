@@ -14,10 +14,11 @@ type PracticeSessionContentProps = {
   currentQuestion: PracticeQuestion;
   displayIndex: number;
   answerState: PracticeAnswerState;
-  selectedOptionIndex: number | null;
+  selectedOptionIndices: number[];
   countdownActive: boolean;
   countdownVariant?: "inline" | "fixed";
   onSelectOption: (index: number) => void;
+  onSubmitAnswer: () => void;
   onContinue: () => void;
   onCountdownComplete: () => void;
 };
@@ -27,10 +28,11 @@ export function PracticeSessionContent({
   currentQuestion,
   displayIndex,
   answerState,
-  selectedOptionIndex,
+  selectedOptionIndices,
   countdownActive,
   countdownVariant = "inline",
   onSelectOption,
+  onSubmitAnswer,
   onContinue,
   onCountdownComplete,
 }: PracticeSessionContentProps) {
@@ -41,6 +43,10 @@ export function PracticeSessionContent({
   });
 
   const showFeedback = answerState === "answered";
+  const showSubmitButton =
+    currentQuestion.isMultipleChoice
+    && answerState === "idle"
+    && selectedOptionIndices.length > 0;
 
   return (
     <div className="relative flex flex-1 flex-col gap-4 pb-8 md:gap-5">
@@ -53,15 +59,32 @@ export function PracticeSessionContent({
       <PracticeQuestionCard
         questionIndex={displayIndex}
         questionText={currentQuestion.question}
+        questionType={currentQuestion.isMultipleChoice ? "Nhiều đáp án" : undefined}
       />
 
       <PracticeOptionsList
         answerState={answerState}
-        correctOptionIndex={currentQuestion.correctOptionIndex}
+        correctOptionIndices={currentQuestion.correctOptionIndices}
+        isMultipleChoice={currentQuestion.isMultipleChoice}
         onSelect={onSelectOption}
         options={currentQuestion.options}
-        selectedOptionIndex={selectedOptionIndex}
+        selectedOptionIndices={selectedOptionIndices}
       />
+
+      {showSubmitButton ? (
+        <div className="flex justify-end">
+          <button
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-label-md font-bold text-on-primary shadow-md shadow-primary/10 transition hover:opacity-90 active:scale-95"
+            onClick={onSubmitAnswer}
+            type="button"
+          >
+            Xác nhận đáp án
+            <span className="rounded-full bg-on-primary/15 px-2 py-0.5 text-label-sm">
+              {selectedOptionIndices.length}
+            </span>
+          </button>
+        </div>
+      ) : null}
 
       {showFeedback ? (
         <PracticeAnswerFeedback

@@ -4,6 +4,9 @@ import {
   type SubjectFormValues,
 } from "../../utils/validate-subject-form";
 
+const fieldClassName =
+  "w-full rounded-xl border-0 bg-landing-white px-3 py-2.5 text-body-md text-landing-text outline-none ring-1 ring-outline-variant/15 transition placeholder:text-landing-text-soft focus:ring-primary/25";
+
 type SubjectFormFieldsProps = {
   values: SubjectFormValues;
   errors: SubjectFormErrors;
@@ -14,11 +17,11 @@ export function SubjectFormFields({ values, errors, onChange }: SubjectFormField
   return (
     <>
       <div>
-        <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-on-surface-variant">
+        <label className="mb-1.5 block text-label-sm font-medium text-landing-text-soft">
           Kí hiệu
         </label>
         <input
-          className="w-full rounded-[10px] border-[1.5px] border-outline-variant bg-surface-container-low px-3 py-2 font-semibold uppercase tracking-wider text-on-secondary-container text-label-sm outline-none transition focus:border-secondary focus:bg-white focus:shadow-[0_0_0_3px_rgba(191,232,230,0.28)]"
+          className={`${fieldClassName} font-semibold uppercase tracking-wider`}
           maxLength={12}
           onChange={(event) => onChange("code", event.target.value)}
           placeholder="VD: MLN111"
@@ -31,11 +34,11 @@ export function SubjectFormFields({ values, errors, onChange }: SubjectFormField
       </div>
 
       <div>
-        <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-on-surface-variant">
+        <label className="mb-1.5 block text-label-sm font-medium text-landing-text-soft">
           Tên môn học
         </label>
         <input
-          className="w-full rounded-[10px] border-[1.5px] border-outline-variant bg-surface-container-low px-3 py-2 text-[17px] font-semibold text-primary outline-none transition focus:border-secondary focus:bg-white focus:shadow-[0_0_0_3px_rgba(191,232,230,0.28)]"
+          className={`${fieldClassName} text-headline-sm font-semibold`}
           onChange={(event) => onChange("title", event.target.value)}
           placeholder="Nhập tên môn học"
           type="text"
@@ -47,11 +50,11 @@ export function SubjectFormFields({ values, errors, onChange }: SubjectFormField
       </div>
 
       <div>
-        <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-on-surface-variant">
+        <label className="mb-1.5 block text-label-sm font-medium text-landing-text-soft">
           Mô tả
         </label>
         <textarea
-          className="min-h-[72px] w-full resize-y rounded-[10px] border-[1.5px] border-outline-variant bg-surface-container-low px-3 py-2 text-label-md text-on-surface outline-none transition focus:border-secondary focus:bg-white focus:shadow-[0_0_0_3px_rgba(191,232,230,0.28)]"
+          className={`${fieldClassName} min-h-[72px] resize-y`}
           maxLength={SUBJECT_DESCRIPTION_MAX_LENGTH}
           onChange={(event) => onChange("description", event.target.value)}
           placeholder="Nhập mô tả môn học (tuỳ chọn)"

@@ -27,7 +27,11 @@ import type {
   QuestionListResult,
 } from "../types/question-library.types";
 
-function mapQuestionListItemDto(item: QuestionListItemDto): QuestionListItem {
+function mapQuestionListItemDto(item: QuestionListItemDto | null | undefined): QuestionListItem {
+  if (!item?.id) {
+    throw new Error("Dữ liệu câu hỏi không hợp lệ từ API.");
+  }
+
   return {
     id: item.id,
     title: item.title,

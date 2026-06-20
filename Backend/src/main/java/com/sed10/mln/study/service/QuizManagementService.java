@@ -2,7 +2,11 @@ package com.sed10.mln.study.service;
 
 import com.sed10.mln.study.constant.QuestionConstant;
 import com.sed10.mln.study.constant.QuizConstant;
+import com.sed10.mln.study.dto.request.BatchImportRequest;
+import com.sed10.mln.study.dto.request.ImportExamAsQuizRequest;
 import com.sed10.mln.study.dto.request.SaveQuizRequest;
+import com.sed10.mln.study.dto.response.ExamBatchImportResult;
+import com.sed10.mln.study.dto.response.ImportExamAsQuizResponse;
 import com.sed10.mln.study.dto.response.QuestionListResponse;
 import com.sed10.mln.study.dto.response.QuestionResponse;
 import com.sed10.mln.study.dto.response.QuizDetailResponse;
@@ -177,6 +181,38 @@ public class QuizManagementService {
         quiz = quizRepository.save(quiz);
         replaceQuizQuestions(quiz, request.getQuestionIds());
         return buildSavedQuizResponse(quiz, request.getQuestionIds());
+    }
+
+    @Transactional
+    public ImportExamAsQuizResponse importExamAsQuiz(ImportExamAsQuizRequest request) {
+        BatchImportRequest importRequest = new BatchImportRequest();
+        importRequest.setLessonId(request.getLessonId());
+        importRequest.setTargetStatus(request.getTargetStatus());
+        importRequest.setRows(request.getRows());
+
+        ExamBatchImportResult importResult = questionLibraryService.batchImportForExam(importRequest);
+        if (importResult.getQuestionIds() == null || importResult.getQuestionIds().isEmpty()) {
+            throw new AppException(ErrorCode.QUIZ_IMPORT_NO_QUESTIONS);
+        }
+
+        SaveQuizRequest quizRequest = new SaveQuizRequest();
+        quizRequest.setTitle(request.getTitle());
+        quizRequest.setCourse(request.getCourse());
+        quizRequest.setChapter(request.getChapter());
+        quizRequest.setLesson(request.getLesson());
+        quizRequest.setDuration(request.getDuration());
+        quizRequest.setPassingScore(request.getPassingScore());
+        quizRequest.setShuffleAnswers(request.getShuffleAnswers());
+        quizRequest.setRandomQuestions(false);
+        quizRequest.setRandomCount(importResult.getQuestionIds().size());
+        quizRequest.setQuestionIds(importResult.getQuestionIds());
+
+        QuizDetailResponse quiz = createQuiz(quizRequest);
+
+        return ImportExamAsQuizResponse.builder()
+                .quiz(quiz)
+                .importReport(importResult.getReport())
+                .build();
     }
 
     @Transactional

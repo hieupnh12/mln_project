@@ -13,18 +13,26 @@ export type PracticeQuestion = {
   id: string;
   questionNumber: number;
   question: string;
+  type: string;
   chapterId: number | null;
   lessonId: number | null;
   chapter: string;
   lesson: string;
   options: string[];
   correctOptionIndex: number;
+  correctOptionIndices: number[];
+  isMultipleChoice: boolean;
   explanation: string;
 };
 
 export type PracticeAnswerState = "idle" | "answered";
 
-export type PracticeOptionVisualState = "default" | "correct" | "incorrect" | "disabled";
+export type PracticeOptionVisualState =
+  | "default"
+  | "selected"
+  | "correct"
+  | "incorrect"
+  | "disabled";
 
 export type PracticeTestCard = {
   id: string;

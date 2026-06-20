@@ -14,6 +14,9 @@ public class BatchImportReportResponse {
     int totalRows;
     int savedCount;
     int skippedExactDuplicate;
+    int linkedExistingCount;
+    int linkedInternalCount;
+    int quizQuestionCount;
     int markedSimilar;
     int failedValidation;
     List<BatchImportRowResult> rows;

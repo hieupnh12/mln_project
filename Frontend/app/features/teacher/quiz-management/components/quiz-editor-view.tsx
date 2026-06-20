@@ -121,7 +121,7 @@ export function QuizEditorView({
   };
 
   return (
-    <section className="space-y-gutter">
+    <section className="space-y-md">
       <QuizEditorHeader
         isNew={isNew}
         onBack={onBack}

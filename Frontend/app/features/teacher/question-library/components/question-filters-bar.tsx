@@ -50,18 +50,18 @@ export function QuestionFiltersBar({
   onOpenExport,
 }: QuestionFiltersBarProps) {
   return (
-    <div className="space-y-gutter rounded-lg bg-surface-container-low p-gutter">
+    <div className="space-y-4 rounded-2xl border border-outline-variant/25 bg-landing-gray/25 p-4 md:p-5">
       <div className="w-full">
         <label className="sr-only" htmlFor="question-library-search">
           Tìm kiếm câu hỏi
         </label>
         <div className="relative">
-          <MaterialIcon className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">
+          <MaterialIcon className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-landing-text-soft">
             search
           </MaterialIcon>
           <input
             autoComplete="off"
-            className="block min-h-10 w-full rounded-lg border border-outline-variant/20 bg-white py-2 pl-10 pr-4 text-body-md text-on-surface placeholder:text-on-surface-variant/60 focus:border-primary/30 focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="block min-h-10 w-full rounded-xl border-0 bg-landing-white py-2.5 pl-10 pr-4 text-body-md text-landing-text outline-none ring-1 ring-outline-variant/15 transition placeholder:text-landing-text-soft focus:ring-primary/25"
             id="question-library-search"
             onChange={(event) => onSearchChange(event.target.value)}
             placeholder="Tìm kiếm theo nội dung, tiêu đề hoặc mã Q-..."
@@ -158,15 +158,15 @@ export function QuestionFiltersBar({
         </div>
         <div className="flex flex-wrap items-center justify-end gap-3">
           {selectedCount > 0 ? (
-            <span className="rounded-full bg-primary-fixed px-3 py-1 text-label-md font-medium text-primary">
+            <span className="rounded-full bg-landing-gray px-3 py-1 text-label-md font-medium text-landing-text">
               Đã chọn {selectedCount}
             </span>
           ) : null}
           <button
             className={
               canApprove
-                ? "flex items-center gap-2 rounded-lg bg-secondary-container px-4 py-2 text-label-md font-medium text-primary transition hover:bg-secondary-fixed disabled:cursor-not-allowed disabled:opacity-70"
-                : "flex cursor-not-allowed items-center gap-2 rounded-lg px-4 py-2 text-label-md font-medium text-on-surface-variant/40"
+                ? "flex items-center gap-2 rounded-xl border border-outline-variant/40 bg-landing-white px-4 py-2 text-label-md font-medium text-landing-text transition hover:bg-landing-gray/60 disabled:cursor-not-allowed disabled:opacity-70"
+                : "flex cursor-not-allowed items-center gap-2 rounded-xl px-4 py-2 text-label-md font-medium text-landing-text-soft/50"
             }
             disabled={!canApprove || approvingSelected}
             onClick={onApproveSelected}
@@ -207,7 +207,7 @@ function FilterSelect({
 }) {
   return (
     <select
-      className="min-w-0 w-full rounded-lg border-outline-variant/30 bg-white p-2 text-label-md font-medium text-on-surface focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:bg-surface-container-high disabled:text-on-surface-variant/60"
+      className="min-w-0 w-full rounded-xl border-0 bg-landing-white p-2.5 text-label-md font-medium text-landing-text outline-none ring-1 ring-outline-variant/15 transition focus:ring-primary/25 disabled:cursor-not-allowed disabled:bg-landing-gray/60 disabled:text-landing-text-soft"
       disabled={disabled}
       onChange={(event) => onChange(event.target.value)}
       value={value}
@@ -228,7 +228,7 @@ function OutlineAction({
 }) {
   return (
     <button
-      className="flex items-center gap-2 rounded-lg border border-outline-variant/50 px-4 py-2 text-label-md font-medium text-on-surface-variant transition hover:bg-surface-variant"
+      className="flex items-center gap-2 rounded-xl border border-outline-variant/40 bg-landing-white px-4 py-2 text-label-md font-medium text-landing-text-soft transition hover:bg-landing-gray/60"
       onClick={onClick}
       type="button"
     >

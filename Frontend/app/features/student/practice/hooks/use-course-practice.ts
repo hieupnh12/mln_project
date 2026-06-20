@@ -33,7 +33,6 @@ export function useCoursePractice({ subjectId, active }: UseCoursePracticeOption
     ),
     queryFn: () =>
       getPracticeQuestions(subjectId, scope, DEFAULT_PRACTICE_QUESTION_BATCH_SIZE),
-    enabled: active,
     staleTime: PRACTICE_QUERY_STALE_TIME_MS,
     placeholderData: (previousData) => previousData,
   });
@@ -49,7 +48,7 @@ export function useCoursePractice({ subjectId, active }: UseCoursePracticeOption
   const wasActiveRef = useRef(false);
 
   useEffect(() => {
-    if (!active || questionsQuery.isLoading || questionsQuery.isFetching || session.poolEmpty) {
+    if (!active || questionsQuery.isLoading || session.poolEmpty) {
       if (!active) {
         wasActiveRef.current = false;
       }
@@ -67,7 +66,6 @@ export function useCoursePractice({ subjectId, active }: UseCoursePracticeOption
   }, [
     active,
     questionsQuery.isLoading,
-    questionsQuery.isFetching,
     questionsQuery.data,
     scopeKey,
     session.poolEmpty,

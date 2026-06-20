@@ -13,5 +13,7 @@ import java.util.List;
 public class StudentExamQuestionResponse {
     String id;
     String question;
+    String type;
+    Boolean multipleChoice;
     List<StudentExamOptionResponse> options;
 }

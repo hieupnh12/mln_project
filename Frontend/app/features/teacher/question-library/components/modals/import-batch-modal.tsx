@@ -4,6 +4,7 @@ import { useRunningAsyncActivity } from "~/shared/hooks/use-running-async-activi
 import { showErrorToast, showSuccessToast } from "~/shared/utils/toast";
 
 import { useImportBatch } from "../../hooks/use-import-batch";
+import { TEACHER_MODAL_SHELL } from "../../../constants/teacher-ui.constants";
 import type {
   BatchImportReportDto,
   LessonOptionDto,
@@ -121,8 +122,10 @@ export function ImportBatchModal({
 
   return (
     <>
-      <ModalOverlay glass labelledBy="import-batch-title" onClose={handleClose} open={open}>
-        <div className="custom-scrollbar mx-auto flex max-h-[calc(100vh-32px)] w-full max-w-6xl flex-col overflow-hidden rounded-xl border border-outline-variant/20 bg-background shadow-2xl">
+      <ModalOverlay labelledBy="import-batch-title" onClose={handleClose} open={open}>
+        <div
+          className={`custom-scrollbar mx-auto flex max-h-[calc(100vh-32px)] w-full max-w-6xl flex-col ${TEACHER_MODAL_SHELL}`}
+        >
           <div className="custom-scrollbar flex-1 overflow-y-auto p-md lg:p-xl">
             <div className="mx-auto max-w-6xl space-y-gutter">
               <ImportBatchHeader

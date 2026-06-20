@@ -18,12 +18,16 @@ export function createQuestionFromDraft(
 ): QuestionItem {
   const title = draft.title.trim() || draft.question.trim();
   const correctAnswer =
-    draft.type === "Trắc nghiệm"
-      ? draft.options[draft.correctOptionIndex] ?? draft.answer
+    draft.type === "Trắc nghiệm" || draft.type === "Nhiều đáp án"
+      ? draft.options[draft.correctOptionIndices[0] ?? 0] ?? draft.answer
       : draft.answer;
 
-  const { explanation: _explanation, bloomLevel: _bloom, correctOptionIndex: _idx, ...rest } =
-    draft;
+  const {
+    explanation: _explanation,
+    bloomLevel: _bloom,
+    correctOptionIndices: _indices,
+    ...rest
+  } = draft;
 
   return {
     ...rest,

@@ -2,6 +2,7 @@ import { useState } from "react";
 
 import { MaterialIcon } from "../../components/teacher-icons";
 import { useTeacherSubjectsQuery } from "../hooks/use-course-structure-queries";
+import { CourseStructureHeader } from "./course-structure-header";
 import { NewSubjectCard } from "./subject-list/new-subject-card";
 import { SubjectCard } from "./subject-list/subject-card";
 
@@ -10,7 +11,7 @@ function SubjectSkeleton() {
     <>
       {Array.from({ length: 3 }).map((_, index) => (
         <div
-          className="min-h-40 animate-pulse rounded-2xl border border-outline-variant/20 bg-surface-container-low"
+          className="min-h-52 animate-pulse rounded-2xl border border-outline-variant/20 bg-landing-gray/60"
           key={index}
         />
       ))}
@@ -37,38 +38,20 @@ export function TeacherSubjectList() {
   };
 
   return (
-    <div className="mx-auto max-w-5xl" id="course-structure">
-      <div className="mb-lg space-y-xs">
-        <div className="flex items-center gap-4">
-          <h3 className="text-headline-lg font-semibold text-primary">Môn học tiếp nhận</h3>
-          {!subjectsQuery.isLoading && !subjectsQuery.isError ? (
-            <button
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-secondary-container text-on-secondary-container shadow-[0_4px_20px_rgba(35,39,51,0.05)] transition hover:scale-105"
-              disabled={isCreating}
-              onClick={handleStartCreate}
-              title="Thêm môn học mới"
-              type="button"
-            >
-              <MaterialIcon>add</MaterialIcon>
-            </button>
-          ) : null}
-        </div>
-        <p className="text-body-md text-on-surface-variant">
-          Chọn môn để quản lý cấu trúc khóa học: chương, bài học và tài liệu.
-        </p>
-      </div>
+    <div className="w-full space-y-md" id="course-structure">
+      <CourseStructureHeader addDisabled={isCreating} onAddSubject={handleStartCreate} />
 
       {subjectsQuery.isLoading ? (
-        <div className="grid grid-cols-1 gap-gutter md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-gutter md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           <SubjectSkeleton />
         </div>
       ) : null}
 
       {subjectsQuery.isError ? (
-        <div className="rounded-xl border border-error/30 bg-error-container/40 p-gutter">
+        <div className="rounded-2xl border border-error/30 bg-error-container/40 p-gutter">
           <p className="text-body-md font-medium text-error">Không thể tải danh sách môn học.</p>
           <button
-            className="mt-3 rounded-lg bg-primary px-5 py-2 text-label-md font-medium text-on-primary"
+            className="mt-3 rounded-xl bg-landing-red px-5 py-2.5 text-label-md font-semibold text-on-primary shadow-md shadow-landing-red/20 transition hover:bg-landing-red-deep"
             onClick={() => subjectsQuery.refetch()}
             type="button"
           >
@@ -80,7 +63,7 @@ export function TeacherSubjectList() {
       {!subjectsQuery.isLoading && !subjectsQuery.isError ? (
         <>
           {(hasSubjects || isCreating) && (
-            <div className="grid grid-cols-1 gap-gutter md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-gutter md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {isCreating ? (
                 <NewSubjectCard
                   onCancel={() => setIsCreating(false)}
@@ -101,14 +84,20 @@ export function TeacherSubjectList() {
           )}
 
           {!hasSubjects && !isCreating ? (
-            <div className="rounded-xl border border-outline-variant bg-white p-gutter text-center">
-              <MaterialIcon className="mx-auto mb-3 text-[40px] text-on-surface-variant">
-                menu_book
-              </MaterialIcon>
-              <p className="text-headline-md font-semibold text-primary">Chưa có môn học nào</p>
-              <p className="mt-2 text-label-md text-on-surface-variant">
-                Nhấn nút thêm để tạo môn học đầu tiên.
+            <div className="rounded-2xl border border-dashed border-outline-variant/40 bg-landing-gray/25 p-gutter text-center">
+              <MaterialIcon className="mx-auto mb-3 text-[40px] text-catalog-cobalt/70">menu_book</MaterialIcon>
+              <p className="text-headline-md font-semibold text-landing-text">Chưa có môn học nào</p>
+              <p className="mt-2 text-label-md text-landing-text-soft">
+                Nhấn &quot;Thêm môn học&quot; để tạo môn đầu tiên.
               </p>
+              <button
+                className="mt-4 inline-flex items-center gap-2 rounded-xl bg-landing-red px-5 py-2.5 text-label-md font-semibold text-on-primary shadow-md shadow-landing-red/20 transition hover:bg-landing-red-deep"
+                onClick={handleStartCreate}
+                type="button"
+              >
+                <MaterialIcon>add</MaterialIcon>
+                Thêm môn học
+              </button>
             </div>
           ) : null}
         </>

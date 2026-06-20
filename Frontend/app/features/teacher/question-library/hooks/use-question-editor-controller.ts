@@ -43,8 +43,12 @@ type UseQuestionEditorControllerParams = {
 };
 
 const DUPLICATE_ERROR_CODE = 3004;
+const PUBLISHED_NOT_EDITABLE_CODE = 3006;
 
-function getSuccessMessage(status: QuestionStatus, isEditing: boolean) {
+function getSuccessMessage(status: QuestionStatus, isEditing: boolean, wasPublished: boolean) {
+  if (isEditing && wasPublished) {
+    return "Đã cập nhật câu hỏi. Câu hỏi đang chờ duyệt lại.";
+  }
   if (isEditing) {
     return "Đã cập nhật câu hỏi.";
   }
@@ -100,11 +104,6 @@ export function useQuestionEditorController({
   }
 
   function openEditQuestion(question: QuestionItem) {
-    if (question.status === "Đã xuất bản") {
-      showInfoToast("Câu hỏi đã duyệt không thể chỉnh sửa.");
-      return;
-    }
-
     onCloseDetail();
     setEditingQuestionId(question.id);
     setEditingQuestionStatus(question.status);
@@ -113,12 +112,6 @@ export function useQuestionEditorController({
   }
 
   async function handleEditQuestion(id: string) {
-    const listItem = pageItems.find((item) => item.id === id);
-    if (listItem?.status === "Đã xuất bản") {
-      showInfoToast("Câu hỏi đã duyệt không thể chỉnh sửa.");
-      return;
-    }
-
     try {
       const question = await getQuestion(id);
       openEditQuestion(question);
@@ -150,7 +143,13 @@ export function useQuestionEditorController({
         setEditingQuestionStatus(null);
         setDuplicateCompare(null);
         closeModal();
-        showSuccessToast(getSuccessMessage(status, isEditing));
+        showSuccessToast(
+          getSuccessMessage(
+            status,
+            isEditing,
+            editingQuestionStatus === "Đã xuất bản",
+          ),
+        );
       },
     }).catch((error) => {
       if (
@@ -158,6 +157,15 @@ export function useQuestionEditorController({
         Number(error.code) === DUPLICATE_ERROR_CODE
       ) {
         showInfoToast("Câu hỏi trùng với câu hỏi đã có trong ngân hàng.");
+        return;
+      }
+      if (
+        error instanceof ApiRequestError &&
+        Number(error.code) === PUBLISHED_NOT_EDITABLE_CODE
+      ) {
+        showErrorToast(
+          "Server backend đang chạy phiên bản cũ. Khởi động lại backend rồi thử lại.",
+        );
         return;
       }
       showErrorToast(error instanceof Error ? error.message : "Không thể lưu câu hỏi.");
@@ -170,7 +178,24 @@ export function useQuestionEditorController({
       return;
     }
 
-    const payload = mapDraftToCreatePayload(draft, status, allowSimilarSave);
+    if (draft.type === "Trắc nghiệm" && (draft.correctOptionIndices ?? []).length === 0) {
+      showErrorToast("Vui lòng chọn đáp án đúng cho câu trắc nghiệm.");
+      return;
+    }
+
+    if (draft.type === "Nhiều đáp án") {
+      if ((draft.correctOptionIndices ?? []).length < 2) {
+        showErrorToast("Câu hỏi nhiều đáp án cần chọn ít nhất hai đáp án đúng.");
+        return;
+      }
+    }
+
+    const resolvedStatus =
+      editingQuestionStatus === "Đã xuất bản" && status !== "Bản nháp"
+        ? "Cần duyệt"
+        : status;
+
+    const payload = mapDraftToCreatePayload(draft, resolvedStatus, allowSimilarSave);
     if (!payload) {
       showErrorToast("Vui lòng chọn bài học trước khi lưu.");
       return;
@@ -236,16 +261,16 @@ export function useQuestionEditorController({
         label: importingPublished
           ? "Import câu hỏi đã duyệt"
           : "Import câu hỏi chờ duyệt",
-        detail: `${rows.length} dòng`,
-        simulateProgress: true,
+        detail: `${rows.length} dòng · chờ server xử lý`,
+        indeterminate: true,
         task: async (updateProgress) => {
-          updateProgress(25, "Đang gửi dữ liệu lên server...");
+          updateProgress(8, "Đang gửi dữ liệu lên server...");
           const result = await batchImportMutation.mutateAsync({
             lessonId: defaultLessonId,
             targetStatus,
             rows: rows.map(mapImportPreviewRowToPayload),
           });
-          updateProgress(95, `Đã xử lý ${result.savedCount}/${rows.length} dòng`);
+          updateProgress(100, `Đã xử lý ${result.savedCount}/${rows.length} dòng`);
           return result;
         },
       });
@@ -257,11 +282,17 @@ export function useQuestionEditorController({
       );
       return report;
     } catch (error) {
-      showErrorToast(
-        error instanceof ApiRequestError
-          ? error.message
-          : "Không thể import câu hỏi. Vui lòng thử lại.",
-      );
+      if (error instanceof ApiRequestError && /timeout/i.test(error.message)) {
+        showErrorToast(
+          "Import vẫn có thể đang xử lý trên server. Kiểm tra lại ngân hàng câu hỏi sau vài phút.",
+        );
+      } else {
+        showErrorToast(
+          error instanceof ApiRequestError
+            ? error.message
+            : "Không thể import câu hỏi. Vui lòng thử lại.",
+        );
+      }
       throw error;
     }
   }
@@ -275,6 +306,9 @@ export function useQuestionEditorController({
 
   function resolveSaveStatus(publish: boolean): QuestionStatus {
     if (editingQuestionId && editingQuestionStatus) {
+      if (editingQuestionStatus === "Đã xuất bản") {
+        return publish ? "Cần duyệt" : "Bản nháp";
+      }
       if (publish) {
         return editingQuestionStatus === "Bản nháp"
           ? "Đã xuất bản"

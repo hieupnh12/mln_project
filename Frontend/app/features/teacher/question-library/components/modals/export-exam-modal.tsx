@@ -18,6 +18,7 @@ import type {
 import { toWaygroundExportOptions } from "../../types/export-exam.types";
 import type { QuestionItem } from "../../types/question-library.types";
 import { buildQuizDraftPayload } from "../../utils/build-quiz-draft-payload";
+import { TEACHER_MODAL_SHELL } from "../../../constants/teacher-ui.constants";
 import { downloadWaygroundExport } from "../../utils/download-wayground-export";
 import {
   fetchExportQuestionDetails,
@@ -200,22 +201,22 @@ export function ExportExamModal({ open, lessonOptions, onClose }: ExportExamModa
 
   return (
     <ModalOverlay labelledBy="export-exam-title" onClose={onClose} open={open}>
-        <div className="custom-scrollbar mx-auto max-h-[calc(100vh-48px)] w-full max-w-[1400px] overflow-y-auto rounded-2xl bg-background p-4 shadow-2xl md:p-md">
-          <div className="mb-6 flex items-start justify-between gap-4 border-b border-outline-variant/10 pb-4">
+        <div className={`custom-scrollbar mx-auto max-h-[calc(100vh-48px)] w-full max-w-[1400px] overflow-y-auto p-4 md:p-md ${TEACHER_MODAL_SHELL}`}>
+          <div className="mb-6 flex items-start justify-between gap-4 border-b border-outline-variant/25 pb-4">
             <div>
               <h2
-                className="text-headline-lg font-semibold text-primary"
+                className="text-headline-lg font-semibold text-landing-text"
                 id="export-exam-title"
               >
                 Cấu hình xuất &amp; đề thi
               </h2>
-              <p className="mt-2 text-body-lg text-on-surface-variant">
+              <p className="mt-2 text-body-lg text-landing-text-soft">
                 Random đề, lưu quiz bản nháp hoặc xuất Excel Wayground.
               </p>
             </div>
             <button
               aria-label="Đóng"
-              className="shrink-0 rounded-full p-2 text-on-surface-variant transition hover:bg-surface-container hover:text-primary"
+              className="shrink-0 rounded-xl p-2 text-landing-text-soft transition hover:bg-landing-gray/60 hover:text-landing-text"
               onClick={onClose}
               type="button"
             >
@@ -229,7 +230,7 @@ export function ExportExamModal({ open, lessonOptions, onClose }: ExportExamModa
             </section>
             <section className="lg:col-span-7">
               {loadingCandidates ? (
-                <div className="rounded-xl border border-outline-variant/10 bg-surface-container-lowest shadow-sm">
+                <div className="rounded-2xl border border-outline-variant/25 bg-landing-gray/25">
                   <QuestionLibraryLoadingState
                     label="Đang tải ngân hàng câu hỏi theo trạng thái export"
                     minHeightClassName="min-h-[420px]"
