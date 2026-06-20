@@ -1,5 +1,9 @@
 import { LoaderCircle, Trash2, TriangleAlert } from "lucide-react";
 
+import {
+  TEACHER_MODAL_BTN_SECONDARY,
+  TEACHER_MODAL_SHELL,
+} from "../../../constants/teacher-ui.constants";
 import { ModalOverlay } from "./modal-overlay";
 
 type ConfirmQuestionDeleteModalProps = {
@@ -23,7 +27,7 @@ export function ConfirmQuestionDeleteModal({
 }: ConfirmQuestionDeleteModalProps) {
   return (
     <ModalOverlay labelledBy="question-delete-title" onClose={onClose} open={open}>
-      <div className="mx-auto w-[min(calc(100vw-32px),32rem)] max-w-none rounded-xl border border-outline-variant/20 bg-white shadow-xl">
+      <div className={`mx-auto w-[min(calc(100vw-32px),32rem)] max-w-none ${TEACHER_MODAL_SHELL}`}>
         <div className="p-gutter">
           <div className="mb-md grid grid-cols-[2.5rem_minmax(0,1fr)] items-start gap-sm">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-error-container text-error">
@@ -31,20 +35,18 @@ export function ConfirmQuestionDeleteModal({
             </div>
             <div className="min-w-0">
               <h2
-                className="text-headline-md font-semibold text-primary"
+                className="text-headline-md font-semibold text-landing-text"
                 id="question-delete-title"
               >
                 {title}
               </h2>
-              <p className="mt-1 break-words text-label-md text-on-surface-variant">
-                {description}
-              </p>
+              <p className="mt-1 break-words text-label-md text-landing-text-soft">{description}</p>
             </div>
           </div>
 
           <div className="flex flex-col-reverse gap-sm sm:flex-row sm:justify-end">
             <button
-              className="w-full min-w-24 rounded-lg border border-outline-variant px-5 py-2 text-label-md font-medium text-primary transition hover:bg-surface-container-low disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+              className={`${TEACHER_MODAL_BTN_SECONDARY} w-full sm:w-auto`}
               disabled={isPending}
               onClick={onClose}
               type="button"
@@ -52,7 +54,7 @@ export function ConfirmQuestionDeleteModal({
               Hủy
             </button>
             <button
-              className="inline-flex w-full min-w-32 items-center justify-center gap-2 rounded-lg bg-error px-5 py-2 text-label-md font-medium text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+              className="inline-flex w-full min-w-32 items-center justify-center gap-2 rounded-xl bg-error px-5 py-2.5 text-label-md font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
               disabled={isPending}
               onClick={onConfirm}
               type="button"

@@ -63,7 +63,7 @@ export function TeacherLayout() {
   }, [queryClient]);
 
   return (
-    <div className="teacher-theme-root min-h-svh overflow-x-hidden bg-background font-body-md text-on-surface">
+    <div className="teacher-theme-root min-h-svh overflow-x-hidden bg-landing-gray font-body-md text-landing-text">
 
       <TeacherSidebar
         collapsed={collapsed}
@@ -72,7 +72,7 @@ export function TeacherLayout() {
       />
 
       <main
-        className={`px-margin-mobile pb-24 pt-md transition-[margin] duration-200 ease-out md:px-margin-desktop lg:pb-xl ${mainOffsetClass}`}
+        className={`px-4 pb-24 pt-4 transition-[margin] duration-200 ease-out md:px-5 lg:px-6 lg:pb-xl ${mainOffsetClass}`}
       >
         <Outlet />
       </main>

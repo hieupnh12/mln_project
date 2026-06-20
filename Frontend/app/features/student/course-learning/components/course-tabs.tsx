@@ -1,29 +1,21 @@
-import { BookOpen, ClipboardCheck, Layers3, PenLine } from "lucide-react";
-
 import type { LearningTab } from "../../types/student.types";
-import { studentCourseTabs } from "../constants/student-course.constants";
-
-const tabIcons = {
-  lectures: BookOpen,
-  flashcards: Layers3,
-  practice: PenLine,
-  exams: ClipboardCheck,
-} satisfies Record<LearningTab, typeof BookOpen>;
+import { courseTabIcons, courseTabItems } from "../constants/course-tab-config";
 
 type CourseTabsProps = {
   activeTab: LearningTab;
   onTabChange: (tab: LearningTab) => void;
+  className?: string;
 };
 
-export function CourseTabs({ activeTab, onTabChange }: CourseTabsProps) {
+export function CourseTabs({ activeTab, onTabChange, className = "" }: CourseTabsProps) {
   return (
     <nav
       aria-label="Nội dung khóa học"
-      className="sticky top-16 z-40 mb-md border-y border-outline-variant/35 bg-landing-cream/90 py-2 backdrop-blur-xl"
+      className={`mb-md rounded-xl border border-outline-variant/35 bg-landing-white py-2 md:hidden ${className}`.trim()}
     >
-      <div className="flex gap-2 overflow-x-auto scroll-hide">
-        {studentCourseTabs.map((tab) => {
-          const Icon = tabIcons[tab.id];
+      <div className="flex gap-2 overflow-x-auto px-2 scroll-hide">
+        {courseTabItems.map((tab) => {
+          const Icon = courseTabIcons[tab.id];
           const isActive = activeTab === tab.id;
 
           return (
@@ -31,8 +23,8 @@ export function CourseTabs({ activeTab, onTabChange }: CourseTabsProps) {
               aria-pressed={isActive}
               className={
                 isActive
-                  ? "inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl bg-landing-red px-4 py-2 text-label-md font-semibold text-on-primary shadow-lg shadow-landing-red/15"
-                  : "inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-4 py-2 text-label-md font-medium text-landing-text-soft transition hover:bg-landing-white hover:text-landing-text"
+                  ? "inline-flex min-h-10 shrink-0 items-center gap-2 rounded-lg bg-secondary px-3 py-2 text-label-md font-semibold text-on-secondary shadow-sm"
+                  : "inline-flex min-h-10 shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-label-md font-medium text-landing-text-soft transition hover:bg-landing-gray hover:text-landing-text"
               }
               key={tab.id}
               onClick={() => onTabChange(tab.id)}

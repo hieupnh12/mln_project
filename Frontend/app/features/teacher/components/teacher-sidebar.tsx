@@ -1,7 +1,8 @@
+import { Landmark } from "lucide-react";
 import { Link, NavLink } from "react-router";
 
 import { useAuthUser } from "~/features/auth/hooks/use-auth-user";
-import { BrandLogo } from "~/shared/components/brand-logo";
+
 import {
   TEACHER_ROUTES,
   teacherNavItems,
@@ -26,7 +27,7 @@ export function TeacherSidebar({
 
   return (
     <aside
-      className={`fixed left-0 top-0 z-50 hidden h-svh flex-col border-r border-outline-variant/20 bg-surface/85 shadow-[0_4px_20px_rgba(35,39,51,0.04)] backdrop-blur transition-[width,padding] duration-200 ease-out lg:flex ${sidebarWidthClass} ${collapsed ? "px-2 py-md" : "p-md"}`}
+      className={`fixed left-0 top-0 z-50 hidden h-svh flex-col border-r border-outline-variant/35 bg-landing-white/95 shadow-lg shadow-landing-text/5 backdrop-blur-xl transition-[width,padding] duration-200 ease-out lg:flex ${sidebarWidthClass} ${collapsed ? "px-2 py-md" : "p-md"}`}
     >
       <div
         className={
@@ -39,11 +40,16 @@ export function TeacherSidebar({
           <TeacherSidebarToggle collapsed={collapsed} onToggle={onToggle} />
         ) : (
           <>
-            <Link className="flex min-w-0 flex-1 items-center gap-sm" to={TEACHER_ROUTES.dashboard}>
+            <Link className="flex min-w-0 flex-1 items-center gap-3" to={TEACHER_ROUTES.dashboard}>
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-landing-red to-landing-red-dark text-on-primary shadow-lg shadow-landing-red/15">
+                <Landmark aria-hidden="true" className="h-5 w-5" />
+              </span>
               <div className="min-w-0">
-                <BrandLogo />
-                <p className="text-label-sm font-semibold text-on-surface-variant/70">
-                  Teacher Portal
+                <p className="truncate font-serif text-lg font-bold text-landing-text">
+                  ML Learning
+                </p>
+                <p className="text-label-sm font-medium text-landing-text-soft">
+                  Cổng giảng viên
                 </p>
               </div>
             </Link>
@@ -83,7 +89,7 @@ export function TeacherSidebar({
       </nav>
 
       <div
-        className={`mt-auto border-t border-outline-variant/20 ${collapsed ? "pt-sm" : "pt-md"}`}
+        className={`mt-auto border-t border-outline-variant/25 ${collapsed ? "pt-sm" : "pt-md"}`}
       >
         <TeacherAccountMenu collapsed={collapsed} user={authUser} />
       </div>

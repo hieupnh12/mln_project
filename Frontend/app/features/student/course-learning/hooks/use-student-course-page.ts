@@ -10,7 +10,7 @@ import {
   DEFAULT_PRACTICE_QUESTION_BATCH_SIZE,
   PRACTICE_QUERY_KEYS,
 } from "../../practice/constants/practice.constants";
-import { getPracticeQuestions } from "../../practice/services/practice.service";
+import { getPracticeQuestionCount, getPracticeQuestions } from "../../practice/services/practice.service";
 import { useSubjectLessonProgressQuery } from "../../student-progress/hooks/use-student-progress-queries";
 import {
   findNextLessonAfterComplete,
@@ -104,6 +104,11 @@ export function useStudentCoursePage() {
         });
       }
     }).catch(() => {});
+    void queryClient.prefetchQuery({
+      queryKey: PRACTICE_QUERY_KEYS.count(subjectId, null, null),
+      queryFn: () => getPracticeQuestionCount(subjectId, { chapterId: null, lessonId: null }),
+      staleTime: 5 * 60 * 1000,
+    });
     void queryClient.prefetchQuery({
       queryKey: PRACTICE_QUERY_KEYS.questions(
         subjectId,
@@ -254,6 +259,22 @@ export function useStudentCoursePage() {
     [setSearchParams],
   );
 
+  const handleGoToLesson = useCallback(
+    (chapterId: number, lessonId: number) => {
+      setSearchParams(
+        (current) => {
+          const next = new URLSearchParams(current);
+          next.set("chapter", String(chapterId));
+          next.set("lesson", String(lessonId));
+          next.delete("material");
+          return next;
+        },
+        { replace: true },
+      );
+    },
+    [setSearchParams],
+  );
+
   const handleGoToNextLesson = useCallback(
     (currentLessonId: number) => {
       const nextLesson = findNextLessonAfterComplete(
@@ -285,6 +306,7 @@ export function useStudentCoursePage() {
     expandedChapterId,
     expandedLessonId,
     flashcardSetsQuery,
+    handleGoToLesson,
     handleGoToNextLesson,
     handleSelectMaterial,
     handleTabChange,

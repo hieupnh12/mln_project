@@ -36,12 +36,15 @@ export function QuizEditorFooter({
   const nextTab = currentIndex < tabOrder.length - 1 ? tabOrder[currentIndex + 1] : null;
   const showPublishAction = activeTab === "publish" && (canReopen || !isPublished);
 
+  const secondaryButtonClass =
+    "inline-flex items-center gap-1 rounded-xl border border-outline-variant/40 bg-landing-white px-3 py-2 text-label-sm font-medium text-landing-text transition hover:bg-landing-gray/60";
+
   return (
-    <footer className="flex flex-col gap-sm border-t border-outline-variant/15 pt-sm sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex flex-wrap gap-1.5">
+    <footer className="flex flex-col gap-3 border-t border-outline-variant/25 pt-5 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-wrap gap-2">
         {prevTab ? (
           <button
-            className="inline-flex items-center gap-1 rounded-lg border border-outline-variant/30 bg-white px-3 py-1.5 text-label-sm font-medium text-primary transition hover:bg-surface-container-low"
+            className={secondaryButtonClass}
             onClick={() => onGoToTab(prevTab)}
             type="button"
           >
@@ -51,7 +54,7 @@ export function QuizEditorFooter({
         ) : null}
         {nextTab ? (
           <button
-            className="inline-flex items-center gap-1 rounded-lg bg-secondary-container px-3 py-1.5 text-label-sm font-semibold text-primary transition hover:opacity-90"
+            className="inline-flex items-center gap-1 rounded-xl border border-outline-variant/40 bg-landing-gray/50 px-3 py-2 text-label-sm font-semibold text-landing-text transition hover:bg-landing-gray/70"
             onClick={() => onGoToTab(nextTab)}
             type="button"
           >
@@ -61,10 +64,10 @@ export function QuizEditorFooter({
         ) : null}
       </div>
 
-      <div className="flex flex-wrap gap-1.5">
+      <div className="flex flex-wrap gap-2">
         {canDelete ? (
           <button
-            className="rounded-lg border border-error/30 bg-white px-3 py-1.5 text-label-sm font-medium text-error transition hover:bg-error-container/30"
+            className="rounded-xl border border-error/30 bg-landing-white px-3 py-2 text-label-sm font-medium text-error transition hover:bg-error-container/30"
             onClick={onDelete}
             type="button"
           >
@@ -72,17 +75,13 @@ export function QuizEditorFooter({
           </button>
         ) : null}
         {canClose ? (
-          <button
-            className="rounded-lg border border-outline-variant/30 bg-white px-3 py-1.5 text-label-sm font-medium text-primary transition hover:bg-surface-container-low"
-            onClick={onClose}
-            type="button"
-          >
+          <button className={secondaryButtonClass} onClick={onClose} type="button">
             Tắt live
           </button>
         ) : null}
         {canReopen ? (
           <button
-            className="inline-flex items-center gap-1 rounded-lg bg-secondary-container px-3 py-1.5 text-label-sm font-semibold text-primary transition hover:opacity-90"
+            className="inline-flex items-center gap-1 rounded-xl border border-outline-variant/40 bg-landing-gray/50 px-3 py-2 text-label-sm font-semibold text-landing-text transition hover:bg-landing-gray/70"
             onClick={onPublish}
             type="button"
           >
@@ -91,7 +90,7 @@ export function QuizEditorFooter({
           </button>
         ) : null}
         <button
-          className="rounded-lg border border-outline-variant/30 bg-white px-3 py-1.5 text-label-sm font-medium text-primary transition hover:bg-surface-container-low disabled:opacity-60"
+          className={`${secondaryButtonClass} disabled:opacity-60`}
           disabled={isPublished}
           onClick={onSaveDraft}
           type="button"
@@ -100,7 +99,7 @@ export function QuizEditorFooter({
         </button>
         {showPublishAction && !canReopen ? (
           <button
-            className="inline-flex items-center gap-1 rounded-lg bg-primary px-4 py-1.5 text-label-sm font-semibold text-on-primary transition hover:opacity-90 disabled:opacity-60"
+            className="inline-flex items-center gap-1 rounded-xl bg-landing-red px-4 py-2 text-label-sm font-semibold text-on-primary shadow-md shadow-landing-red/20 transition hover:bg-landing-red-deep disabled:opacity-60 active:scale-[0.98]"
             disabled={!canPublish || isPublished}
             onClick={onPublish}
             type="button"

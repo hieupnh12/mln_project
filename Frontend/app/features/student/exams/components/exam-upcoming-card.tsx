@@ -10,7 +10,8 @@ type ExamUpcomingCardProps = {
 
 export function ExamUpcomingCard({ exam, subjectTitle }: ExamUpcomingCardProps) {
   return (
-    <article className="rounded-xl border border-outline-variant/35 bg-landing-white p-md shadow-lg shadow-landing-text/5 transition hover:border-landing-gold/30">
+    <article className="relative overflow-hidden rounded-xl border border-landing-gold/25 bg-landing-white p-md shadow-sm shadow-landing-text/5 transition hover:border-landing-gold/45 hover:shadow-md">
+      <div aria-hidden="true" className="absolute inset-y-0 left-0 w-1 bg-landing-gold" />
       <div className="mb-4 flex items-center justify-between gap-3">
         <ExamStatusPill label={exam.scheduleLabel || "Sắp mở"} variant="upcoming" />
         <LockKeyhole aria-hidden="true" className="h-5 w-5 text-landing-text-soft" />

@@ -1,5 +1,6 @@
 import { emptyQuestionDraft } from "../constants/question-library.constants";
 import type { QuestionDraft, QuestionItem } from "../types/question-library.types";
+import { resolveQuestionCorrectIndices } from "./resolve-correct-option-indices";
 
 function padOptions(options: string[]): string[] {
   const padded = [...options];
@@ -10,9 +11,7 @@ function padOptions(options: string[]): string[] {
 }
 
 export function mapQuestionToDraft(question: QuestionItem): QuestionDraft {
-  const correctOptionIndex =
-    question.correctOptionIndices?.[0] ??
-    question.options.findIndex((option) => option === question.answer);
+  const correctOptionIndices = resolveQuestionCorrectIndices(question);
 
   return {
     title: question.title,
@@ -26,7 +25,7 @@ export function mapQuestionToDraft(question: QuestionItem): QuestionDraft {
     answer: question.answer,
     explanation: question.explanation ?? "",
     bloomLevel: emptyQuestionDraft.bloomLevel,
-    correctOptionIndex: correctOptionIndex >= 0 ? correctOptionIndex : 0,
+    correctOptionIndices,
     score: question.score,
     estimatedTime: question.estimatedTime,
     tags: question.tags,

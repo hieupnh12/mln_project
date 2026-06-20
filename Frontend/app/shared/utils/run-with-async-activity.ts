@@ -15,12 +15,14 @@ export async function runWithAsyncActivity<T>({
 }: RunWithAsyncActivityOptions<T>): Promise<T> {
   const store = useAsyncActivityStore.getState();
   const activityId = store.start({ ...startInput, progress: startInput.progress ?? 5 });
+  const keepIndeterminateUntilDone = Boolean(startInput.indeterminate);
 
   const updateProgress: ProgressUpdater = (progress, detail) => {
+    const normalizedProgress = Math.min(100, Math.max(0, progress));
     store.update(activityId, {
-      progress: Math.min(100, Math.max(0, progress)),
+      progress: normalizedProgress,
       detail,
-      indeterminate: false,
+      indeterminate: keepIndeterminateUntilDone && normalizedProgress < 100,
     });
   };
 

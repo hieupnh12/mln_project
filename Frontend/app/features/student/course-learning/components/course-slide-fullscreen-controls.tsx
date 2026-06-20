@@ -5,13 +5,9 @@ type CourseSlideFullscreenControlsProps = {
   totalSlides: number;
   slideProgressPercent: number;
   isLessonCompleted: boolean;
-  isOnLastSlide: boolean;
-  canGoToNextLesson: boolean;
   isSlideLoading: boolean;
-  nextLessonTitle?: string;
   onPrevious: () => void;
   onNext: () => void;
-  onGoToNextLesson?: () => void;
   onFullscreenToggle: () => void;
 };
 
@@ -20,15 +16,13 @@ export function CourseSlideFullscreenControls({
   totalSlides,
   slideProgressPercent,
   isLessonCompleted,
-  isOnLastSlide,
-  canGoToNextLesson,
   isSlideLoading,
-  nextLessonTitle,
   onPrevious,
   onNext,
-  onGoToNextLesson,
   onFullscreenToggle,
 }: CourseSlideFullscreenControlsProps) {
+  const isOnLastSlide = activeIndex >= totalSlides - 1;
+
   return (
     <>
       <div className="absolute inset-x-0 top-0 z-20 bg-linear-to-b from-primary/70 to-transparent px-md pb-4 pt-md sm:px-lg">
@@ -77,29 +71,16 @@ export function CourseSlideFullscreenControls({
           <span className="border-x border-outline-variant px-4 text-label-sm font-semibold">
             {activeIndex + 1} / {totalSlides}
           </span>
-          {canGoToNextLesson ? (
-            <button
-              aria-label={`Chuyển sang bài học tiếp theo: ${nextLessonTitle ?? ""}`}
-              className="flex items-center gap-1 text-label-md font-medium text-secondary transition hover:text-primary disabled:opacity-40"
-              disabled={isSlideLoading}
-              onClick={onGoToNextLesson}
-              type="button"
-            >
-              Bài học tiếp
-              <MaterialIcon>chevron_right</MaterialIcon>
-            </button>
-          ) : (
-            <button
-              aria-label="Slide tiếp theo"
-              className="flex items-center gap-1 text-label-md font-medium text-primary transition hover:text-secondary disabled:opacity-40"
-              disabled={isOnLastSlide || isSlideLoading}
-              onClick={onNext}
-              type="button"
-            >
-              Tiếp
-              <MaterialIcon>chevron_right</MaterialIcon>
-            </button>
-          )}
+          <button
+            aria-label="Slide tiếp theo"
+            className="flex items-center gap-1 text-label-md font-medium text-primary transition hover:text-secondary disabled:opacity-40"
+            disabled={isOnLastSlide || isSlideLoading}
+            onClick={onNext}
+            type="button"
+          >
+            Tiếp
+            <MaterialIcon>chevron_right</MaterialIcon>
+          </button>
         </div>
       </div>
     </>

@@ -64,5 +64,5 @@ export type QuestionDraft = Omit<QuestionItem, "id" | "status" | "updatedBy"> & 
   lessonId?: number;
   explanation: string;
   bloomLevel: BloomLevel;
-  correctOptionIndex: number;
+  correctOptionIndices: number[];
 };

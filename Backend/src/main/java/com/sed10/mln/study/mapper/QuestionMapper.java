@@ -11,8 +11,10 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component
@@ -42,7 +44,8 @@ public class QuestionMapper {
     public QuestionResponse toResponse(Question question) {
         List<Answer> answers = answerRepository.findByQuestion_IdOrderBySortOrderAsc(question.getId());
         List<String> tags = questionTagRepository.findByQuestion_Id(question.getId()).stream()
-                .map(questionTag -> questionTag.getTag().getName())
+                .map(questionTag -> questionTag.getTag() != null ? questionTag.getTag().getName() : null)
+                .filter(Objects::nonNull)
                 .toList();
         return toResponse(question, answers, tags);
     }
@@ -64,8 +67,9 @@ public class QuestionMapper {
         Map<Long, List<String>> tagsByQuestionId = allQuestionTags.stream()
                 .collect(Collectors.groupingBy(
                         qt -> qt.getQuestion().getId(),
-                        Collectors.mapping(qt -> qt.getTag().getName(), Collectors.toList())
-                ));
+                        Collectors.mapping(
+                                qt -> qt.getTag() != null ? qt.getTag().getName() : null,
+                                Collectors.filtering(Objects::nonNull, Collectors.toList()))));
 
         return questions.stream()
                 .map(q -> toResponse(
@@ -81,18 +85,22 @@ public class QuestionMapper {
         Chapter chapter = lesson != null ? lesson.getChapter() : null;
         Subject subject = chapter != null ? chapter.getSubject() : null;
 
-        List<String> options = answers.stream().map(Answer::getContent).toList();
+        List<Answer> visibleAnswers = answers.stream()
+                .filter(answer -> answer.getSortOrder() < QuestionConstant.HIDDEN_ANSWER_SORT_ORDER_BASE)
+                .sorted(Comparator.comparing(Answer::getSortOrder))
+                .toList();
+
+        List<String> options = visibleAnswers.stream().map(Answer::getContent).toList();
         List<Integer> correctOptionIndices = new ArrayList<>();
-        for (int index = 0; index < answers.size(); index++) {
-            if (Boolean.TRUE.equals(answers.get(index).getIsCorrect())) {
+        for (int index = 0; index < visibleAnswers.size(); index++) {
+            if (Boolean.TRUE.equals(visibleAnswers.get(index).getIsCorrect())) {
                 correctOptionIndices.add(index);
             }
         }
-        String correctAnswer = answers.stream()
+        String correctAnswer = visibleAnswers.stream()
                 .filter(answer -> Boolean.TRUE.equals(answer.getIsCorrect()))
                 .map(Answer::getContent)
-                .findFirst()
-                .orElse("");
+                .collect(Collectors.joining(", "));
 
         User updatedBy = question.getUpdatedBy() != null ? question.getUpdatedBy() : question.getCreatedBy();
         String updatedByName = updatedBy != null && updatedBy.getFullName() != null

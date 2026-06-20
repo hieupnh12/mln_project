@@ -8,6 +8,11 @@ export function getStudentCoursePath(courseId: string) {
   return `${STUDENT_ROUTES.courseDetail}/${courseId}`;
 }
 
+/** Tab Flashcard trên trang khóa học. */
+export function getStudentCourseFlashcardsTabPath(courseId: string) {
+  return `${getStudentCoursePath(courseId)}?tab=flashcards`;
+}
+
 /** Tab Luyện tập trên trang khóa học. */
 export function getStudentCoursePracticeTabPath(courseId: string) {
   return `${getStudentCoursePath(courseId)}?tab=practice`;

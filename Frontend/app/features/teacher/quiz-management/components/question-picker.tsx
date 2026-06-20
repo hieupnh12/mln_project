@@ -92,7 +92,7 @@ export function QuestionPicker({
           </MaterialIcon>
           <input
             autoComplete="off"
-            className="block min-h-10 w-full rounded-lg border border-outline-variant/20 bg-white py-2 pl-10 pr-4 text-body-md text-on-surface placeholder:text-on-surface-variant/60 focus:border-primary/30 focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="block min-h-10 w-full rounded-lg border border-outline-variant/20 bg-white py-2 pl-10 pr-4 text-body-md text-on-surface placeholder:text-on-surface-variant/60 focus:border-primary/30 focus:outline-none focus:ring-2 focus:ring-secondary/20"
             onChange={(event) => onSearchChange(event.target.value)}
             placeholder="Tìm kiếm theo nội dung, tiêu đề hoặc mã Q-..."
             type="search"
@@ -100,7 +100,7 @@ export function QuestionPicker({
           />
         </div>
         <select
-          className="w-full rounded-lg border-outline-variant/30 bg-white p-2 text-label-md font-medium text-on-surface focus:ring-2 focus:ring-primary/20 sm:max-w-xs"
+          className="w-full rounded-lg border-outline-variant/30 bg-white p-2 text-label-md font-medium text-on-surface focus:ring-2 focus:ring-secondary/20 sm:max-w-xs"
           onChange={(event) => onDifficultyFilterChange(event.target.value)}
           value={difficultyFilter}
         >

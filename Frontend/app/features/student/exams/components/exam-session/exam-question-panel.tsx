@@ -5,7 +5,7 @@ type ExamQuestionPanelProps = {
   question: ExamQuestion;
   questionIndex: number;
   totalQuestions: number;
-  selectedAnswerId?: number;
+  selectedAnswerIds: number[];
   isFlagged: boolean;
   onSelectAnswer: (answerId: number) => void;
   onToggleFlag: () => void;
@@ -15,18 +15,27 @@ export function ExamQuestionPanel({
   question,
   questionIndex,
   totalQuestions,
-  selectedAnswerId,
+  selectedAnswerIds,
   isFlagged,
   onSelectAnswer,
   onToggleFlag,
 }: ExamQuestionPanelProps) {
+  const isMultipleChoice = question.isMultipleChoice;
+
   return (
     <div className="flex min-w-0 flex-1 flex-col gap-6">
       <section className="rounded-xl border border-outline-variant bg-surface-container-lowest p-6 shadow-sm transition-all md:p-10">
         <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
-          <span className="rounded-full bg-secondary-container px-3 py-1 text-label-md text-on-secondary-container">
-            Câu hỏi {questionIndex + 1} / {totalQuestions}
-          </span>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-secondary-container px-3 py-1 text-label-md text-on-secondary-container">
+              Câu hỏi {questionIndex + 1} / {totalQuestions}
+            </span>
+            {isMultipleChoice ? (
+              <span className="rounded-full bg-primary-fixed/15 px-3 py-1 text-label-sm font-medium text-primary">
+                Nhiều đáp án
+              </span>
+            ) : null}
+          </div>
           <button
             className={`flex items-center gap-1 transition-colors ${isFlagged ? "text-error" : "text-on-surface-variant hover:text-primary"}`}
             onClick={onToggleFlag}
@@ -39,9 +48,15 @@ export function ExamQuestionPanel({
 
         <h2 className="mb-8 text-headline-md leading-relaxed text-on-surface">{question.question}</h2>
 
+        {isMultipleChoice ? (
+          <p className="mb-4 text-body-sm text-on-surface-variant">
+            Chọn tất cả đáp án đúng. Bạn có thể chọn nhiều lựa chọn.
+          </p>
+        ) : null}
+
         <div className="grid grid-cols-1 gap-4">
           {question.options.map((option) => {
-            const isSelected = selectedAnswerId === option.answerId;
+            const isSelected = selectedAnswerIds.includes(option.answerId);
             return (
               <label
                 className={
@@ -54,9 +69,9 @@ export function ExamQuestionPanel({
                 <input
                   checked={isSelected}
                   className="mr-4 h-5 w-5 border-outline-variant text-primary focus:ring-primary"
-                  name={question.id}
+                  name={isMultipleChoice ? `${question.id}-${option.answerId}` : question.id}
                   onChange={() => onSelectAnswer(option.answerId)}
-                  type="radio"
+                  type={isMultipleChoice ? "checkbox" : "radio"}
                 />
                 <span
                   className={
@@ -72,7 +87,6 @@ export function ExamQuestionPanel({
           })}
         </div>
       </section>
-
     </div>
   );
 }

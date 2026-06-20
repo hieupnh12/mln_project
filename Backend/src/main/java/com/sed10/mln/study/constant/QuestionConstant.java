@@ -7,6 +7,9 @@ public final class QuestionConstant {
     public static final String PENDING = "PENDING";
     public static final String PUBLISHED = "PUBLISHED";
 
+    /** Answers at or above this sort order are archived (kept for quiz history, hidden in UI). */
+    public static final int HIDDEN_ANSWER_SORT_ORDER_BASE = 100;
+
     private static final Map<String, String> TO_LABEL = Map.of(
             DRAFT, "Bản nháp",
             PENDING, "Cần duyệt",

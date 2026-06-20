@@ -1,12 +1,9 @@
 import { RefreshCw } from "lucide-react";
-import { useCallback, useMemo } from "react";
+import { useMemo } from "react";
 
 import { useSubjectLessonProgressQuery } from "../../student-progress/hooks/use-student-progress-queries";
 import { useYoutubeLessonProgress } from "../../student-progress/hooks/use-youtube-lesson-progress";
-import {
-  buildLessonProgressMap,
-  findNextLessonAfterComplete,
-} from "../../student-progress/utils/student-progress-resume.util";
+import { buildLessonProgressMap } from "../../student-progress/utils/student-progress-resume.util";
 import type { SubjectListItem } from "../../types/student.types";
 import { studentCourseFeaturedQuote } from "../constants/student-course.constants";
 import {
@@ -16,23 +13,28 @@ import {
 import { resolveCourseCoverImage } from "../utils/resolve-course-cover-image";
 import { CourseCoverPanel } from "./course-cover-panel";
 import { CourseQuotePanel } from "./course-quote-panel";
+import { CourseSlideMobileToolbar } from "./course-slide-mobile-toolbar";
 import { CourseSlideViewer } from "./course-slide-viewer";
 import { CourseYoutubeViewer } from "./course-youtube-viewer";
 
 type CourseMaterialViewerProps = {
+  fitToViewport?: boolean;
+  onOpenCurriculum?: () => void;
+  showMobileToolbar?: boolean;
   subjectId: number;
   subject: SubjectListItem | undefined;
   expandedChapterId: number | null;
   selectedMaterialId: number | null;
-  onGoToNextLesson?: (lessonId: number) => void;
 };
 
 export function CourseMaterialViewer({
+  fitToViewport = false,
+  onOpenCurriculum,
+  showMobileToolbar = false,
   subjectId,
   subject,
   expandedChapterId,
   selectedMaterialId,
-  onGoToNextLesson,
 }: CourseMaterialViewerProps) {
   const materialQuery = useMaterialDetailQuery(selectedMaterialId);
   const lessonsQuery = useChapterLessonsQuery(expandedChapterId);
@@ -40,20 +42,11 @@ export function CourseMaterialViewer({
   const coverImageUrl = resolveCourseCoverImage(subject?.title ?? "Môn học");
   const material = materialQuery.data;
   const lesson = lessonsQuery.data?.find((item) => item.id === material?.lessonId);
-  const progressMap = buildLessonProgressMap(progressQuery.data ?? []);
+  const progressMap = useMemo(
+    () => buildLessonProgressMap(progressQuery.data ?? []),
+    [progressQuery.data],
+  );
   const lessonProgress = material ? progressMap.get(material.lessonId) : undefined;
-  const nextLesson = useMemo(() => {
-    if (!material?.lessonId) {
-      return null;
-    }
-    return findNextLessonAfterComplete(progressQuery.data ?? [], material.lessonId);
-  }, [material?.lessonId, progressQuery.data]);
-
-  const handleGoToNextLesson = useCallback(() => {
-    if (material) {
-      onGoToNextLesson?.(material.lessonId);
-    }
-  }, [material, onGoToNextLesson]);
 
   useYoutubeLessonProgress({
     subjectId,
@@ -80,7 +73,13 @@ export function CourseMaterialViewer({
 
   if (materialQuery.isLoading) {
     return (
-      <div className="aspect-video animate-pulse rounded-xl border border-outline-variant/35 bg-landing-white" />
+      <div
+        className={
+          fitToViewport
+            ? "h-full min-h-0 animate-pulse rounded-xl border border-outline-variant/35 bg-landing-white"
+            : "aspect-video animate-pulse rounded-xl border border-outline-variant/35 bg-landing-white"
+        }
+      />
     );
   }
 
@@ -114,24 +113,26 @@ export function CourseMaterialViewer({
   const lessonTitle = lesson?.title || "Bài học chưa đặt tên";
 
   return (
-    <div className="space-y-md">
+    <div className={fitToViewport ? "flex h-full min-h-0 flex-col" : "space-y-md"}>
+      {showMobileToolbar && onOpenCurriculum ? (
+        <CourseSlideMobileToolbar lessonTitle={lessonTitle} onOpenCurriculum={onOpenCurriculum} />
+      ) : null}
+
       {material.contentType === "YOUTUBE" ? (
-        <CourseYoutubeViewer lessonTitle={lessonTitle} material={material} />
+        <CourseYoutubeViewer
+          fitToViewport={fitToViewport}
+          lessonTitle={lessonTitle}
+          material={material}
+        />
       ) : (
         <CourseSlideViewer
+          fitToViewport={fitToViewport}
           lessonStatus={lessonProgress?.status}
           lessonTitle={lessonTitle}
           material={material}
-          nextLesson={nextLesson ? { lessonTitle: nextLesson.lessonTitle } : undefined}
-          onGoToNextLesson={nextLesson ? handleGoToNextLesson : undefined}
           subjectId={subjectId}
         />
       )}
-
-      <CourseQuotePanel
-        author={studentCourseFeaturedQuote.author}
-        quote={studentCourseFeaturedQuote.quote}
-      />
     </div>
   );
 }

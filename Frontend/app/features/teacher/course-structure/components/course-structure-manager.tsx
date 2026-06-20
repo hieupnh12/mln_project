@@ -101,9 +101,9 @@ export function CourseStructureManager({ subjectId }: CourseStructureManagerProp
   }, [chapters, queryClient]);
 
   return (
-    <div className="mx-auto max-w-5xl" id="course-structure">
+    <div className="w-full" id="course-structure">
       <Link
-        className="mb-md inline-flex items-center gap-1 text-label-md font-medium text-secondary transition hover:text-primary"
+        className="mb-md inline-flex items-center gap-1 rounded-xl border border-outline-variant/35 bg-landing-gray/40 px-3 py-1.5 text-label-md font-medium text-landing-text-soft transition hover:bg-landing-gray/70 hover:text-landing-text"
         to={TEACHER_ROUTES.courses}
       >
         <MaterialIcon>arrow_back</MaterialIcon>
@@ -112,17 +112,17 @@ export function CourseStructureManager({ subjectId }: CourseStructureManagerProp
 
       <div className="mb-lg flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="space-y-xs">
-          <h3 className="text-headline-lg font-semibold text-primary">
+          <h3 className="text-headline-lg font-semibold text-landing-text">
             Quản lý Chương & Bài học
           </h3>
-          <p className="text-body-md text-on-surface-variant">
+          <p className="text-body-md text-landing-text-soft">
             {subjectQuery.isLoading
               ? "Đang tải thông tin môn..."
               : `${subject?.title ?? "Môn học"} · Tổ chức lộ trình học tập trực quan.`}
           </p>
         </div>
         <button
-          className="flex w-full items-center justify-center gap-sm rounded-lg bg-secondary-container px-md py-sm font-semibold text-primary-container shadow-sm transition hover:shadow-md active:scale-95 sm:w-auto"
+          className="flex w-full items-center justify-center gap-sm rounded-xl bg-landing-red px-md py-sm font-semibold text-on-primary shadow-md shadow-landing-red/20 transition hover:bg-landing-red-deep active:scale-95 sm:w-auto"
           onClick={() => setCreateChapterOpen(true)}
           type="button"
         >
@@ -134,7 +134,7 @@ export function CourseStructureManager({ subjectId }: CourseStructureManagerProp
       {chaptersQuery.isLoading ? (
         <div className="space-y-md">
           {Array.from({ length: 3 }).map((_, index) => (
-            <div className="h-24 animate-pulse rounded-2xl bg-surface-container-low" key={index} />
+            <div className="h-24 animate-pulse rounded-2xl bg-landing-gray/70" key={index} />
           ))}
         </div>
       ) : null}
@@ -143,7 +143,7 @@ export function CourseStructureManager({ subjectId }: CourseStructureManagerProp
         <div className="rounded-xl border border-error/30 bg-error-container/40 p-gutter">
           <p className="text-body-md text-error">Không thể tải cấu trúc khóa học.</p>
           <button
-            className="mt-3 rounded-lg bg-primary px-5 py-2 text-label-md font-medium text-on-primary"
+            className="mt-3 rounded-lg bg-landing-red px-5 py-2 text-label-md font-medium text-on-primary"
             onClick={() => chaptersQuery.refetch()}
             type="button"
           >
@@ -170,29 +170,29 @@ export function CourseStructureManager({ subjectId }: CourseStructureManagerProp
             subjectId={subjectId}
           />
         ) : (
-          <div className="rounded-2xl border border-outline-variant/20 bg-white p-xl text-center shadow-sm">
-            <MaterialIcon className="mx-auto mb-3 text-[40px] text-on-surface-variant">
+          <div className="rounded-2xl border border-dashed border-outline-variant/40 bg-landing-gray/25 p-xl text-center">
+            <MaterialIcon className="mx-auto mb-3 text-[40px] text-catalog-cobalt/70">
               account_tree
             </MaterialIcon>
-            <p className="text-headline-md font-semibold text-primary">Chưa có chương nào</p>
-            <p className="mt-2 text-body-md text-on-surface-variant">
+            <p className="text-headline-md font-semibold text-landing-text">Chưa có chương nào</p>
+            <p className="mt-2 text-body-md text-landing-text-soft">
               Bắt đầu bằng cách thêm chương đầu tiên cho môn học này.
             </p>
           </div>
         )
       ) : null}
 
-      <section className="mt-xl flex flex-col gap-lg rounded-2xl border-l-[8px] border-secondary-container bg-primary-container p-lg text-white shadow-lg md:flex-row md:items-center">
+      <section className="mt-xl flex flex-col gap-4 overflow-hidden rounded-2xl border border-outline-variant/25 bg-landing-gray/30 p-lg md:flex-row md:items-center">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-landing-gold/15 text-landing-text-muted">
+          <MaterialIcon>lightbulb</MaterialIcon>
+        </div>
         <div className="flex-1">
-          <h5 className="mb-xs text-headline-md font-semibold">Mẹo quản lý khóa học</h5>
-          <p className="text-body-md leading-relaxed opacity-80">
+          <h5 className="mb-1 text-headline-sm font-semibold text-landing-text">Mẹo quản lý khóa học</h5>
+          <p className="text-body-md leading-relaxed text-landing-text-soft">
             Chia nhỏ các bài học thành các chương từ 15-20 phút giúp sinh viên duy trì sự tập
             trung cao độ và ghi nhớ kiến thức tốt hơn.
           </p>
         </div>
-        <MaterialIcon className="hidden h-16 w-16 text-[64px] text-secondary-container md:inline-flex">
-          lightbulb
-        </MaterialIcon>
       </section>
 
       <TeacherVisualGrid />

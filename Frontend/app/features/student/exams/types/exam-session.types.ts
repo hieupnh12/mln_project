@@ -7,6 +7,8 @@ export type ExamOption = {
 export type ExamQuestion = {
   id: string;
   question: string;
+  type: string;
+  isMultipleChoice: boolean;
   options: ExamOption[];
 };
 
@@ -20,7 +22,8 @@ export type ExamSession = {
   questions: ExamQuestion[];
 };
 
-export type ExamAnswerMap = Record<string, number>;
+/** questionId -> selected answer ids (one for single-choice, many for multi-choice) */
+export type ExamAnswerMap = Record<string, number[]>;
 
 export type ExamDraft = {
   currentIndex: number;

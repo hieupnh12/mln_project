@@ -1,36 +1,23 @@
 import type { BatchImportRowPayload } from "../types/question-library-api.types";
 import type { ImportPreviewRow } from "../types/import-batch.types";
-
-const ANSWER_LETTER_PATTERN = /^([A-Da-d])$/;
-
-function resolveCorrectAnswer(rawAnswer: string, options: string[]): string {
-  const trimmed = rawAnswer.trim();
-  if (!trimmed) {
-    return "";
-  }
-
-  const letterMatch = trimmed.match(ANSWER_LETTER_PATTERN);
-  if (letterMatch) {
-    const index = letterMatch[1].toUpperCase().charCodeAt(0) - 65;
-    return options[index]?.trim() ?? trimmed;
-  }
-
-  const matchedOption = options.find((option) => option.trim() === trimmed);
-  return matchedOption?.trim() ?? trimmed;
-}
+import {
+  formatCorrectAnswerFromIndices,
+  parseCorrectAnswerIndices,
+} from "./resolve-correct-option-indices";
 
 function buildImportOptions(row: ImportPreviewRow) {
   const rawOptions = (row.options ?? []).map((option) => option.trim()).filter(Boolean);
-  const resolvedAnswer = resolveCorrectAnswer(row.answer ?? "", rawOptions);
+  const correctIndices = parseCorrectAnswerIndices(row.answer ?? "", rawOptions);
+  const resolvedAnswer = formatCorrectAnswerFromIndices(rawOptions, correctIndices);
 
   if (rawOptions.length === 0) {
     return { options: undefined, answer: resolvedAnswer || row.answer?.trim() };
   }
 
   return {
-    options: rawOptions.map((content) => ({
+    options: rawOptions.map((content, index) => ({
       content,
-      isCorrect: resolvedAnswer ? content === resolvedAnswer : false,
+      isCorrect: correctIndices.includes(index),
     })),
     answer: resolvedAnswer,
   };

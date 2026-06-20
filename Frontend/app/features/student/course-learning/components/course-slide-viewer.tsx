@@ -3,35 +3,30 @@ import { useEffect, useRef, useState } from "react";
 
 import { useSlideLessonProgress } from "../../student-progress/hooks/use-slide-lesson-progress";
 import type { StudentProgressStatus } from "../../student-progress/types/student-progress.types";
+import { useCourseSlideKeyboard } from "../hooks/use-course-slide-keyboard";
 import { useSlideImageLoad } from "../hooks/use-slide-image-load";
 import type { CourseMaterialDetail } from "../types/course-learning.types";
 import { CourseSlideFullscreenControls } from "./course-slide-fullscreen-controls";
+import { CourseSlideOverlayControls } from "./course-slide-overlay-controls";
 import { CourseSlideStage } from "./course-slide-stage";
-import { CourseSlideToolbar } from "./course-slide-toolbar";
-
-type CourseSlideNextLesson = {
-  lessonTitle: string;
-};
 
 type CourseSlideViewerProps = {
+  fitToViewport?: boolean;
   material: CourseMaterialDetail;
   lessonTitle: string;
   subjectId: number;
   lessonStatus?: StudentProgressStatus;
-  nextLesson?: CourseSlideNextLesson;
-  onGoToNextLesson?: () => void;
 };
 
 const stageCardClassName =
   "overflow-hidden rounded-xl border border-outline-variant/35 bg-landing-white shadow-xl shadow-landing-text/5";
 
 export function CourseSlideViewer({
+  fitToViewport = false,
   material,
   lessonTitle,
   subjectId,
   lessonStatus,
-  nextLesson,
-  onGoToNextLesson,
 }: CourseSlideViewerProps) {
   const containerRef = useRef<HTMLElement>(null);
   const slides = material.slides;
@@ -97,16 +92,21 @@ export function CourseSlideViewer({
     }
   }
 
-  function handleGoToNextLesson() {
-    if (!isSlideLoading) {
-      onGoToNextLesson?.();
-    }
-  }
+  useCourseSlideKeyboard({
+    activeIndex,
+    enabled: !isFullscreen && totalSlides > 0,
+    isSlideLoading,
+    onNext: handleNext,
+    onPrevious: handlePrevious,
+    totalSlides,
+  });
 
   if (slides.length === 0) {
     return (
       <section
-        className={`${stageCardClassName} flex aspect-video items-center justify-center bg-landing-gray p-gutter text-center`}
+        className={`${stageCardClassName} flex ${
+          fitToViewport ? "h-full min-h-0" : "aspect-video"
+        } items-center justify-center bg-landing-gray p-gutter text-center`}
       >
         <div className="space-y-3">
           <Presentation aria-hidden="true" className="mx-auto h-10 w-10 text-landing-red" />
@@ -120,31 +120,31 @@ export function CourseSlideViewer({
   }
 
   const isLessonCompleted = lessonStatus === "COMPLETED";
-  const isOnLastSlide = activeIndex >= totalSlides - 1;
-  const canGoToNextLesson = isOnLastSlide && nextLesson != null && onGoToNextLesson != null;
   const controlProps = {
     activeIndex,
     totalSlides,
-    slideProgressPercent,
     isLessonCompleted,
-    isOnLastSlide,
-    canGoToNextLesson,
-    nextLessonTitle: nextLesson?.lessonTitle,
+    isSlideLoading,
     onPrevious: handlePrevious,
     onNext: handleNext,
-    isSlideLoading,
-    onGoToNextLesson: handleGoToNextLesson,
     onFullscreenToggle: handleFullscreenToggle,
   };
 
+  const stageClassName = isFullscreen
+    ? "h-screen w-screen bg-landing-text"
+    : fitToViewport
+      ? "h-full min-h-0 w-full bg-landing-gray"
+      : "aspect-video bg-landing-gray";
+
   return (
-    <div className={isFullscreen ? "" : stageCardClassName}>
-      <section
-        className={`group relative aspect-video bg-landing-gray ${
-          isFullscreen ? "h-screen w-screen bg-landing-text" : ""
-        }`}
-        ref={containerRef}
-      >
+    <div
+      className={
+        isFullscreen
+          ? ""
+          : `${stageCardClassName} ${fitToViewport ? "flex h-full min-h-0 flex-col" : ""}`
+      }
+    >
+      <section className={`group relative ${stageClassName}`} ref={containerRef}>
         <CourseSlideStage
           alt={`${lessonTitle} - slide ${activeIndex + 1}`}
           displayedImageUrl={displayedImageUrl}
@@ -154,10 +154,15 @@ export function CourseSlideViewer({
           onImageLoad={handleSlideImageLoad}
         />
 
-        {isFullscreen ? <CourseSlideFullscreenControls {...controlProps} /> : null}
+        {isFullscreen ? (
+          <CourseSlideFullscreenControls
+            {...controlProps}
+            slideProgressPercent={slideProgressPercent}
+          />
+        ) : (
+          <CourseSlideOverlayControls {...controlProps} />
+        )}
       </section>
-
-      {!isFullscreen ? <CourseSlideToolbar lessonTitle={lessonTitle} {...controlProps} /> : null}
     </div>
   );
 }

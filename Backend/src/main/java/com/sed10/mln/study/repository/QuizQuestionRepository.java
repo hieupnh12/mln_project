@@ -15,6 +15,9 @@ public interface QuizQuestionRepository extends JpaRepository<QuizQuestion, Quiz
            "JOIN FETCH qq.question q " +
            "LEFT JOIN FETCH q.lesson l " +
            "LEFT JOIN FETCH l.chapter c " +
+           "LEFT JOIN FETCH c.subject " +
+           "LEFT JOIN FETCH q.updatedBy " +
+           "LEFT JOIN FETCH q.createdBy " +
            "WHERE qq.quiz.id = :quizId " +
            "ORDER BY qq.sortOrder ASC")
     List<QuizQuestion> findByQuizIdWithQuestionDetails(@Param("quizId") Long quizId);

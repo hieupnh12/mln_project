@@ -3,6 +3,8 @@ import type { ReactNode } from "react";
 import { MaterialIcon } from "../../../components/teacher-icons";
 import { statusDisplayLabels } from "../../constants/question-library.constants";
 import type { QuestionItem } from "../../types/question-library.types";
+import { resolveQuestionCorrectIndices } from "../../utils/resolve-correct-option-indices";
+import { TEACHER_MODAL_BTN_PRIMARY, TEACHER_MODAL_BTN_SECONDARY, TEACHER_MODAL_SHELL } from "../../../constants/teacher-ui.constants";
 import { QuestionLibraryLoadingState } from "../question-library-loading-state";
 import { ModalOverlay } from "./modal-overlay";
 
@@ -68,19 +70,22 @@ export function QuestionDetailModal({
     );
   }
 
+  const correctIndices = resolveQuestionCorrectIndices(question);
+  const isPublished = question.status === "Đã xuất bản";
+
   return (
     <ModalOverlay labelledBy="question-detail-title" onClose={onClose} open={open}>
-      <div className="mx-auto flex max-h-[min(800px,calc(100vh-32px))] w-full max-w-3xl flex-col overflow-hidden rounded-xl border border-outline-variant/20 bg-surface-container-lowest shadow-2xl">
-        <header className="flex items-start justify-between gap-4 border-b border-outline-variant/10 px-md py-4 lg:px-lg">
+      <div className={`mx-auto flex max-h-[min(800px,calc(100vh-32px))] w-full max-w-3xl flex-col ${TEACHER_MODAL_SHELL}`}>
+        <header className="flex items-start justify-between gap-4 border-b border-outline-variant/25 px-md py-4 lg:px-lg">
           <div className="min-w-0 flex-1">
-            <p className="font-mono text-label-sm text-on-surface-variant">{question.id}</p>
-            <h2 className="mt-1 text-headline-md font-semibold text-on-surface" id="question-detail-title">
+            <p className="font-mono text-label-sm text-landing-text-soft">{question.id}</p>
+            <h2 className="mt-1 text-headline-md font-semibold text-landing-text" id="question-detail-title">
               Chi tiết câu hỏi
             </h2>
           </div>
           <button
             aria-label="Đóng"
-            className="rounded-lg p-2 text-on-surface-variant transition hover:bg-surface-container-high"
+            className="rounded-xl p-2 text-landing-text-soft transition hover:bg-landing-gray/60 hover:text-landing-text"
             onClick={onClose}
             type="button"
           >
@@ -90,7 +95,7 @@ export function QuestionDetailModal({
 
         <div className="custom-scrollbar flex-1 space-y-md overflow-y-auto p-md lg:p-lg">
           <DetailSection label="Nội dung câu hỏi">
-            <p className="whitespace-pre-wrap text-body-md text-on-surface">{question.question}</p>
+            <p className="whitespace-pre-wrap text-body-md text-landing-text">{question.question}</p>
           </DetailSection>
 
           <div className="grid grid-cols-1 gap-md sm:grid-cols-2">
@@ -106,28 +111,31 @@ export function QuestionDetailModal({
 
           {question.explanation ? (
             <DetailSection label="Giải thích">
-              <p className="whitespace-pre-wrap text-body-md text-on-surface">{question.explanation}</p>
+              <p className="whitespace-pre-wrap text-body-md text-landing-text">{question.explanation}</p>
             </DetailSection>
           ) : null}
 
           {question.options.length > 0 && (
             <DetailSection label="Các lựa chọn">
               <ul className="space-y-2">
-                {question.options.map((option, index) => (
+                {question.options.map((option, index) => {
+                  const isCorrect = correctIndices.includes(index);
+                  return (
                   <li
-                    className={`rounded-lg border px-3 py-2 text-body-md ${
-                      option === question.answer
-                        ? "border-secondary bg-secondary-container/30 text-on-secondary-fixed-variant"
-                        : "border-outline-variant/20 text-on-surface"
+                    className={`rounded-xl border px-3 py-2 text-body-md ${
+                      isCorrect
+                        ? "border-catalog-cobalt/25 bg-catalog-cyan/10 text-landing-text"
+                        : "border-outline-variant/20 text-landing-text"
                     }`}
                     key={`${question.id}-opt-${index}`}
                   >
                     {option}
-                    {option === question.answer && (
-                      <span className="ml-2 text-label-sm font-medium text-secondary">(Đáp án đúng)</span>
+                    {isCorrect && (
+                      <span className="ml-2 text-label-sm font-medium text-catalog-cobalt">(Đáp án đúng)</span>
                     )}
                   </li>
-                ))}
+                  );
+                })}
               </ul>
             </DetailSection>
           )}
@@ -137,7 +145,7 @@ export function QuestionDetailModal({
               <div className="flex flex-wrap gap-2">
                 {question.tags.map((tag) => (
                   <span
-                    className="rounded-full bg-surface-container-high px-3 py-1 text-label-sm text-on-surface-variant"
+                    className="rounded-full bg-landing-gray px-3 py-1 text-label-sm text-landing-text-soft"
                     key={tag}
                   >
                     {tag}
@@ -147,16 +155,24 @@ export function QuestionDetailModal({
             </DetailSection>
           )}
         </div>
-        {question.status === "Đã xuất bản" ? (
-          <footer className="border-t border-outline-variant/10 bg-surface-container-lowest px-md py-4 lg:px-lg">
-            <p className="text-label-md text-on-surface-variant">
-              Câu hỏi đã duyệt. Chỉ có thể xem, không thể chỉnh sửa nội dung.
+        {isPublished ? (
+          <footer className="flex flex-col gap-3 border-t border-outline-variant/25 bg-landing-gray/25 px-md py-4 sm:flex-row sm:items-center sm:justify-between lg:px-lg">
+            <p className="text-label-md text-landing-text-soft">
+              Câu hỏi đã duyệt. Chỉnh sửa sẽ chuyển câu hỏi về trạng thái chờ duyệt lại.
             </p>
+            <button
+              className={TEACHER_MODAL_BTN_SECONDARY}
+              onClick={() => onEdit(question)}
+              type="button"
+            >
+              <MaterialIcon className="text-[20px]">edit</MaterialIcon>
+              Chỉnh sửa
+            </button>
           </footer>
         ) : (
-          <footer className="flex flex-col gap-3 border-t border-outline-variant/10 bg-surface-container-lowest px-md py-4 sm:flex-row sm:items-center sm:justify-between lg:px-lg">
+          <footer className="flex flex-col gap-3 border-t border-outline-variant/25 bg-landing-gray/25 px-md py-4 sm:flex-row sm:items-center sm:justify-between lg:px-lg">
             {question.status === "Cần duyệt" ? (
-              <p className="text-label-md text-on-surface-variant">
+              <p className="text-label-md text-landing-text-soft">
                 Câu hỏi đang chờ duyệt. Bạn có thể chỉnh sửa trước khi duyệt.
               </p>
             ) : (
@@ -164,7 +180,7 @@ export function QuestionDetailModal({
             )}
             <div className="flex flex-wrap items-center justify-end gap-3">
               <button
-                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-secondary px-4 py-2.5 text-label-md font-medium text-secondary transition hover:bg-secondary-container/20"
+                className={TEACHER_MODAL_BTN_SECONDARY}
                 onClick={() => onEdit(question)}
                 type="button"
               >
@@ -173,7 +189,7 @@ export function QuestionDetailModal({
               </button>
               {question.status === "Cần duyệt" ? (
                 <button
-                  className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-label-md font-medium text-on-primary transition hover:bg-primary-container disabled:cursor-not-allowed disabled:opacity-60"
+                  className={`${TEACHER_MODAL_BTN_PRIMARY} disabled:cursor-not-allowed disabled:opacity-60`}
                   disabled={approving}
                   onClick={() => onApprove(question.id)}
                   type="button"
@@ -207,17 +223,17 @@ function QuestionDetailStateModal({
 }) {
   return (
     <ModalOverlay labelledBy="question-detail-title" onClose={onClose} open>
-      <div className="mx-auto flex max-h-[min(800px,calc(100vh-32px))] w-full max-w-3xl flex-col overflow-hidden rounded-xl border border-outline-variant/20 bg-surface-container-lowest shadow-2xl">
-        <header className="flex items-start justify-between gap-4 border-b border-outline-variant/10 px-md py-4 lg:px-lg">
+      <div className={`mx-auto flex max-h-[min(800px,calc(100vh-32px))] w-full max-w-3xl flex-col ${TEACHER_MODAL_SHELL}`}>
+        <header className="flex items-start justify-between gap-4 border-b border-outline-variant/25 px-md py-4 lg:px-lg">
           <div className="min-w-0 flex-1">
-            <p className="font-mono text-label-sm text-on-surface-variant">{questionId}</p>
-            <h2 className="mt-1 text-headline-md font-semibold text-on-surface" id="question-detail-title">
+            <p className="font-mono text-label-sm text-landing-text-soft">{questionId}</p>
+            <h2 className="mt-1 text-headline-md font-semibold text-landing-text" id="question-detail-title">
               Chi tiết câu hỏi
             </h2>
           </div>
           <button
             aria-label="Đóng"
-            className="rounded-lg p-2 text-on-surface-variant transition hover:bg-surface-container-high"
+            className="rounded-xl p-2 text-landing-text-soft transition hover:bg-landing-gray/60 hover:text-landing-text"
             onClick={onClose}
             type="button"
           >
@@ -228,13 +244,9 @@ function QuestionDetailStateModal({
           <QuestionLibraryLoadingState label={message} variant="detail" />
         ) : (
           <div className="flex min-h-48 flex-col items-center justify-center gap-3 p-md text-center lg:p-lg">
-            <p className="text-body-md text-on-surface-variant">{message}</p>
+            <p className="text-body-md text-landing-text-soft">{message}</p>
             {actionLabel && onAction ? (
-              <button
-                className="rounded-lg bg-primary px-4 py-2 text-label-md font-medium text-on-primary"
-                onClick={onAction}
-                type="button"
-              >
+              <button className={TEACHER_MODAL_BTN_PRIMARY} onClick={onAction} type="button">
                 {actionLabel}
               </button>
             ) : null}
@@ -248,7 +260,7 @@ function QuestionDetailStateModal({
 function DetailSection({ label, children }: { label: string; children: ReactNode }) {
   return (
     <section>
-      <h3 className="mb-2 text-label-md font-semibold text-on-surface-variant">{label}</h3>
+      <h3 className="mb-2 text-label-md font-semibold text-landing-text-soft">{label}</h3>
       {children}
     </section>
   );
@@ -256,9 +268,9 @@ function DetailSection({ label, children }: { label: string; children: ReactNode
 
 function DetailMeta({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg bg-surface-container-low px-3 py-2">
-      <p className="text-label-sm text-on-surface-variant/70">{label}</p>
-      <p className="mt-0.5 text-body-md text-on-surface">{value}</p>
+    <div className="rounded-xl bg-landing-gray/35 px-3 py-2">
+      <p className="text-label-sm text-landing-text-soft">{label}</p>
+      <p className="mt-0.5 text-body-md text-landing-text">{value}</p>
     </div>
   );
 }

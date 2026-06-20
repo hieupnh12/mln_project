@@ -30,18 +30,18 @@ function getChapterClassName(state: StudentChapterState, isExpanded: boolean) {
     return "border-outline-variant/30 bg-landing-gray/60 opacity-70";
   }
   if (state === "done") {
-    return "border-landing-red/15 bg-landing-red/5";
+    return "border-secondary/20 bg-secondary-container/20";
   }
   if (state === "active" || isExpanded) {
-    return "border-landing-red/25 bg-landing-white shadow-md shadow-landing-red/5";
+    return "border-secondary/30 bg-landing-white shadow-md shadow-secondary/5";
   }
-  return "border-outline-variant/35 bg-landing-white hover:border-landing-red/20";
+  return "border-outline-variant/35 bg-landing-white hover:border-secondary/25";
 }
 
 function ChapterStatus({ state }: { state: StudentChapterState }) {
   if (state === "done") {
     return (
-      <span className="rounded-full bg-landing-red/10 px-2.5 py-1 text-label-sm font-semibold text-landing-red">
+      <span className="rounded-full bg-secondary-container/55 px-2.5 py-1 text-label-sm font-semibold text-secondary">
         Hoàn thành
       </span>
     );
@@ -120,7 +120,7 @@ export function CourseCurriculumChapter({
         type="button"
       >
         <div className="flex items-center justify-between gap-3">
-          <span className="text-label-sm font-semibold text-landing-red">
+          <span className="text-label-sm font-semibold text-secondary">
             Chương {chapter.orderIndex}
           </span>
           <div className="flex items-center gap-2">
@@ -141,13 +141,13 @@ export function CourseCurriculumChapter({
       </button>
 
       {isExpanded ? (
-        <div className="ml-3 space-y-2 border-l border-landing-red/15 py-3 pl-3">
+        <div className="ml-3 space-y-2 border-l border-secondary/20 py-3 pl-3">
           <button
-            className="flex w-full items-center gap-3 rounded-xl bg-landing-red/5 px-3 py-2.5 text-left transition hover:bg-landing-red/10"
+            className="flex w-full items-center gap-3 rounded-xl bg-secondary-container/20 px-3 py-2.5 text-left transition hover:bg-secondary-container/40"
             onClick={() => navigate(`/student/chapters/${chapter.id}/flashcards`)}
             type="button"
           >
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-landing-white text-landing-red shadow-sm">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-landing-white text-secondary shadow-sm">
               <Layers3 aria-hidden="true" className="h-5 w-5" />
             </span>
             <span className="min-w-0">
@@ -188,7 +188,7 @@ export function CourseCurriculumChapter({
                   <div
                     className={
                       isLessonExpanded
-                        ? "overflow-hidden rounded-xl border border-landing-red/20 bg-landing-white"
+                        ? "overflow-hidden rounded-xl border border-secondary/25 bg-landing-white shadow-sm shadow-secondary/5"
                         : "overflow-hidden rounded-xl border border-outline-variant/30 bg-landing-white"
                     }
                     key={lesson.id}
@@ -223,11 +223,11 @@ export function CourseCurriculumChapter({
                     {isLessonExpanded ? (
                       <div className="space-y-1 border-t border-outline-variant/20 p-2">
                         <button
-                          className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left transition hover:bg-landing-red/5"
+                          className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left transition hover:bg-secondary-container/25"
                           onClick={() => navigate(`/student/lessons/${lesson.id}/mindmap`)}
                           type="button"
                         >
-                          <span className="flex h-10 w-14 shrink-0 items-center justify-center rounded-lg bg-landing-red/5 text-landing-red">
+                          <span className="flex h-10 w-14 shrink-0 items-center justify-center rounded-lg bg-landing-gold/10 text-landing-text-muted">
                             <BrainCircuit aria-hidden="true" className="h-5 w-5" />
                           </span>
                           <span className="min-w-0">
@@ -247,7 +247,7 @@ export function CourseCurriculumChapter({
                             <button
                               className={
                                 isActive
-                                  ? "flex w-full items-center gap-3 rounded-lg bg-landing-red/10 px-2 py-2 text-left"
+                                  ? "flex w-full items-center gap-3 rounded-lg bg-secondary-container/45 px-2 py-2 text-left"
                                   : "flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left transition hover:bg-landing-gray"
                               }
                               key={material.id}
