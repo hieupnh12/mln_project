@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 
@@ -44,7 +44,7 @@ export function StudentPracticePage() {
   const [phase, setPhase] = useState<PracticePhase>("setup");
   const [scope, setScope] = useState<PracticeScope>({ chapterId: null, lessonId: null });
   const [settings, setSettings] = useState<PracticeModeSettings>(DEFAULT_PRACTICE_SETTINGS);
-  const [shouldLoadQuestions, setShouldLoadQuestions] = useState(false);
+  const sessionStartedRef = useRef(false);
 
   const subjectQuery = useCourseSubjectQuery(subjectId);
   const { chaptersQuery, lessonsQuery } = usePracticeScope(subjectId, scope);
@@ -75,7 +75,7 @@ export function StudentPracticePage() {
         scope,
         DEFAULT_PRACTICE_QUESTION_BATCH_SIZE,
       ),
-    enabled: subjectId != null && shouldLoadQuestions,
+    enabled: subjectId != null,
     staleTime: PRACTICE_QUERY_STALE_TIME_MS,
     placeholderData: (previousData) => previousData,
   });
@@ -97,43 +97,45 @@ export function StudentPracticePage() {
       showInfoToast("Chưa có câu hỏi trong phạm vi đã chọn.");
       return;
     }
-    setShouldLoadQuestions(true);
+    sessionStartedRef.current = false;
     setPhase("session");
   }, [practiceQuestionCount]);
 
   const handleScopeChange = useCallback((nextScope: PracticeScope) => {
     setScope(nextScope);
-    setShouldLoadQuestions(false);
+    sessionStartedRef.current = false;
   }, []);
 
   useEffect(() => {
     if (
-      phase !== "session" ||
-      questionsQuery.isLoading ||
-      questionsQuery.isFetching ||
-      questions.length === 0
+      phase !== "session"
+      || questionsQuery.isLoading
+      || questions.length === 0
+      || session.poolEmpty
+      || sessionStartedRef.current
     ) {
       return;
     }
 
     session.startSession();
+    sessionStartedRef.current = true;
   }, [
     phase,
     questions.length,
-    questionsQuery.isFetching,
     questionsQuery.isLoading,
+    session.poolEmpty,
     session.startSession,
   ]);
 
   const handleEnd = useCallback(() => {
     setPhase("setup");
-    setShouldLoadQuestions(false);
+    sessionStartedRef.current = false;
     showInfoToast("Đã kết thúc phiên luyện tập.");
   }, []);
 
   const handleBackToSetup = useCallback(() => {
     setPhase("setup");
-    setShouldLoadQuestions(false);
+    sessionStartedRef.current = false;
   }, []);
 
   if (subjectId == null) {
@@ -223,7 +225,7 @@ export function StudentPracticePage() {
             </div>
           ) : null}
 
-          {phase === "session" && questionsQuery.isLoading ? (
+          {phase === "session" && questionsQuery.isLoading && !session.currentQuestion ? (
             <PracticeSessionFeedback
               courseTitle={courseTitle}
               exitHref={exitHref}
@@ -254,7 +256,8 @@ export function StudentPracticePage() {
               onCountdownComplete={session.handleCountdownComplete}
               onEnd={handleEnd}
               onSelectOption={session.handleSelectOption}
-              selectedOptionIndex={session.selectedOptionIndex}
+              onSubmitAnswer={session.handleSubmitAnswer}
+              selectedOptionIndices={session.selectedOptionIndices}
               settings={settings}
               stats={session.stats}
             />

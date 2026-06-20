@@ -1,5 +1,6 @@
 import type { LessonOptionDto } from "../../types/question-library-api.types";
 import type { QuestionDraft, QuestionStatus } from "../../types/question-library.types";
+import { TEACHER_MODAL_SHELL } from "../../../constants/teacher-ui.constants";
 import { CreateQuestionEditor } from "./create-question/create-question-editor";
 import { CreateQuestionFooter } from "./create-question/create-question-footer";
 import { CreateQuestionHeader } from "./create-question/create-question-header";
@@ -41,8 +42,10 @@ export function AddQuestionModal({
   onPublish,
 }: AddQuestionModalProps) {
   return (
-    <ModalOverlay glass labelledBy="add-question-title" onClose={onClose} open={open}>
-      <div className="mx-auto flex max-h-[calc(100dvh-32px)] w-full max-w-5xl flex-col overflow-hidden rounded-xl border border-outline-variant/20 bg-surface-container-lowest shadow-2xl">
+    <ModalOverlay labelledBy="add-question-title" onClose={onClose} open={open}>
+      <div
+        className={`mx-auto flex max-h-[calc(100dvh-32px)] w-full max-w-5xl flex-col ${TEACHER_MODAL_SHELL}`}
+      >
         <CreateQuestionHeader mode={mode} onClose={onClose} />
 
         <div className="custom-scrollbar flex-1 overflow-y-auto p-4 sm:p-md lg:p-lg">

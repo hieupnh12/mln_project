@@ -1,6 +1,7 @@
 package com.sed10.mln.study.service;
 
 import com.sed10.mln.study.constant.AttemptConstant;
+import com.sed10.mln.study.constant.QuestionConstant;
 import com.sed10.mln.study.constant.QuizConstant;
 import com.sed10.mln.study.dto.request.SubmitExamAnswerRequest;
 import com.sed10.mln.study.dto.request.SubmitExamRequest;
@@ -95,7 +96,7 @@ public class StudentExamService {
         Quiz quiz = getPublishedQuizForSubject(subjectId, quizId);
         User student = resolveStudent(request.getStudentId());
 
-        Map<Long, Long> selectedByQuestion = parseSelectedAnswers(request.getAnswers());
+        Map<Long, List<Long>> selectedByQuestion = parseSelectedAnswers(request.getAnswers());
         List<Question> sessionQuestions = resolveSessionQuestions(quiz, request.getQuestionIds());
         if (sessionQuestions.isEmpty()) {
             throw new AppException(ErrorCode.QUIZ_PUBLISH_INVALID);
@@ -114,9 +115,9 @@ public class StudentExamService {
 
         persistAttemptQuestionsBatch(attempt.getId(), sessionQuestions);
 
-        Map<Long, Answer> answersById = loadAnswersById(selectedByQuestion);
-        AttemptGrade grade = gradeQuestions(sessionQuestions, selectedByQuestion, answersById);
-        persistAttemptDetailsBatch(attempt.getId(), sessionQuestions, selectedByQuestion);
+        Map<Long, List<Answer>> answersByQuestion = loadAnswersByQuestion(sessionQuestions);
+        AttemptGrade grade = gradeQuestions(sessionQuestions, selectedByQuestion, answersByQuestion);
+        persistAttemptDetailsBatch(attempt.getId(), selectedByQuestion);
 
         float scoreOnTen = grade.total() == 0 ? 0f : ((float) grade.correct() / grade.total()) * 10f;
         attempt.setScore(scoreOnTen);
@@ -151,10 +152,10 @@ public class StudentExamService {
         QuizAttempt attempt = loadAuthorizedAttempt(subjectId, attemptId, studentId);
         Quiz quiz = attempt.getQuiz();
 
-        Map<Long, Long> selectedByQuestion = loadSelectedByQuestion(attemptId);
+        Map<Long, List<Long>> selectedByQuestion = loadSelectedByQuestion(attemptId);
         List<Question> sessionQuestions = loadAttemptQuestions(attempt, quiz);
-        Map<Long, Answer> answersById = loadAnswersById(selectedByQuestion);
-        AttemptGrade grade = gradeQuestions(sessionQuestions, selectedByQuestion, answersById);
+        Map<Long, List<Answer>> answersByQuestion = loadAnswersByQuestion(sessionQuestions);
+        AttemptGrade grade = gradeQuestions(sessionQuestions, selectedByQuestion, answersByQuestion);
 
         float scoreValue = attempt.getScore() != null ? attempt.getScore() : 0f;
         int passingScore = resolvePassingScore(quiz);
@@ -176,7 +177,7 @@ public class StudentExamService {
         QuizAttempt attempt = loadAuthorizedAttempt(subjectId, attemptId, studentId);
         Quiz quiz = attempt.getQuiz();
 
-        Map<Long, Long> selectedByQuestion = loadSelectedByQuestion(attemptId);
+        Map<Long, List<Long>> selectedByQuestion = loadSelectedByQuestion(attemptId);
         List<Question> sessionQuestions = loadAttemptQuestions(attempt, quiz);
         Map<Long, List<Answer>> answersByQuestion = loadAnswersByQuestion(sessionQuestions);
 
@@ -185,12 +186,12 @@ public class StudentExamService {
         int correctCount = 0;
 
         for (Question question : sessionQuestions) {
-            Long selectedAnswerId = selectedByQuestion.get(question.getId());
-            List<Answer> answers = answersByQuestion.getOrDefault(question.getId(), List.of());
+            List<Long> selectedAnswerIds =
+                    selectedByQuestion.getOrDefault(question.getId(), List.of());
+            List<Answer> answers = filterVisibleAnswers(
+                    answersByQuestion.getOrDefault(question.getId(), List.of()));
 
-            boolean questionCorrect = answers.stream().anyMatch(
-                    answer -> answer.getId().equals(selectedAnswerId)
-                            && Boolean.TRUE.equals(answer.getIsCorrect()));
+            boolean questionCorrect = isQuestionAnswerCorrect(question, answers, selectedAnswerIds);
             if (questionCorrect) {
                 correctCount++;
             }
@@ -202,7 +203,7 @@ public class StudentExamService {
                         .answerId(answer.getId())
                         .label(i < OPTION_LABELS.length ? OPTION_LABELS[i] : String.valueOf(i + 1))
                         .content(answer.getContent())
-                        .state(resolveReviewOptionState(answer, selectedAnswerId))
+                        .state(resolveReviewOptionState(answer, selectedAnswerIds))
                         .build());
             }
 
@@ -281,8 +282,8 @@ public class StudentExamService {
         return attempt;
     }
 
-    private Map<Long, Long> parseSelectedAnswers(List<SubmitExamAnswerRequest> answers) {
-        Map<Long, Long> selectedByQuestion = new HashMap<>();
+    private Map<Long, List<Long>> parseSelectedAnswers(List<SubmitExamAnswerRequest> answers) {
+        Map<Long, List<Long>> selectedByQuestion = new LinkedHashMap<>();
         if (answers == null) {
             return selectedByQuestion;
         }
@@ -290,47 +291,47 @@ public class StudentExamService {
             if (item.getQuestionId() == null || item.getAnswerId() == null) {
                 continue;
             }
-            selectedByQuestion.put(parseQuestionId(item.getQuestionId()), item.getAnswerId());
-        }
-        return selectedByQuestion;
-    }
-
-    private Map<Long, Long> loadSelectedByQuestion(Long attemptId) {
-        Map<Long, Long> selectedByQuestion = new HashMap<>();
-        for (QuizAttemptDetail detail :
-                quizAttemptDetailRepository.findByAttempt_IdOrderByIdAsc(attemptId)) {
-            if (detail.getQuestion() != null && detail.getSelectedAnswer() != null) {
-                selectedByQuestion.put(detail.getQuestion().getId(), detail.getSelectedAnswer().getId());
+            Long questionId = parseQuestionId(item.getQuestionId());
+            selectedByQuestion.computeIfAbsent(questionId, key -> new ArrayList<>());
+            List<Long> selected = selectedByQuestion.get(questionId);
+            if (!selected.contains(item.getAnswerId())) {
+                selected.add(item.getAnswerId());
             }
         }
         return selectedByQuestion;
     }
 
-    private Map<Long, Answer> loadAnswersById(Map<Long, Long> selectedByQuestion) {
-        Set<Long> answerIds = selectedByQuestion.values().stream()
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
-        if (answerIds.isEmpty()) {
-            return Map.of();
+    private Map<Long, List<Long>> loadSelectedByQuestion(Long attemptId) {
+        Map<Long, List<Long>> selectedByQuestion = new LinkedHashMap<>();
+        for (QuizAttemptDetail detail :
+                quizAttemptDetailRepository.findByAttempt_IdOrderByIdAsc(attemptId)) {
+            if (detail.getQuestion() != null && detail.getSelectedAnswer() != null) {
+                Long questionId = detail.getQuestion().getId();
+                selectedByQuestion.computeIfAbsent(questionId, key -> new ArrayList<>());
+                Long answerId = detail.getSelectedAnswer().getId();
+                List<Long> selected = selectedByQuestion.get(questionId);
+                if (!selected.contains(answerId)) {
+                    selected.add(answerId);
+                }
+            }
         }
-        return answerRepository.findAllById(answerIds).stream()
-                .collect(Collectors.toMap(Answer::getId, answer -> answer));
+        return selectedByQuestion;
     }
 
     private AttemptGrade gradeQuestions(
             List<Question> sessionQuestions,
-            Map<Long, Long> selectedByQuestion,
-            Map<Long, Answer> answersById) {
+            Map<Long, List<Long>> selectedByQuestion,
+            Map<Long, List<Answer>> answersByQuestion) {
         int correct = 0;
         Map<String, int[]> difficultyStats = new LinkedHashMap<>();
         Map<String, int[]> chapterStats = new LinkedHashMap<>();
 
         for (Question question : sessionQuestions) {
-            Long selectedAnswerId = selectedByQuestion.get(question.getId());
-            Answer selectedAnswer =
-                    selectedAnswerId != null ? answersById.get(selectedAnswerId) : null;
-            boolean questionCorrect =
-                    selectedAnswer != null && Boolean.TRUE.equals(selectedAnswer.getIsCorrect());
+            List<Answer> answers = filterVisibleAnswers(
+                    answersByQuestion.getOrDefault(question.getId(), List.of()));
+            List<Long> selectedAnswerIds =
+                    selectedByQuestion.getOrDefault(question.getId(), List.of());
+            boolean questionCorrect = isQuestionAnswerCorrect(question, answers, selectedAnswerIds);
             if (questionCorrect) {
                 correct++;
             }
@@ -360,28 +361,31 @@ public class StudentExamService {
         });
     }
 
-    private void persistAttemptDetailsBatch(Long attemptId, List<Question> sessionQuestions, Map<Long, Long> selectedByQuestion) {
+    private void persistAttemptDetailsBatch(Long attemptId, Map<Long, List<Long>> selectedByQuestion) {
         String sql = "INSERT INTO quiz_attempt_detail (attempt_id, question_id, selected_answer_id) VALUES (?, ?, ?)";
-        List<Question> answeredQuestions = sessionQuestions.stream()
-                .filter(q -> selectedByQuestion.containsKey(q.getId()))
-                .toList();
+        List<long[]> rows = new ArrayList<>();
+        for (Map.Entry<Long, List<Long>> entry : selectedByQuestion.entrySet()) {
+            for (Long answerId : entry.getValue()) {
+                rows.add(new long[] {entry.getKey(), answerId});
+            }
+        }
 
-        if (answeredQuestions.isEmpty()) {
+        if (rows.isEmpty()) {
             return;
         }
 
         jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
             @Override
             public void setValues(PreparedStatement ps, int i) throws SQLException {
-                Question question = answeredQuestions.get(i);
+                long[] row = rows.get(i);
                 ps.setLong(1, attemptId);
-                ps.setLong(2, question.getId());
-                ps.setLong(3, selectedByQuestion.get(question.getId()));
+                ps.setLong(2, row[0]);
+                ps.setLong(3, row[1]);
             }
 
             @Override
             public int getBatchSize() {
-                return answeredQuestions.size();
+                return rows.size();
             }
         });
     }
@@ -456,17 +460,48 @@ public class StudentExamService {
         return quiz.getPassingScore() != null ? quiz.getPassingScore() : 70;
     }
 
-    private boolean isQuestionCorrect(Long selectedAnswerId, Map<Long, Answer> answersById) {
-        if (selectedAnswerId == null) {
+    private boolean isQuestionAnswerCorrect(
+            Question question, List<Answer> visibleAnswers, List<Long> selectedAnswerIds) {
+        List<Long> correctIds = visibleAnswers.stream()
+                .filter(answer -> Boolean.TRUE.equals(answer.getIsCorrect()))
+                .map(Answer::getId)
+                .sorted()
+                .toList();
+        List<Long> selectedIds = selectedAnswerIds == null
+                ? List.of()
+                : selectedAnswerIds.stream().filter(Objects::nonNull).sorted().toList();
+
+        if (correctIds.isEmpty()) {
             return false;
         }
-        Answer selected = answersById.get(selectedAnswerId);
-        return selected != null && Boolean.TRUE.equals(selected.getIsCorrect());
+
+        if (isMultipleChoiceQuestion(question, visibleAnswers)) {
+            return correctIds.equals(selectedIds);
+        }
+
+        return selectedIds.size() == 1 && correctIds.contains(selectedIds.get(0));
     }
 
-    private String resolveReviewOptionState(Answer answer, Long selectedAnswerId) {
+    private boolean isMultipleChoiceQuestion(Question question, List<Answer> visibleAnswers) {
+        if (question.getType() != null) {
+            String type = question.getType().trim().toLowerCase();
+            if (type.contains("nhiều") || type.contains("multiple")) {
+                return true;
+            }
+        }
+        return visibleAnswers.stream().filter(answer -> Boolean.TRUE.equals(answer.getIsCorrect())).count() > 1;
+    }
+
+    private List<Answer> filterVisibleAnswers(List<Answer> answers) {
+        return answers.stream()
+                .filter(answer -> answer.getSortOrder() < QuestionConstant.HIDDEN_ANSWER_SORT_ORDER_BASE)
+                .sorted(Comparator.comparing(Answer::getSortOrder))
+                .toList();
+    }
+
+    private String resolveReviewOptionState(Answer answer, List<Long> selectedAnswerIds) {
         boolean isCorrect = Boolean.TRUE.equals(answer.getIsCorrect());
-        boolean isSelected = selectedAnswerId != null && selectedAnswerId.equals(answer.getId());
+        boolean isSelected = selectedAnswerIds != null && selectedAnswerIds.contains(answer.getId());
 
         if (isCorrect) {
             return "correct";
@@ -515,7 +550,8 @@ public class StudentExamService {
         List<StudentExamQuestionResponse> result = new ArrayList<>();
         for (QuizQuestion link : links) {
             Question question = link.getQuestion();
-            List<Answer> answers = new ArrayList<>(answersByQuestionId.getOrDefault(question.getId(), Collections.emptyList()));
+            List<Answer> answers = new ArrayList<>(filterVisibleAnswers(
+                    answersByQuestionId.getOrDefault(question.getId(), Collections.emptyList())));
             if (Boolean.TRUE.equals(quiz.getShuffleAnswers())) {
                 Collections.shuffle(answers);
             }
@@ -530,9 +566,13 @@ public class StudentExamService {
                         .build());
             }
 
+            boolean multipleChoice = isMultipleChoiceQuestion(question, answers);
+
             result.add(StudentExamQuestionResponse.builder()
                     .id("Q-" + question.getId())
                     .question(question.getContent())
+                    .type(question.getType())
+                    .multipleChoice(multipleChoice)
                     .options(options)
                     .build());
         }

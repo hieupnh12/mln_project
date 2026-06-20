@@ -1,13 +1,18 @@
 import type { PracticeQuestionDto } from "../types/practice-api.types";
 import type { PracticeQuestion } from "../types/practice.types";
+import { isPracticeMultiChoice } from "./is-practice-multi-choice";
 
-function resolveCorrectOptionIndex(dto: PracticeQuestionDto, options: string[]) {
-  const index = dto.correctOptionIndices?.[0];
-  if (typeof index === "number" && index >= 0 && index < options.length) {
-    return index;
+function resolveCorrectOptionIndices(dto: PracticeQuestionDto, options: string[]): number[] {
+  const fromApi = dto.correctOptionIndices?.filter(
+    (index) => typeof index === "number" && index >= 0 && index < options.length,
+  );
+
+  if (fromApi && fromApi.length > 0) {
+    return [...new Set(fromApi)].sort((a, b) => a - b);
   }
 
-  return options.findIndex((option) => option === dto.answer);
+  const fallbackIndex = options.findIndex((option) => option === dto.answer);
+  return fallbackIndex >= 0 ? [fallbackIndex] : [];
 }
 
 export function mapPracticeQuestionDto(
@@ -15,22 +20,27 @@ export function mapPracticeQuestionDto(
   index: number,
 ): PracticeQuestion | null {
   const options = dto.options?.filter((option) => option.trim().length > 0) ?? [];
-  const correctOptionIndex = resolveCorrectOptionIndex(dto, options);
+  const correctOptionIndices = resolveCorrectOptionIndices(dto, options);
 
-  if (options.length < 2 || correctOptionIndex < 0) {
+  if (options.length < 2 || correctOptionIndices.length === 0) {
     return null;
   }
+
+  const isMultipleChoice = isPracticeMultiChoice(dto.type, correctOptionIndices);
 
   return {
     id: dto.id,
     questionNumber: index + 1,
     question: dto.question || dto.title || "Câu hỏi chưa có nội dung",
+    type: dto.type,
     chapterId: dto.chapterId,
     lessonId: dto.lessonId,
     chapter: dto.chapter || "Chương",
     lesson: dto.lesson || "Bài học",
     options,
-    correctOptionIndex,
+    correctOptionIndex: correctOptionIndices[0],
+    correctOptionIndices,
+    isMultipleChoice,
     explanation: dto.explanation ?? "",
   };
 }

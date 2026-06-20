@@ -92,6 +92,14 @@
   --color-landing-red-deep: #991b1b;
   --color-landing-red-dark: #7f1d1d;
   --color-landing-gold: #d4a017;
+  --color-catalog-cyan: #06b6d4;
+  --color-catalog-sky: #0ea5e9;
+  --color-catalog-cobalt: #2563eb;
+  --color-catalog-indigo: #4f46e5;
+  --color-catalog-violet: #7c3aed;
+  --color-catalog-magenta: #d946ef;
+  --color-catalog-coral: #fb923c;
+  --color-catalog-amber: #fbbf24;
   --color-landing-text: #111827;
   --color-landing-text-muted: #374151;
   --color-landing-text-soft: #6b7280;
@@ -478,8 +486,17 @@ a {
 }
 
 .teacher-theme-root {
+  --color-background: var(--color-landing-gray);
+  --color-surface: var(--color-landing-white);
+  --color-on-surface: var(--color-landing-text);
+  --color-on-surface-variant: var(--color-landing-text-soft);
   --color-secondary: var(--color-landing-red);
-  --color-secondary-container: color-mix(in srgb, var(--color-landing-red) 10%, var(--color-landing-white));
+  --color-on-secondary: var(--color-on-primary);
+  --color-secondary-container: color-mix(
+    in srgb,
+    var(--color-landing-red) 12%,
+    var(--color-landing-white)
+  );
   --color-on-secondary-container: var(--color-landing-red-deep);
   --color-secondary-fixed: var(--color-landing-red);
   --color-secondary-fixed-dim: var(--color-landing-red-deep);

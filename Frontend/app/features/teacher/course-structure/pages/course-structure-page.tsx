@@ -1,5 +1,10 @@
+import { TeacherPageShell } from "../../components/teacher-page-shell";
 import { TeacherSubjectList } from "../components/teacher-subject-list";
 
 export function CourseStructurePage() {
-  return <TeacherSubjectList />;
+  return (
+    <TeacherPageShell>
+      <TeacherSubjectList />
+    </TeacherPageShell>
+  );
 }

@@ -1,4 +1,8 @@
 import { MaterialIcon } from "../../../../components/teacher-icons";
+import {
+  TEACHER_MODAL_BTN_PRIMARY,
+  TEACHER_MODAL_BTN_SECONDARY,
+} from "../../../../constants/teacher-ui.constants";
 
 type ImportActionsBarProps = {
   isProcessing: boolean;
@@ -19,10 +23,10 @@ export function ImportActionsBar({
   const importingPublished = submittingStatus === "PUBLISHED";
 
   return (
-    <div className="flex flex-col gap-4 border-t border-outline-variant/20 pt-lg sm:flex-row sm:items-center sm:justify-end">
+    <div className="flex flex-col gap-4 border-t border-outline-variant/25 pt-lg sm:flex-row sm:items-center sm:justify-end">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <button
-          className="rounded-lg px-6 py-2 text-label-md font-medium text-on-surface-variant transition hover:bg-surface-container"
+          className="rounded-xl px-6 py-2.5 text-label-md font-medium text-landing-text-soft transition hover:bg-landing-gray/60 hover:text-landing-text disabled:opacity-60"
           disabled={isProcessing}
           onClick={onCancel}
           type="button"
@@ -30,7 +34,7 @@ export function ImportActionsBar({
           Hủy import
         </button>
         <button
-          className="flex items-center justify-center gap-2 rounded-lg border border-outline-variant/30 px-6 py-2 text-label-md font-medium text-on-surface transition hover:bg-surface-container disabled:cursor-not-allowed disabled:opacity-70"
+          className={`${TEACHER_MODAL_BTN_SECONDARY} disabled:opacity-70`}
           disabled={isProcessing}
           onClick={onImportPending}
           type="button"
@@ -48,7 +52,7 @@ export function ImportActionsBar({
           )}
         </button>
         <button
-          className="flex items-center justify-center gap-2 rounded-lg bg-primary-container px-8 py-2 text-label-md font-medium text-on-primary shadow-lg transition hover:-translate-y-0.5 hover:shadow-xl active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-70"
+          className={`${TEACHER_MODAL_BTN_PRIMARY} disabled:opacity-70`}
           disabled={isProcessing}
           onClick={onImportPublished}
           type="button"

@@ -20,8 +20,8 @@ export function QuestionTablePagination({
   onPageChange,
 }: QuestionTablePaginationProps) {
   return (
-    <div className="flex flex-col gap-4 border-t border-outline-variant/10 bg-surface-container-lowest px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
-      <p className="text-label-md text-on-surface-variant">
+    <div className="flex flex-col gap-4 border-t border-outline-variant/15 bg-landing-gray/25 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+      <p className="text-label-md text-landing-text-soft">
         Hiển thị {rangeStart} - {rangeEnd} trong số{" "}
         {totalItems.toLocaleString("vi-VN")} câu hỏi
       </p>
@@ -92,7 +92,7 @@ function PageNumberInput({
       </label>
       <input
         aria-label={`Trang hiện tại, tổng ${totalPages} trang`}
-        className="w-14 rounded-lg border border-outline-variant/30 bg-white px-2 py-1.5 text-center text-label-md font-medium text-on-surface focus:ring-2 focus:ring-primary/20"
+        className="w-14 rounded-xl border-0 bg-landing-white px-2 py-1.5 text-center text-label-md font-medium text-landing-text outline-none ring-1 ring-outline-variant/15 focus:ring-primary/25"
         id="question-table-page-input"
         inputMode="numeric"
         min={1}
@@ -108,7 +108,7 @@ function PageNumberInput({
         type="text"
         value={inputValue}
       />
-      <span className="text-label-md text-on-surface-variant">/ {totalPages}</span>
+      <span className="text-label-md text-landing-text-soft">/ {totalPages}</span>
     </div>
   );
 }
@@ -127,7 +127,7 @@ function PageIconButton({
   return (
     <button
       aria-label={ariaLabel}
-      className="rounded-lg p-2 text-on-surface-variant transition hover:bg-surface-container disabled:cursor-not-allowed disabled:opacity-40"
+      className="rounded-xl p-2 text-landing-text-soft transition hover:bg-landing-gray/70 disabled:cursor-not-allowed disabled:opacity-40"
       disabled={disabled}
       onClick={onClick}
       type="button"

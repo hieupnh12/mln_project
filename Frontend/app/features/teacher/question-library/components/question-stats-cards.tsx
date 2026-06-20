@@ -1,13 +1,13 @@
 import type { ReactNode } from "react";
 
 import { MaterialIcon } from "../../components/teacher-icons";
-import type { QuestionLibraryStats } from "../utils/question-library-stats";
 import type { QuestionStatus } from "../types/question-library.types";
+import type { QuestionLibraryStats } from "../utils/question-library-stats";
 
 type QuestionStatsCardsProps = {
-  stats: QuestionLibraryStats;
   activeStatus: QuestionStatus | "all";
   onStatusFilter: (status: QuestionStatus | "all") => void;
+  stats: QuestionLibraryStats;
 };
 
 export function QuestionStatsCards({
@@ -16,55 +16,51 @@ export function QuestionStatsCards({
   onStatusFilter,
 }: QuestionStatsCardsProps) {
   return (
-    <div className="grid grid-cols-1 gap-gutter md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
       <StatCard
         icon="library_books"
-        iconClassName="bg-primary-fixed text-primary"
+        iconClassName="bg-catalog-cyan/12 text-catalog-cobalt"
         label="Tổng số câu hỏi"
         onClick={() => onStatusFilter("all")}
         selected={activeStatus === "all"}
         value={
           <>
             {stats.totalQuestions.toLocaleString("vi-VN")}{" "}
-            <span className="text-label-md font-normal text-on-surface-variant">
-              câu
-            </span>
+            <span className="text-label-md font-normal text-landing-text-soft">câu</span>
           </>
         }
       />
       <StatCard
         icon="auto_stories"
-        iconClassName="bg-secondary-fixed text-secondary"
+        iconClassName="bg-primary-container/15 text-primary"
         label="Tổng số môn học"
         value={
           <>
             {stats.totalCourses}{" "}
-            <span className="text-label-md font-normal text-on-surface-variant">
-              môn
-            </span>
+            <span className="text-label-md font-normal text-landing-text-soft">môn</span>
           </>
         }
       />
       <StatCard
         icon="equalizer"
-        iconClassName="bg-secondary-container text-on-secondary-container"
+        iconClassName="bg-catalog-indigo/10 text-catalog-indigo"
         label="Phân loại độ khó"
         value={
-          <span className="text-label-md font-bold text-primary-container">
+          <span className="text-label-md font-bold text-landing-text">
             {stats.byDifficulty["Cơ bản"]}{" "}
-            <span className="font-normal text-on-surface-variant/70">Cơ bản</span>
+            <span className="font-normal text-landing-text-soft">Cơ bản</span>
             {" / "}
             {stats.byDifficulty["Nâng cao"]}{" "}
-            <span className="font-normal text-on-surface-variant/70">Nâng cao</span>
+            <span className="font-normal text-landing-text-soft">Nâng cao</span>
           </span>
         }
       />
       <StatCard
         icon="verified"
-        iconClassName="bg-secondary-container/80 text-on-secondary-fixed-variant"
+        iconClassName="bg-landing-gold/15 text-landing-text-muted"
         label="Trạng thái duyệt"
         value={
-          <div className="flex flex-wrap gap-x-3 gap-y-1">
+          <div className="flex flex-wrap gap-x-2 gap-y-1">
             <StatusChip
               active={activeStatus === "Đã xuất bản"}
               count={stats.byStatus["Đã xuất bản"]}
@@ -91,22 +87,22 @@ export function QuestionStatsCards({
 }
 
 function StatusChip({
-  label,
-  count,
   active,
+  count,
+  label,
   onClick,
 }: {
-  label: string;
-  count: number;
   active: boolean;
+  count: number;
+  label: string;
   onClick: () => void;
 }) {
   return (
     <button
       className={
         active
-          ? "rounded-full bg-primary-fixed px-2.5 py-0.5 text-label-sm font-semibold text-primary ring-2 ring-primary/30"
-          : "rounded-full px-2.5 py-0.5 text-label-sm font-medium text-on-surface-variant transition hover:bg-surface-container-high"
+          ? "rounded-full bg-primary/10 px-2.5 py-0.5 text-label-sm font-semibold text-primary ring-1 ring-primary/25"
+          : "rounded-full px-2.5 py-0.5 text-label-sm font-medium text-landing-text-soft transition hover:bg-landing-gray/70"
       }
       onClick={onClick}
       type="button"
@@ -120,35 +116,33 @@ function StatCard({
   icon,
   iconClassName,
   label,
-  value,
   onClick,
   selected = false,
+  value,
 }: {
   icon: string;
   iconClassName: string;
   label: string;
-  value: ReactNode;
   onClick?: () => void;
   selected?: boolean;
+  value: ReactNode;
 }) {
-  const className = `flex w-full items-center gap-4 rounded-lg border p-6 text-left shadow-sm transition ${
+  const className = `flex w-full items-center gap-3 rounded-2xl border p-4 text-left transition ${
     selected
-      ? "border-primary/40 bg-primary-fixed/20 ring-2 ring-primary/20"
-      : "border-outline-variant/20 bg-white hover:border-outline-variant/40"
+      ? "border-primary/25 bg-landing-gray/50 ring-1 ring-primary/15"
+      : "border-outline-variant/25 bg-landing-gray/30 hover:border-outline-variant/45 hover:bg-landing-gray/45"
   }`;
 
   const content = (
     <>
       <div
-        className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-lg ${iconClassName}`}
+        className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${iconClassName}`}
       >
         <MaterialIcon>{icon}</MaterialIcon>
       </div>
       <div className="min-w-0">
-        <p className="text-label-sm font-semibold uppercase tracking-wider text-on-surface-variant">
-          {label}
-        </p>
-        <p className="mt-1 text-[24px] font-bold text-primary-container">{value}</p>
+        <p className="text-label-sm font-medium text-landing-text-soft">{label}</p>
+        <p className="mt-0.5 text-xl font-bold text-landing-text">{value}</p>
       </div>
     </>
   );

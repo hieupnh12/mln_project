@@ -14,6 +14,7 @@ import com.sed10.mln.study.dto.response.BatchImportRowResult;
 import com.sed10.mln.study.dto.response.BulkApproveQuestionsResponse;
 import com.sed10.mln.study.dto.response.DuplicateCheckResult;
 import com.sed10.mln.study.dto.response.DuplicateCheckResponse;
+import com.sed10.mln.study.dto.response.ExamBatchImportResult;
 import com.sed10.mln.study.dto.response.LessonOptionResponse;
 import com.sed10.mln.study.dto.response.QuestionListResponse;
 import com.sed10.mln.study.dto.response.QuestionMetadataResponse;
@@ -37,6 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -48,6 +50,7 @@ public class QuestionLibraryService {
     private final LessonRepository lessonRepository;
     private final TagRepository tagRepository;
     private final QuestionTagRepository questionTagRepository;
+    private final QuizAttemptDetailRepository quizAttemptDetailRepository;
     private final UserRepository userRepository;
     private final QuestionDuplicateService duplicateService;
     private final QuestionMapper mapper;
@@ -396,6 +399,156 @@ public class QuestionLibraryService {
     }
 
     @Transactional
+    public ExamBatchImportResult batchImportForExam(BatchImportRequest request) {
+        if (request.getLessonId() == null) {
+            throw new AppException(ErrorCode.LESSON_NOT_FOUND);
+        }
+        Lesson lesson = lessonRepository
+                .findById(request.getLessonId())
+                .orElseThrow(() -> new AppException(ErrorCode.LESSON_NOT_FOUND));
+
+        String statusCode = resolveImportStatus(request.getTargetStatus());
+        List<BatchImportRowRequest> rows = request.getRows() == null ? List.of() : request.getRows();
+
+        Map<String, String> internalHashToQuestionId = new HashMap<>();
+        Map<Long, Lesson> lessonCache = new HashMap<>();
+        Map<Long, List<Question>> duplicateCandidatesByLesson = new HashMap<>();
+        List<BatchImportRowResult> rowResults = new ArrayList<>();
+        List<String> quizQuestionIds = new ArrayList<>();
+        Set<String> quizQuestionIdSet = new LinkedHashSet<>();
+        int saved = 0;
+        int linkedExisting = 0;
+        int linkedInternal = 0;
+        int markedSimilar = 0;
+        int failedValidation = 0;
+
+        lessonCache.put(lesson.getId(), lesson);
+
+        for (BatchImportRowRequest row : rows) {
+            if (row == null) {
+                failedValidation++;
+                rowResults.add(rowResult(null, "FAILED", "Dòng dữ liệu không hợp lệ", null));
+                continue;
+            }
+            if (row.getContent() == null || row.getContent().isBlank()) {
+                failedValidation++;
+                rowResults.add(rowResult(row.getRowId(), "FAILED", "Nội dung trống", null));
+                continue;
+            }
+
+            Lesson rowLesson = resolveImportLesson(lesson, row, lessonCache);
+            if (rowLesson == null) {
+                failedValidation++;
+                rowResults.add(rowResult(
+                        row.getRowId(),
+                        "FAILED",
+                        "Không tìm thấy bài học phù hợp (môn/chương/bài)",
+                        null));
+                continue;
+            }
+
+            String type = row.getType() != null && !row.getType().isBlank() ? row.getType() : "Trắc nghiệm";
+            String normalized = QuestionContentNormalizer.normalize(row.getContent());
+            String hash = QuestionContentHasher.hash(rowLesson.getId(), type, normalized);
+            String hashKey = rowLesson.getId() + "|" + hash;
+
+            if (internalHashToQuestionId.containsKey(hashKey)) {
+                String linkedId = internalHashToQuestionId.get(hashKey);
+                linkedInternal++;
+                boolean mergedIntoQuiz = quizQuestionIdSet.contains(linkedId);
+                rowResults.add(rowResult(
+                        row.getRowId(),
+                        "LINKED_INTERNAL",
+                        mergedIntoQuiz
+                                ? "Trùng trong file, đã gộp vào quiz"
+                                : "Trùng trong file, dùng lại " + linkedId,
+                        linkedId));
+                appendQuizQuestionId(quizQuestionIds, quizQuestionIdSet, linkedId);
+                continue;
+            }
+
+            List<Question> duplicateCandidates = duplicateCandidatesByLesson.computeIfAbsent(
+                    rowLesson.getId(),
+                    questionRepository::findByLesson_Id);
+            DuplicateCheckResult duplicate = duplicateService.checkAgainstCandidates(
+                    rowLesson.getId(),
+                    type,
+                    row.getContent(),
+                    null,
+                    duplicateCandidates);
+            if (duplicate.isExactDuplicate()) {
+                String linkedId = "Q-" + duplicate.getMatchedQuestionId();
+                internalHashToQuestionId.put(hashKey, linkedId);
+                linkedExisting++;
+                rowResults.add(rowResult(
+                        row.getRowId(),
+                        "LINKED_EXISTING",
+                        "Dùng lại câu " + linkedId + " trong ngân hàng",
+                        linkedId));
+                appendQuizQuestionId(quizQuestionIds, quizQuestionIdSet, linkedId);
+                continue;
+            }
+
+            CreateQuestionRequest createRequest = new CreateQuestionRequest();
+            createRequest.setLessonId(rowLesson.getId());
+            createRequest.setQuestion(row.getContent());
+            createRequest.setTitle(row.getContent());
+            createRequest.setType(type);
+            createRequest.setDifficulty(
+                    row.getDifficulty() != null && !row.getDifficulty().isBlank()
+                            ? row.getDifficulty()
+                            : "Cơ bản");
+            createRequest.setStatus(QuestionConstant.toLabel(statusCode));
+            createRequest.setTags(parseTags(row.getTags()));
+            createRequest.setOptions(row.getOptions());
+            createRequest.setAnswer(row.getAnswer());
+            createRequest.setExplanation(row.getExplanation());
+            createRequest.setAllowSimilarSave(true);
+
+            Question savedQuestion = persistImportedQuestion(createRequest, duplicate, rowLesson);
+            duplicateCandidates.add(savedQuestion);
+            String questionId = "Q-" + savedQuestion.getId();
+            internalHashToQuestionId.put(hashKey, questionId);
+            if (duplicate.isSimilarDuplicate()) {
+                markedSimilar++;
+            }
+            saved++;
+            rowResults.add(rowResult(
+                    row.getRowId(),
+                    duplicate.isSimilarDuplicate() ? "SAVED_SIMILAR" : "SAVED",
+                    duplicate.getWarningMessage(),
+                    questionId));
+            appendQuizQuestionId(quizQuestionIds, quizQuestionIdSet, questionId);
+        }
+
+        BatchImportReportResponse report = BatchImportReportResponse.builder()
+                .totalRows(rows.size())
+                .savedCount(saved)
+                .skippedExactDuplicate(0)
+                .linkedExistingCount(linkedExisting)
+                .linkedInternalCount(linkedInternal)
+                .quizQuestionCount(quizQuestionIds.size())
+                .markedSimilar(markedSimilar)
+                .failedValidation(failedValidation)
+                .rows(rowResults)
+                .build();
+
+        return ExamBatchImportResult.builder()
+                .questionIds(quizQuestionIds)
+                .report(report)
+                .build();
+    }
+
+    private void appendQuizQuestionId(
+            List<String> quizQuestionIds, Set<String> quizQuestionIdSet, String questionId) {
+        if (questionId == null || questionId.isBlank() || quizQuestionIdSet.contains(questionId)) {
+            return;
+        }
+        quizQuestionIdSet.add(questionId);
+        quizQuestionIds.add(questionId);
+    }
+
+    @Transactional
     public void deleteQuestion(Long id) {
         if (!questionRepository.existsById(id)) {
             throw new AppException(ErrorCode.QUESTION_NOT_FOUND);
@@ -482,9 +635,7 @@ public class QuestionLibraryService {
         Question question = questionRepository
                 .findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.QUESTION_NOT_FOUND));
-        if (QuestionConstant.PUBLISHED.equals(question.getStatus())) {
-            throw new AppException(ErrorCode.QUESTION_PUBLISHED_NOT_EDITABLE);
-        }
+        boolean wasPublished = QuestionConstant.PUBLISHED.equals(question.getStatus());
 
         validateCreateRequest(request);
         Lesson lesson = lessonRepository
@@ -505,7 +656,9 @@ public class QuestionLibraryService {
         User teacher = com.sed10.mln.study.security.SecurityUtils.getCurrentUser();
         LocalDateTime now = LocalDateTime.now();
         String statusCode = QuestionConstant.fromLabel(request.getStatus());
-        if (QuestionConstant.PUBLISHED.equals(statusCode) && question.getPublishedAt() == null) {
+        if (wasPublished) {
+            statusCode = QuestionConstant.PENDING;
+        } else if (QuestionConstant.PUBLISHED.equals(statusCode) && question.getPublishedAt() == null) {
             question.setPublishedAt(now);
         }
 
@@ -546,40 +699,103 @@ public class QuestionLibraryService {
     }
 
     private void saveAnswers(Question question, CreateQuestionRequest request) {
-        answerRepository.deleteByQuestion_Id(question.getId());
+        List<Answer> storedAnswers =
+                answerRepository.findByQuestion_IdOrderBySortOrderAsc(question.getId());
+        List<Answer> existingAnswers = storedAnswers.stream()
+                .filter(answer -> answer.getSortOrder() < QuestionConstant.HIDDEN_ANSWER_SORT_ORDER_BASE)
+                .collect(Collectors.toCollection(ArrayList::new));
+
         List<AnswerOptionRequest> options = request.getOptions();
         if (options == null || options.isEmpty()) {
             if (request.getAnswer() != null && !request.getAnswer().isBlank()) {
-                answerRepository.save(Answer.builder()
-                        .question(question)
-                        .content(request.getAnswer().trim())
-                        .isCorrect(true)
-                        .sortOrder(0)
-                        .build());
+                if (existingAnswers.isEmpty()) {
+                    answerRepository.save(Answer.builder()
+                            .question(question)
+                            .content(request.getAnswer().trim())
+                            .isCorrect(true)
+                            .sortOrder(0)
+                            .build());
+                } else {
+                    Answer first = existingAnswers.get(0);
+                    first.setContent(request.getAnswer().trim());
+                    first.setIsCorrect(true);
+                    first.setSortOrder(0);
+                    answerRepository.save(first);
+                    archiveOrDeleteTrailingAnswers(existingAnswers, 1);
+                }
             }
             return;
         }
 
-        int order = 0;
         String normalizedAnswer = request.getAnswer() != null ? request.getAnswer().trim() : "";
+        boolean hasExplicitCorrectFlags = options.stream()
+                .anyMatch(option -> Boolean.TRUE.equals(option.getIsCorrect()));
+
+        List<ResolvedAnswerOption> resolvedOptions = new ArrayList<>();
+        int order = 0;
         for (AnswerOptionRequest option : options) {
             if (option.getContent() == null || option.getContent().isBlank()) {
                 continue;
             }
             boolean isCorrect = Boolean.TRUE.equals(option.getIsCorrect());
-            if (!isCorrect && request.getCorrectOptionIndex() != null) {
+            if (!hasExplicitCorrectFlags && !isCorrect && request.getCorrectOptionIndex() != null) {
                 isCorrect = order == request.getCorrectOptionIndex();
             }
-            if (!isCorrect && !normalizedAnswer.isBlank()) {
-                isCorrect = option.getContent().trim().equalsIgnoreCase(normalizedAnswer);
+            if (!hasExplicitCorrectFlags && !isCorrect && !normalizedAnswer.isBlank()) {
+                isCorrect = matchesAnswerToken(option.getContent().trim(), normalizedAnswer);
+            }
+            resolvedOptions.add(new ResolvedAnswerOption(option.getContent().trim(), isCorrect, order++));
+        }
+
+        for (int index = 0; index < resolvedOptions.size(); index++) {
+            ResolvedAnswerOption resolved = resolvedOptions.get(index);
+            if (index < existingAnswers.size()) {
+                Answer answer = existingAnswers.get(index);
+                answer.setContent(resolved.content());
+                answer.setIsCorrect(resolved.isCorrect());
+                answer.setSortOrder(resolved.sortOrder());
+                answerRepository.save(answer);
+                continue;
             }
             answerRepository.save(Answer.builder()
                     .question(question)
-                    .content(option.getContent().trim())
-                    .isCorrect(isCorrect)
-                    .sortOrder(order++)
+                    .content(resolved.content())
+                    .isCorrect(resolved.isCorrect())
+                    .sortOrder(resolved.sortOrder())
                     .build());
         }
+
+        archiveOrDeleteTrailingAnswers(existingAnswers, resolvedOptions.size());
+    }
+
+    private void archiveOrDeleteTrailingAnswers(List<Answer> existingAnswers, int activeCount) {
+        for (int index = activeCount; index < existingAnswers.size(); index++) {
+            Answer answer = existingAnswers.get(index);
+            if (quizAttemptDetailRepository.existsBySelectedAnswer_Id(answer.getId())) {
+                answer.setIsCorrect(false);
+                answer.setSortOrder(QuestionConstant.HIDDEN_ANSWER_SORT_ORDER_BASE + index);
+                answerRepository.save(answer);
+                continue;
+            }
+            answerRepository.delete(answer);
+        }
+    }
+
+    private record ResolvedAnswerOption(String content, boolean isCorrect, int sortOrder) {}
+
+    private boolean matchesAnswerToken(String optionContent, String normalizedAnswer) {
+        if (normalizedAnswer.isBlank()) {
+            return false;
+        }
+        if (optionContent.equalsIgnoreCase(normalizedAnswer)) {
+            return true;
+        }
+        for (String token : normalizedAnswer.split(",")) {
+            if (optionContent.equalsIgnoreCase(token.trim())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void saveTags(Question question, List<String> tags) {

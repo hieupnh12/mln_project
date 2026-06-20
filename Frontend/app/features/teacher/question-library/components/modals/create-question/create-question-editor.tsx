@@ -10,16 +10,16 @@ type CreateQuestionEditorProps = {
 export function CreateQuestionEditor({ draft, onChange }: CreateQuestionEditorProps) {
   return (
     <div className="space-y-sm">
-      <label className="flex items-center gap-2 text-label-md font-medium text-on-surface">
+      <label className="flex items-center gap-2 text-label-md font-medium text-landing-text">
         <MaterialIcon className="text-sm">description</MaterialIcon>
         NỘI DUNG CÂU HỎI
       </label>
-      <div className="overflow-hidden rounded-lg border border-outline-variant transition-colors focus-within:border-secondary">
-        <div className="flex items-center gap-1 border-b border-outline-variant/50 bg-surface-container p-2">
+      <div className="overflow-hidden rounded-xl border border-outline-variant/25 transition-colors focus-within:ring-2 focus-within:ring-primary/20">
+        <div className="flex items-center gap-1 border-b border-outline-variant/25 bg-landing-gray/35 p-2">
           {editorToolbarActions.slice(0, 3).map((icon) => (
             <button
               aria-label={icon}
-              className="rounded p-1 transition hover:bg-surface-variant"
+              className="rounded p-1 transition hover:bg-landing-gray/60"
               key={icon}
               type="button"
             >
@@ -30,7 +30,7 @@ export function CreateQuestionEditor({ draft, onChange }: CreateQuestionEditorPr
           {editorToolbarActions.slice(3).map((icon) => (
             <button
               aria-label={icon}
-              className="rounded p-1 transition hover:bg-surface-variant"
+              className="rounded p-1 transition hover:bg-landing-gray/60"
               key={icon}
               type="button"
             >
@@ -39,7 +39,7 @@ export function CreateQuestionEditor({ draft, onChange }: CreateQuestionEditorPr
           ))}
         </div>
         <textarea
-          className="min-h-[160px] w-full resize-y bg-white p-4 font-body-md focus:outline-none"
+          className="min-h-[160px] w-full resize-y bg-landing-white p-4 font-body-md text-landing-text focus:outline-none"
           onChange={(e) =>
             onChange({
               ...draft,

@@ -41,7 +41,7 @@ export function TeacherAccountMenu({ collapsed = false, user }: TeacherAccountMe
       src={user.avatarUrl}
     />
   ) : (
-    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary-container text-label-md font-bold text-primary shadow-sm">
+    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-landing-red/10 text-label-md font-bold text-landing-red shadow-sm">
       {getInitial(user.name)}
     </span>
   );
@@ -54,8 +54,8 @@ export function TeacherAccountMenu({ collapsed = false, user }: TeacherAccountMe
         aria-label="Mở menu tài khoản"
         className={
           collapsed
-            ? "mx-auto flex items-center justify-center rounded-xl p-1 transition hover:bg-surface-container active:scale-[0.99]"
-            : "flex w-full items-center gap-sm rounded-xl px-sm py-xs text-left transition hover:bg-surface-container active:scale-[0.99]"
+            ? "mx-auto flex items-center justify-center rounded-xl p-1 transition hover:bg-landing-gray active:scale-[0.99]"
+            : "flex w-full items-center gap-sm rounded-xl px-sm py-xs text-left transition hover:bg-landing-gray active:scale-[0.99]"
         }
         onClick={() => setIsOpen((current) => !current)}
         title={user.name}
@@ -65,14 +65,14 @@ export function TeacherAccountMenu({ collapsed = false, user }: TeacherAccountMe
         {!collapsed ? (
           <>
             <span className="min-w-0 flex-1">
-              <span className="block truncate text-label-md font-bold text-primary">
+              <span className="block truncate text-label-md font-bold text-landing-text">
                 {user.name}
               </span>
-              <span className="block truncate text-label-sm font-semibold text-on-surface-variant/70">
-                Teacher Portal
+              <span className="block truncate text-label-sm font-semibold text-landing-text-soft">
+                Giảng viên
               </span>
             </span>
-            <MaterialIcon className="text-on-surface-variant">more_vert</MaterialIcon>
+            <MaterialIcon className="text-landing-text-soft">more_vert</MaterialIcon>
           </>
         ) : null}
       </button>
@@ -81,15 +81,15 @@ export function TeacherAccountMenu({ collapsed = false, user }: TeacherAccountMe
         <div
           className={
             collapsed
-              ? "absolute bottom-0 left-[calc(100%+0.5rem)] z-50 w-56 overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-lowest shadow-[0_18px_40px_rgba(35,39,51,0.12)]"
-              : "absolute bottom-14 left-0 z-50 w-full overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-lowest shadow-[0_18px_40px_rgba(35,39,51,0.12)]"
+              ? "absolute bottom-0 left-[calc(100%+0.5rem)] z-50 w-56 overflow-hidden rounded-xl border border-outline-variant/35 bg-landing-white shadow-xl shadow-landing-text/10"
+              : "absolute bottom-14 left-0 z-50 w-full overflow-hidden rounded-xl border border-outline-variant/35 bg-landing-white shadow-xl shadow-landing-text/10"
           }
           role="menu"
         >
           <div className="border-b border-outline-variant/20 px-4 py-3">
-            <p className="truncate text-label-md font-semibold text-primary">{user.name}</p>
+            <p className="truncate text-label-md font-semibold text-landing-text">{user.name}</p>
             {user.email ? (
-              <p className="mt-1 truncate text-label-sm text-on-surface-variant">
+              <p className="mt-1 truncate text-label-sm text-landing-text-soft">
                 {user.email}
               </p>
             ) : null}

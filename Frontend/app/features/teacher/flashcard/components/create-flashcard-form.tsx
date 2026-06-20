@@ -1,17 +1,19 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
+
 import { MaterialIcon } from "../../components/teacher-icons";
-import { useTeacherFlashcardSets, useCreateFlashcardsBulk } from "../../hooks/use-flashcards";
+import { TeacherPageShell } from "../../components/teacher-page-shell";
+import { useCreateFlashcardsBulk, useTeacherFlashcardSets } from "../../hooks/use-flashcards";
 
 type CardItem = {
-  id: string; // client-side temp unique ID
-  term: string;
   definition: string;
+  id: string;
+  term: string;
 };
 
 export function CreateFlashcardForm() {
   const navigate = useNavigate();
-  const [selectedChapterId, setSelectedChapterId] = useState<number>(0);
+  const [selectedChapterId, setSelectedChapterId] = useState(0);
   const [cards, setCards] = useState<CardItem[]>([
     { id: "1", term: "", definition: "" },
     { id: "2", term: "", definition: "" },
@@ -19,40 +21,33 @@ export function CreateFlashcardForm() {
   ]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Fetch dynamic chapters for the dropdown
   const { data: chapters, isLoading: isLoadingChapters } = useTeacherFlashcardSets();
-
-  // Mutation for bulk creation
   const createBulkMutation = useCreateFlashcardsBulk(selectedChapterId);
 
-  // Generate unique ID for new local cards
   const generateId = () => Math.random().toString(36).substring(2, 9);
 
-  // Add new blank card to list
   const handleAddCard = () => {
-    setCards((prev) => [...prev, { id: generateId(), term: "", definition: "" }]);
-    // Scroll to bottom smoothly after state update
+    setCards((previous) => [...previous, { id: generateId(), term: "", definition: "" }]);
     setTimeout(() => {
       window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
     }, 100);
   };
 
-  // Delete card from list
   const handleDeleteCard = (id: string) => {
-    if (cards.length <= 1) return;
-    setCards((prev) => prev.filter((card) => card.id !== id));
+    if (cards.length <= 1) {
+      return;
+    }
+    setCards((previous) => previous.filter((card) => card.id !== id));
   };
 
-  // Handle input changes
   const handleInputChange = (id: string, field: "term" | "definition", value: string) => {
-    setCards((prev) =>
-      prev.map((card) => (card.id === id ? { ...card, [field]: value } : card))
+    setCards((previous) =>
+      previous.map((card) => (card.id === id ? { ...card, [field]: value } : card)),
     );
   };
 
-  // Validate and submit
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
     setErrorMessage(null);
 
     if (selectedChapterId === 0) {
@@ -61,19 +56,17 @@ export function CreateFlashcardForm() {
       return;
     }
 
-    // Filter cards: at least one card must be filled, and empty ones will be skipped
     const validCards = cards
-      .map((c) => ({ term: c.term.trim(), definition: c.definition.trim() }))
-      .filter((c) => c.term !== "" || c.definition !== "");
+      .map((card) => ({ term: card.term.trim(), definition: card.definition.trim() }))
+      .filter((card) => card.term !== "" || card.definition !== "");
 
     if (validCards.length === 0) {
-      setErrorMessage("Vui lòng nhập ít nhất 1 thẻ ghi nhớ có đầy đủ thuật ngữ hoặc định nghĩa!");
+      setErrorMessage("Vui lòng nhập ít nhất 1 thẻ có đầy đủ thuật ngữ hoặc định nghĩa!");
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
 
-    // Check if any partially filled cards exist
-    const hasIncompleteCard = validCards.some((c) => c.term === "" || c.definition === "");
+    const hasIncompleteCard = validCards.some((card) => card.term === "" || card.definition === "");
     if (hasIncompleteCard) {
       setErrorMessage("Tất cả các thẻ đã nhập phải có đầy đủ cả Thuật ngữ và Định nghĩa!");
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -86,186 +79,157 @@ export function CreateFlashcardForm() {
           navigate("/teacher/flashcards");
         },
       });
-    } catch (error) {
+    } catch {
       setErrorMessage("Đã xảy ra lỗi khi tạo bộ thẻ. Vui lòng thử lại!");
     }
   };
 
   return (
-    <div className="mx-auto max-w-4xl pb-16">
-      {/* Loading Overlay */}
-      {createBulkMutation.isPending && (
-        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/40 backdrop-blur-md">
-          <div className="h-12 w-12 animate-spin rounded-full border-4 border-white/20 border-t-white" />
-          <p className="mt-md text-headline-sm font-semibold text-white">
+    <TeacherPageShell>
+      {createBulkMutation.isPending ? (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-landing-text/40 backdrop-blur-md">
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-landing-white/20 border-t-landing-white" />
+          <p className="mt-md text-headline-sm font-semibold text-landing-white">
             Đang tạo bộ thẻ ghi nhớ...
           </p>
-          <p className="mt-xs text-body-md text-white/70">
+          <p className="mt-xs text-body-md text-landing-white/75">
             Vui lòng không đóng trình duyệt hoặc tải lại trang
           </p>
         </div>
-      )}
+      ) : null}
 
-      {/* Top action bar */}
-      <div className="mb-lg flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-outline-variant/30 pb-md">
-        <div className="space-y-xs">
+      <header className="mb-6 flex flex-col gap-4 border-b border-outline-variant/25 pb-6 sm:flex-row sm:items-center sm:justify-between">
+        <div className="space-y-1">
           <div className="flex items-center gap-2">
             <button
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-outline-variant/35 bg-landing-gray/50 text-landing-text transition hover:bg-landing-gray"
               onClick={() => navigate("/teacher/flashcards")}
-              className="flex h-9 w-9 items-center justify-center rounded-lg border border-outline-variant text-primary hover:bg-surface-container-low transition-colors"
               title="Quay lại"
               type="button"
             >
               <MaterialIcon>arrow_back</MaterialIcon>
             </button>
-            <h3 className="text-headline-lg font-semibold text-primary">
-              Tạo bộ thẻ ghi nhớ mới
-            </h3>
+            <h1 className="text-headline-lg font-bold text-landing-text">Tạo bộ thẻ ghi nhớ mới</h1>
           </div>
-          <p className="text-body-md text-on-surface-variant pl-11">
-            Thiết kế danh sách thẻ ghi nhớ tương tác cho sinh viên học tập hiệu quả.
+          <p className="pl-11 text-body-md text-landing-text-soft">
+            Thiết kế danh sách thẻ ghi nhớ cho sinh viên ôn tập.
           </p>
         </div>
-        
-        <div className="flex items-center gap-sm pl-11 sm:pl-0">
+
+        <div className="flex items-center gap-2 pl-11 sm:pl-0">
           <button
+            className="rounded-xl border border-outline-variant/40 bg-landing-white px-md py-sm text-label-md font-semibold text-landing-text-soft transition hover:bg-landing-gray/60"
             onClick={() => navigate("/teacher/flashcards")}
-            className="rounded-lg border border-outline-variant px-md py-sm font-semibold text-primary hover:bg-surface-container-low transition-all text-label-md"
             type="button"
           >
             Hủy bỏ
           </button>
           <button
+            className="flex items-center gap-2 rounded-xl bg-landing-red px-lg py-sm text-label-md font-semibold text-on-primary shadow-md shadow-landing-red/20 transition hover:bg-landing-red-deep"
             onClick={handleSubmit}
-            className="flex items-center gap-sm rounded-lg bg-primary px-lg py-sm font-semibold text-white shadow-md hover:bg-primary/95 transition-all text-label-md"
             type="button"
           >
             <MaterialIcon>done</MaterialIcon>
             <span>Tạo bộ thẻ</span>
           </button>
         </div>
-      </div>
+      </header>
 
-      {/* Validation Message */}
-      {errorMessage && (
-        <div className="mb-lg flex items-start gap-md rounded-xl bg-error-container p-md text-on-error-container border border-error/20 animate-pulse">
-          <MaterialIcon className="text-error mt-0.5">error</MaterialIcon>
-          <div className="text-body-md font-medium">{errorMessage}</div>
+      {errorMessage ? (
+        <div className="mb-6 flex items-start gap-3 rounded-xl border border-error/20 bg-error-container/40 p-md text-error">
+          <MaterialIcon className="mt-0.5">error</MaterialIcon>
+          <p className="text-body-md font-medium">{errorMessage}</p>
         </div>
-      )}
+      ) : null}
 
-      <form onSubmit={handleSubmit} className="space-y-lg">
-        {/* Chapter selection card */}
-        <section className="rounded-2xl border border-outline-variant/30 bg-white p-gutter shadow-[0_4px_20px_rgba(35,39,51,0.02)]">
-          <div className="space-y-sm">
-            <label className="block text-headline-sm font-semibold text-primary">
-              1. Chọn chương liên kết
-            </label>
-            <p className="text-body-sm text-on-surface-variant">
-              Bộ thẻ ghi nhớ sẽ được phân phối trực tiếp vào chương này để sinh viên ôn luyện.
-            </p>
-            <div className="mt-sm" style={{ maxWidth: "28rem" }}>
-              <select
-                value={selectedChapterId}
-                onChange={(e) => setSelectedChapterId(Number(e.target.value))}
-                disabled={isLoadingChapters}
-                style={{
-                  width: "100%",
-                  height: "48px",
-                  padding: "0 16px",
-                  fontSize: "16px",
-                  fontWeight: 500,
-                  color: "#0e121e",
-                  backgroundColor: "#ffffff",
-                  border: "1px solid #c6c6cc",
-                  borderRadius: "12px",
-                  cursor: "pointer",
-                  outline: "none",
-                }}
-              >
-                <option value={0}>-- Chọn Chương --</option>
-                {isLoadingChapters ? (
-                  <option disabled>Đang tải danh sách chương...</option>
-                ) : (
-                  chapters?.map((set) => (
-                    <option key={set.id} value={set.id}>
-                      {set.title}
-                    </option>
-                  ))
-                )}
-              </select>
-            </div>
+      <form className="space-y-lg" onSubmit={handleSubmit}>
+        <section className="rounded-2xl border border-outline-variant/25 bg-landing-gray/20 p-gutter">
+          <label className="block text-headline-sm font-semibold text-landing-text">
+            1. Chọn chương liên kết
+          </label>
+          <p className="mt-1 text-body-sm text-landing-text-soft">
+            Bộ thẻ sẽ được phân phối vào chương này để sinh viên ôn luyện.
+          </p>
+          <div className="relative mt-3 max-w-md">
+            <select
+              className="w-full appearance-none rounded-xl border-0 bg-landing-white py-3 pl-4 pr-10 text-body-md text-landing-text outline-none ring-1 ring-outline-variant/20 transition focus:ring-primary/25 disabled:opacity-60"
+              disabled={isLoadingChapters}
+              onChange={(event) => setSelectedChapterId(Number(event.target.value))}
+              value={selectedChapterId}
+            >
+              <option value={0}>-- Chọn chương --</option>
+              {isLoadingChapters ? (
+                <option disabled>Đang tải danh sách chương...</option>
+              ) : (
+                chapters?.map((set) => (
+                  <option key={set.id} value={set.id}>
+                    {set.title}
+                  </option>
+                ))
+              )}
+            </select>
+            <MaterialIcon className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-landing-text-soft">
+              expand_more
+            </MaterialIcon>
           </div>
         </section>
 
-        {/* Flashcard rows */}
         <div className="space-y-md">
-          <div className="flex justify-between items-center px-1">
-            <h4 className="text-headline-sm font-semibold text-primary">
+          <div className="flex items-center justify-between px-1">
+            <h2 className="text-headline-sm font-semibold text-landing-text">
               2. Danh sách các thẻ ghi nhớ
-            </h4>
-            <span className="text-label-sm font-medium text-on-surface-variant">
+            </h2>
+            <span className="text-label-sm font-medium text-landing-text-soft">
               Tổng số: {cards.length} thẻ
             </span>
           </div>
 
           {cards.map((card, index) => (
             <article
+              className="relative rounded-2xl border border-outline-variant/25 bg-landing-white p-gutter shadow-[0_4px_20px_rgb(17,24,39,0.04)]"
               key={card.id}
-              className="group rounded-2xl border border-outline-variant/30 bg-white p-gutter shadow-[0_4px_20px_rgba(35,39,51,0.02)] hover:shadow-[0_8px_30px_rgba(35,39,51,0.06)] hover:border-primary/20 transition-all duration-300 relative"
             >
-              {/* Card Row Header */}
-              <div className="mb-md flex items-center justify-between border-b border-outline-variant/10 pb-sm">
-                <span className="text-label-lg font-bold text-secondary tracking-wider">
+              <div className="mb-md flex items-center justify-between border-b border-outline-variant/15 pb-sm">
+                <span className="text-label-md font-bold tracking-wider text-landing-text-muted">
                   THẺ SỐ {index + 1}
                 </span>
-                
-                {cards.length > 1 && (
+                {cards.length > 1 ? (
                   <button
+                    className="flex h-8 w-8 items-center justify-center rounded-lg text-landing-text-soft transition hover:bg-error-container/40 hover:text-error"
                     onClick={() => handleDeleteCard(card.id)}
-                    className="flex h-8 w-8 items-center justify-center rounded-lg text-on-surface-variant hover:bg-error-container hover:text-error transition-all opacity-80 hover:opacity-100"
                     title="Xóa thẻ này"
                     type="button"
                   >
                     <MaterialIcon>delete_outline</MaterialIcon>
                   </button>
-                )}
+                ) : null}
               </div>
 
-              {/* Responsive Inputs (Term & Definition) */}
               <div className="grid gap-gutter md:grid-cols-2">
-                {/* Term / Front side */}
-                <div className="space-y-xs">
-                  <div className="relative">
-                    <textarea
-                      value={card.term}
-                      onChange={(e) => handleInputChange(card.id, "term", e.target.value)}
-                      placeholder="Nhập thuật ngữ / câu hỏi (Mặt trước)..."
-                      className="w-full border-b border-outline-variant py-md px-1 bg-transparent text-body-md text-primary font-medium placeholder:text-on-surface-variant/40 focus:border-primary focus:outline-none transition-colors resize-none min-h-[80px]"
-                      required
-                      rows={2}
-                    />
-                    <span className="absolute bottom-0 left-0 h-0.5 w-0 bg-primary group-focus-within:w-full transition-all duration-300" />
-                  </div>
-                  <label className="block text-label-sm font-semibold text-on-surface-variant/70 uppercase tracking-wider pl-1">
+                <div className="space-y-1">
+                  <textarea
+                    className="min-h-[80px] w-full resize-none border-b border-outline-variant/40 bg-transparent px-1 py-md text-body-md font-medium text-landing-text placeholder:text-landing-text-soft/50 focus:border-primary focus:outline-none"
+                    onChange={(event) => handleInputChange(card.id, "term", event.target.value)}
+                    placeholder="Nhập thuật ngữ / câu hỏi (Mặt trước)..."
+                    rows={2}
+                    value={card.term}
+                  />
+                  <label className="block pl-1 text-label-sm font-semibold uppercase tracking-wider text-landing-text-soft">
                     Thuật ngữ (Mặt trước)
                   </label>
                 </div>
 
-                {/* Definition / Back side */}
-                <div className="space-y-xs">
-                  <div className="relative">
-                    <textarea
-                      value={card.definition}
-                      onChange={(e) => handleInputChange(card.id, "definition", e.target.value)}
-                      placeholder="Nhập định nghĩa / câu trả lời (Mặt sau)..."
-                      className="w-full border-b border-outline-variant py-md px-1 bg-transparent text-body-md text-primary font-medium placeholder:text-on-surface-variant/40 focus:border-primary focus:outline-none transition-colors resize-none min-h-[80px]"
-                      required
-                      rows={2}
-                    />
-                    <span className="absolute bottom-0 left-0 h-0.5 w-0 bg-primary group-focus-within:w-full transition-all duration-300" />
-                  </div>
-                  <label className="block text-label-sm font-semibold text-on-surface-variant/70 uppercase tracking-wider pl-1">
+                <div className="space-y-1">
+                  <textarea
+                    className="min-h-[80px] w-full resize-none border-b border-outline-variant/40 bg-transparent px-1 py-md text-body-md font-medium text-landing-text placeholder:text-landing-text-soft/50 focus:border-primary focus:outline-none"
+                    onChange={(event) =>
+                      handleInputChange(card.id, "definition", event.target.value)
+                    }
+                    placeholder="Nhập định nghĩa / câu trả lời (Mặt sau)..."
+                    rows={2}
+                    value={card.definition}
+                  />
+                  <label className="block pl-1 text-label-sm font-semibold uppercase tracking-wider text-landing-text-soft">
                     Định nghĩa (Mặt sau)
                   </label>
                 </div>
@@ -274,30 +238,28 @@ export function CreateFlashcardForm() {
           ))}
         </div>
 
-        {/* Add Card Button */}
         <button
-          type="button"
+          className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-outline-variant/45 py-lg font-semibold text-landing-text transition hover:border-outline-variant/70 hover:bg-landing-gray/30"
           onClick={handleAddCard}
-          className="flex w-full items-center justify-center gap-sm rounded-2xl border-2 border-dashed border-outline-variant py-lg font-semibold text-primary hover:border-primary hover:bg-primary/[0.02] active:bg-primary/[0.04] transition-all group"
+          type="button"
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-secondary-container text-primary group-hover:scale-110 transition-transform">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-catalog-cyan/12 text-catalog-cobalt">
             <MaterialIcon>add</MaterialIcon>
           </div>
           <span className="text-label-lg font-bold">Thêm thẻ mới</span>
         </button>
 
-        {/* Bottom actions */}
-        <div className="flex items-center justify-end gap-sm border-t border-outline-variant/30 pt-lg">
+        <div className="flex items-center justify-end gap-2 border-t border-outline-variant/25 pt-lg">
           <button
+            className="rounded-xl border border-outline-variant/40 bg-landing-white px-md py-sm text-label-md font-semibold text-landing-text-soft transition hover:bg-landing-gray/60"
             onClick={() => navigate("/teacher/flashcards")}
-            className="rounded-lg border border-outline-variant px-md py-sm font-semibold text-primary hover:bg-surface-container-low transition-all text-label-md"
             type="button"
           >
             Hủy bỏ
           </button>
           <button
+            className="flex items-center gap-2 rounded-xl bg-landing-red px-lg py-sm text-label-md font-semibold text-on-primary shadow-md shadow-landing-red/20 transition hover:bg-landing-red-deep"
             onClick={handleSubmit}
-            className="flex items-center gap-sm rounded-lg bg-primary px-lg py-sm font-semibold text-white shadow-md hover:bg-primary/95 transition-all text-label-md"
             type="button"
           >
             <MaterialIcon>done</MaterialIcon>
@@ -305,6 +267,6 @@ export function CreateFlashcardForm() {
           </button>
         </div>
       </form>
-    </div>
+    </TeacherPageShell>
   );
 }

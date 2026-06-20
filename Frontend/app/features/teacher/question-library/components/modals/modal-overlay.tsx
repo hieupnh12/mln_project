@@ -5,6 +5,7 @@ type ModalOverlayProps = {
   onClose: () => void;
   children: ReactNode;
   labelledBy?: string;
+  /** @deprecated Neutral backdrop is always used; kept for call-site compatibility. */
   glass?: boolean;
 };
 
@@ -13,7 +14,6 @@ export function ModalOverlay({
   onClose,
   children,
   labelledBy,
-  glass = false,
 }: ModalOverlayProps) {
   useEffect(() => {
     if (!open) return;
@@ -38,18 +38,11 @@ export function ModalOverlay({
     <div
       aria-labelledby={labelledBy}
       aria-modal="true"
-      className={
-        glass
-          ? "fixed inset-0 z-50 flex items-center justify-center bg-primary-container/40 backdrop-blur-sm"
-          : "fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
-      }
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
       onClick={onClose}
       role="dialog"
     >
-      <div
-        className="w-full px-4"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="w-full max-w-[100vw]" onClick={(e) => e.stopPropagation()}>
         {children}
       </div>
     </div>

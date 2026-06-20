@@ -52,7 +52,7 @@ export function ImportReviewSection({
         </p>
       ) : null}
 
-      <p className="rounded-lg bg-secondary-container/30 px-4 py-3 text-body-md text-on-secondary-fixed-variant">
+      <p className="rounded-xl bg-landing-gray/40 px-4 py-3 text-body-md text-landing-text-soft">
         Hoàn tất & Import sẽ thêm câu ở trạng thái Đã duyệt. Chọn Chờ duyệt nếu muốn đưa câu
         vào hàng đợi duyệt trước khi xuất bản.
       </p>
@@ -74,11 +74,11 @@ export function ImportReviewSection({
 
 export function ImportReviewPlaceholder() {
   return (
-    <div className="rounded-xl border border-dashed border-outline-variant/30 bg-surface-container-low/50 p-lg text-center">
-      <MaterialIcon className="mx-auto text-[40px] text-on-surface-variant/30">
+    <div className="rounded-2xl border border-dashed border-outline-variant/40 bg-landing-gray/20 p-lg text-center">
+      <MaterialIcon className="mx-auto text-[40px] text-landing-text-soft/40">
         table_chart
       </MaterialIcon>
-      <p className="mt-3 text-body-md text-on-surface-variant">
+      <p className="mt-3 text-body-md text-landing-text-soft">
         Tải file lên để xem trước dữ liệu và kiểm tra ánh xạ cột.
       </p>
     </div>

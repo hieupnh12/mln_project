@@ -8,16 +8,17 @@ import { normalizeApiError } from "~/shared/services/api-client";
 import { showErrorToast } from "~/shared/utils/toast";
 
 import { getStudentExamSessionPath } from "../../constants/student-routes.constants";
-import { useStudentExamsQuery } from "../hooks/use-student-exams-query";
 import { EXAMS_QUERY_KEYS } from "../constants/exams-api.constants";
+import { useStudentExamsQuery } from "../hooks/use-student-exams-query";
 import { getExamSession } from "../services/exams.service";
+import { ExamCatalogGrid } from "./exam-catalog-grid";
+import { ExamCatalogIntro } from "./exam-catalog-intro";
 import { ExamCatalogSection } from "./exam-catalog-section";
+import { ExamCatalogSkeleton } from "./exam-catalog-skeleton";
 import { ExamCompletedList } from "./exam-completed-list";
 import { ExamCompletedTable } from "./exam-completed-table";
 import { ExamEmptyState } from "./exam-empty-state";
 import { ExamLoginBanner } from "./exam-login-banner";
-import { ExamOngoingCard } from "./exam-ongoing-card";
-import { ExamUpcomingCard } from "./exam-upcoming-card";
 
 type CourseExamCatalogPanelProps = {
   subjectId: number;
@@ -25,26 +26,9 @@ type CourseExamCatalogPanelProps = {
   courseTitle?: string;
 };
 
-function ExamCatalogSkeleton() {
-  return (
-    <div className="flex flex-col gap-xl">
-      {Array.from({ length: 3 }).map((_, index) => (
-        <div className="space-y-md" key={index}>
-          <div className="h-8 w-48 animate-pulse rounded-lg bg-landing-gray" />
-          <div className="grid grid-cols-1 gap-gutter lg:grid-cols-2">
-            <div className="h-56 animate-pulse rounded-xl bg-landing-white" />
-            <div className="h-56 animate-pulse rounded-xl bg-landing-white" />
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
 export function CourseExamCatalogPanel({
   subjectId,
   active,
-  courseTitle,
 }: CourseExamCatalogPanelProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -112,7 +96,6 @@ export function CourseExamCatalogPanel({
     upcoming: [],
     completed: [],
   };
-  const displayCourseTitle = courseTitle || catalog.subjectTitle;
   const isCatalogEmpty =
     catalog.ongoing.length === 0 &&
     catalog.upcoming.length === 0 &&
@@ -122,19 +105,11 @@ export function CourseExamCatalogPanel({
     <div className="flex flex-col gap-lg">
       {!isLoggedIn ? <ExamLoginBanner /> : null}
 
-      <header className="border-b border-outline-variant/30 pb-md">
-        <h1 className="mt-2 font-serif text-headline-md font-semibold text-landing-text md:text-headline-lg">
-          Danh sách bài kiểm tra
-        </h1>
-        <p className="mt-2 max-w-3xl text-body-md text-landing-text-soft">
-          {displayCourseTitle
-            ? `Theo dõi các bài kiểm tra của môn ${displayCourseTitle} và hoàn thành đúng hạn.`
-            : "Hoàn thành bài kiểm tra đúng hạn để duy trì kết quả học tập."}
-        </p>
-        {examsQuery.isFetching && !examsQuery.isLoading ? (
-          <p className="mt-2 text-label-sm text-landing-text-soft">Đang cập nhật...</p>
-        ) : null}
-      </header>
+      <ExamCatalogIntro />
+
+      {examsQuery.isFetching && !examsQuery.isLoading ? (
+        <p className="-mt-sm text-label-sm text-landing-text-soft">Đang cập nhật...</p>
+      ) : null}
 
       {isCatalogEmpty ? (
         <ExamEmptyState
@@ -144,57 +119,34 @@ export function CourseExamCatalogPanel({
         />
       ) : (
         <>
-          <div className="grid grid-cols-1 items-start gap-lg xl:grid-cols-[minmax(0,1.65fr)_minmax(320px,0.75fr)]">
-            <ExamCatalogSection
-              badge={catalog.ongoing.length > 0 ? `${catalog.ongoing.length} bài` : undefined}
-              icon="play_circle"
-              iconFilled
-              title="Đang diễn ra"
-              tone="active"
-            >
-              {catalog.ongoing.length === 0 ? (
-                <ExamEmptyState
-                  description="Hiện không có bài kiểm tra nào đang mở."
-                  icon="event_available"
-                  title="Chưa có bài đang mở"
-                  tone="active"
-                />
-              ) : (
-                <div className="grid grid-cols-1 gap-gutter 2xl:grid-cols-2">
-                  {catalog.ongoing.map((exam) => (
-                    <ExamOngoingCard
-                      exam={exam}
-                      isRetake={retakeQuizIds.has(exam.id)}
-                      key={exam.id}
-                      onStart={handleStartExam}
-                    />
-                  ))}
-                </div>
-              )}
-            </ExamCatalogSection>
+          <ExamCatalogSection
+            badge={catalog.ongoing.length > 0 ? `${catalog.ongoing.length} bài` : undefined}
+            icon="play_circle"
+            iconFilled
+            title="Đang diễn ra"
+            tone="active"
+          >
+            {catalog.ongoing.length === 0 ? (
+              <ExamEmptyState
+                description="Hiện không có bài kiểm tra nào đang mở."
+                icon="event_available"
+                title="Chưa có bài đang mở"
+                tone="active"
+              />
+            ) : (
+              <ExamCatalogGrid
+                exams={catalog.ongoing}
+                onStart={handleStartExam}
+                retakeQuizIds={retakeQuizIds}
+              />
+            )}
+          </ExamCatalogSection>
 
+          {catalog.upcoming.length > 0 ? (
             <ExamCatalogSection icon="event" title="Sắp tới" tone="upcoming">
-              {catalog.upcoming.length === 0 ? (
-                <ExamEmptyState
-                  compact
-                  description="Các bài sắp mở sẽ xuất hiện tại đây."
-                  icon="schedule"
-                  title="Không có bài kiểm tra sắp mở"
-                  tone="upcoming"
-                />
-              ) : (
-                <div className="grid grid-cols-1 gap-gutter md:grid-cols-2 xl:grid-cols-1">
-                  {catalog.upcoming.map((exam) => (
-                    <ExamUpcomingCard
-                      exam={exam}
-                      key={exam.id}
-                      subjectTitle={displayCourseTitle}
-                    />
-                  ))}
-                </div>
-              )}
+              <ExamCatalogGrid exams={catalog.upcoming} locked />
             </ExamCatalogSection>
-          </div>
+          ) : null}
 
           <ExamCatalogSection icon="check_circle" title="Đã hoàn thành" tone="neutral">
             {catalog.completed.length === 0 ? (
@@ -210,7 +162,6 @@ export function CourseExamCatalogPanel({
                   <ExamCompletedTable
                     courseId={String(subjectId)}
                     rows={catalog.completed}
-                    subjectTitle={displayCourseTitle}
                   />
                 </div>
               </>
