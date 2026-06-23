@@ -12,7 +12,7 @@ export const LANDING_SEO = {
   keywords:
     "Mác Lê Nin, Marxism Leninism, chủ nghĩa Mác Lê Nin, học tập chính trị, lịch sử cách mạng, quiz Mác Lê Nin, chatbot AI giáo dục",
   siteName: "Mác - Lê Nin",
-  siteOrigin: "https://maclenin.io.vn",
+  siteOrigin: "https://hocllct.io.vn",
   locale: "vi_VN",
 } as const;
 
