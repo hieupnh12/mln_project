@@ -33,7 +33,7 @@ jobs:
           push: true
           tags: hieupnh12/mln-frontend:test-build
           build-args: |
-            VITE_API_BASE_URL=https://maclenin.io.vn/api
+            VITE_API_BASE_URL=https://hocllct.io.vn/api
             VITE_API_WITH_CREDENTIALS=false
 
       - name: Deploy to VPS
