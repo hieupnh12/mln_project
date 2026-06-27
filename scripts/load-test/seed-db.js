@@ -37,7 +37,7 @@ const dbConfig = {
   database: env.MYSQL_DATABASE,
   user: env.MYSQL_USER,
   password: env.MYSQL_PASSWORD,
-  // Aiven requires SSL, let's enable it
+  // Remote MySQL may require SSL (set MYSQL_SSL_MODE=REQUIRED in .env)
   ssl: env.MYSQL_SSL_MODE === 'REQUIRED' || env.MYSQL_SSL_MODE === 'VERIFY_CA' || env.MYSQL_SSL_MODE === 'VERIFY_IDENTITY'
     ? { rejectUnauthorized: false }
     : undefined
