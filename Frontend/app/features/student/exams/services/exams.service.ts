@@ -14,6 +14,7 @@ import type {
   SubmitExamResultDto,
 } from "../types/exam-session-api.types";
 import { mapExamCatalogDto } from "../utils/map-exam-catalog-dto";
+import { mapExamSessionDto } from "../utils/map-exam-session-dto";
 
 export async function getExamCatalog(
   subjectId: number,
@@ -27,7 +28,8 @@ export async function getExamSession(
   subjectId: number,
   quizId: string,
 ): Promise<ExamSession> {
-  return fetchExamSession(subjectId, quizId);
+  const dto = await fetchExamSession(subjectId, quizId);
+  return mapExamSessionDto(dto);
 }
 
 export async function submitExamAttempt(
