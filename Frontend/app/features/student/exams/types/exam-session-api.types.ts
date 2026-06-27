@@ -1,15 +1,32 @@
-import type { ExamQuestion, ExamSession } from "./exam-session.types";
+import type { ExamSummary } from "./exam-summary.types";
 
-export type StudentExamSessionDto = ExamSession & {
-  questions: ExamQuestion[];
+/** Raw question shape from GET exam session API (`multipleChoice` from backend). */
+export type StudentExamQuestionDto = {
+  id: string;
+  question: string;
+  type: string;
+  multipleChoice?: boolean | null;
+  options: {
+    answerId: number;
+    label: string;
+    content: string;
+  }[];
+};
+
+export type StudentExamSessionDto = {
+  quizId: string;
+  title: string;
+  courseTitle: string;
+  durationMinutes: number;
+  passingScore: number;
+  questionCount: number;
+  questions: StudentExamQuestionDto[];
 };
 
 export type SubmitExamAnswerDto = {
   questionId: string;
   answerId: number;
 };
-
-import type { ExamSummary } from "./exam-summary.types";
 
 export type SubmitExamRequestDto = {
   studentId: number;
