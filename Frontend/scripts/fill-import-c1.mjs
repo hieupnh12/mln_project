@@ -3,9 +3,6 @@ import ExcelJS from "exceljs";
 import fs from "fs";
 import os from "os";
 import path from "path";
-import { fileURLToPath } from "url";
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const TEMPLATE_PATH = "C:/Users/Admin/Downloads/mau-import-cau-hoi (2).xlsx";
 const DOCX_PATH = "D:/HocKy8/MLN111/Đề MLN111/ĐỀ MLN111_SU26_C1.docx";
@@ -121,10 +118,6 @@ async function main() {
       !question.correct_answer,
   );
 
-  if (invalidQuestions.length > 0) {
-    console.warn(`Cảnh báo: ${invalidQuestions.length} câu thiếu dữ liệu.`);
-  }
-
   const workbook = new ExcelJS.Workbook();
   await workbook.xlsx.readFile(TEMPLATE_PATH);
 
@@ -133,8 +126,7 @@ async function main() {
     throw new Error('Không tìm thấy sheet "Cau hoi" trong file mẫu.');
   }
 
-  const lastRowNumber = worksheet.rowCount;
-  for (let rowNumber = lastRowNumber; rowNumber > 1; rowNumber -= 1) {
+  for (let rowNumber = worksheet.rowCount; rowNumber > 1; rowNumber -= 1) {
     worksheet.spliceRows(rowNumber, 1);
   }
 
@@ -160,6 +152,13 @@ async function main() {
 
   console.log(`Đã ghi ${questions.length} câu hỏi vào: ${OUTPUT_PATH}`);
   console.log(`Câu hợp lệ: ${questions.length - invalidQuestions.length}/${questions.length}`);
+
+  if (invalidQuestions.length > 0) {
+    console.warn("Các câu thiếu dữ liệu:");
+    invalidQuestions.forEach((question, index) => {
+      console.warn(`${index + 1}. ${question.content}`);
+    });
+  }
 }
 
 main().catch((error) => {

@@ -197,6 +197,7 @@ Backend/uploads/
 *.bak
 *.orig
 *.swp
+scripts/tmp-*.mjs
 
 # Secret files
 .env.prod
