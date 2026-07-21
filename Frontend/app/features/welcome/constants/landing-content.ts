@@ -111,13 +111,13 @@ export const FOOTER_GROUPS: FooterLinkGroup[] = [
     links: [
       { label: "Facebook", href: "https://www.facebook.com" },
       { label: "YouTube", href: "https://www.youtube.com" },
-      { label: "Email", href: "mailto:contact@mln-master.edu.vn" },
+      { label: "Email", href: "mailto:contact@hocllct.io.vn" },
     ],
   },
 ];
 
 export const INTRO_POINTS = [
-  "Hệ thống hóa kiến thức chủ nghĩa Mác - Lê Nin theo hướng dễ học, dễ ôn tập.",
+  "Hệ thống hóa kiến thức Lý luận chính trị theo hướng dễ học, dễ ôn tập.",
   "Kết nối lý luận với bối cảnh lịch sử, nhân vật, sự kiện và câu hỏi kiểm tra.",
   "Tạo một cổng vào nghiêm túc cho sinh viên trước khi bước vào hệ thống học tập chính.",
 ] as const;

@@ -1,7 +1,7 @@
 import { StudentExamSummaryPage } from "../features/student/exams/pages/student-exam-summary-page";
 
 export function meta() {
-  return [{ title: "Tổng kết bài kiểm tra | ML Learning" }];
+  return [{ title: "Tổng kết bài kiểm tra | Học LLCT" }];
 }
 
 export default function StudentExamSummaryRoute() {

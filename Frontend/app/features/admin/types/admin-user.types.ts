@@ -10,6 +10,9 @@ export type AdminUser = {
   role: AdminUserRole;
   isActive: boolean;
   googleId: string | null;
+  createdAt: string | null;
+  lastSeenAt: string | null;
+  online: boolean;
 };
 
 export type AdminUserUpsertPayload = {

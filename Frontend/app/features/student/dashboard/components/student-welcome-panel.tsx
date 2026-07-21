@@ -32,7 +32,7 @@ export function StudentWelcomePanel({
           Chào {userName}, sẵn sàng cho bài học mới?
         </h1>
         <p className="mt-5 max-w-[62ch] text-body-md text-landing-text-muted sm:text-body-lg">
-          Tiếp tục lộ trình Mác - Lê Nin, theo dõi tiến độ và truy cập nhanh các
+          Tiếp tục lộ trình Lý luận chính trị, theo dõi tiến độ và truy cập nhanh các
           học liệu dành cho bạn.
         </p>
 

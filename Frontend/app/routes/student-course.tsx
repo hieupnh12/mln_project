@@ -2,10 +2,10 @@ import { StudentCoursePage } from "../features/student/course-learning/pages/stu
 
 export function meta() {
   return [
-    { title: "Khóa học Mác - Lê Nin | M-L Learning" },
+    { title: "Khóa học Lý luận chính trị | Học LLCT" },
     {
       name: "description",
-      content: "Không gian bài giảng, flashcard, luyện tập và kiểm tra Mác - Lê Nin.",
+      content: "Không gian bài giảng, flashcard, luyện tập và kiểm tra Lý luận chính trị trên Học LLCT.",
     },
   ];
 }

@@ -6,7 +6,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,13 +16,14 @@ import java.util.Optional;
 @Slf4j
 @RequiredArgsConstructor
 public class UserService {
-    
+
     private final UserRepository userRepository;
 
     @Value("${admin.email:}")
     private String adminEmail;
 
     private static final String DEFAULT_ROLE = "student";
+    public static final int ONLINE_THRESHOLD_MINUTES = 5;
 
     private String normalizeEmail(String email) {
         return email == null ? "" : email.trim().toLowerCase();
@@ -46,17 +49,15 @@ public class UserService {
 
         return normalizeRole(currentRole);
     }
-    
+
     public User findOrCreateUserByGoogle(String googleId, String email, String name) {
-        // Try to find by googleId first
         Optional<User> existingUser = userRepository.findByGoogleId(googleId);
         if (existingUser.isPresent()) {
             User user = existingUser.get();
             user.setRole(resolveRoleByEmail(user.getEmail(), user.getRole()));
             return userRepository.save(user);
         }
-        
-        // Try to find by email
+
         Optional<User> userByEmail = userRepository.findByEmail(email);
         if (userByEmail.isPresent()) {
             User user = userByEmail.get();
@@ -64,27 +65,29 @@ public class UserService {
             user.setRole(resolveRoleByEmail(user.getEmail(), user.getRole()));
             return userRepository.save(user);
         }
-        
-        // Create new user - default role is student unless the email is configured as admin
+
         String role = resolveRoleByEmail(email, DEFAULT_ROLE);
-        
+        LocalDateTime now = LocalDateTime.now();
+
         User newUser = User.builder()
                 .googleId(googleId)
                 .email(email)
                 .fullName(name)
-                .username(email.split("@")[0]) // username from email
+                .username(email.split("@")[0])
                 .role(role)
                 .isActive(true)
+                .createdAt(now)
+                .lastSeenAt(now)
                 .build();
-        
+
         log.info("Creating new user with role: {} for email: {}", role, email);
         return userRepository.save(newUser);
     }
-    
+
     public User getUserById(Long id) {
         return userRepository.findById(id).orElse(null);
     }
-    
+
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email).orElse(null);
     }
@@ -103,10 +106,13 @@ public class UserService {
             throw new IllegalArgumentException("Email da ton tai");
         }
 
+        LocalDateTime now = LocalDateTime.now();
         userData.setEmail(normalizedEmail);
         userData.setRole(resolveRoleByEmail(normalizedEmail, userData.getRole()));
         userData.setUsername(resolveUsername(normalizedEmail));
         userData.setIsActive(userData.getIsActive() == null ? Boolean.TRUE : userData.getIsActive());
+        userData.setCreatedAt(now);
+        userData.setLastSeenAt(null);
 
         return userRepository.save(userData);
     }
@@ -145,6 +151,21 @@ public class UserService {
 
         userRepository.deleteById(id);
         return true;
+    }
+
+    @Transactional
+    public void touchLastSeen(Long userId) {
+        if (userId == null) {
+            return;
+        }
+        userRepository.updateLastSeenAt(userId, LocalDateTime.now());
+    }
+
+    public static boolean isOnline(LocalDateTime lastSeenAt) {
+        if (lastSeenAt == null) {
+            return false;
+        }
+        return lastSeenAt.isAfter(LocalDateTime.now().minusMinutes(ONLINE_THRESHOLD_MINUTES));
     }
 
     private String resolveUsername(String email) {

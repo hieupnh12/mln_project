@@ -1,5 +1,3 @@
-import type { AdminNavItem } from "../types/admin-dashboard.types";
-
 export const adminProfile = {
   name: "Quản trị viên",
   plan: "System Admin",
@@ -9,9 +7,17 @@ export const adminProfile = {
 
 export const ADMIN_ROUTES = {
   dashboard: "/admin",
+  users: "/admin",
+  traffic: "/admin/traffic",
 } as const;
 
+export type AdminNavItem = {
+  label: string;
+  to: string;
+  end?: boolean;
+};
+
 export const adminNavItems: AdminNavItem[] = [
-  { label: "Quản lý người dùng", icon: "manage_accounts", to: ADMIN_ROUTES.dashboard },
-  { label: "Khu vực Giảng viên", icon: "school", to: "/teacher/courses" },
+  { label: "Người dùng", to: ADMIN_ROUTES.users, end: true },
+  { label: "Lưu lượng", to: ADMIN_ROUTES.traffic },
 ];

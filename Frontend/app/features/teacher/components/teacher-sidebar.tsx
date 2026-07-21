@@ -46,7 +46,7 @@ export function TeacherSidebar({
               </span>
               <div className="min-w-0">
                 <p className="truncate font-serif text-lg font-bold text-landing-text">
-                  ML Learning
+                  Học LLCT
                 </p>
                 <p className="text-label-sm font-medium text-landing-text-soft">
                   Cổng giảng viên
@@ -71,6 +71,7 @@ export function TeacherSidebar({
             }
             end={item.to === TEACHER_ROUTES.dashboard}
             key={item.label}
+            prefetch="intent"
             title={item.label}
             to={item.to}
           >

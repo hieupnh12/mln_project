@@ -4,7 +4,7 @@ import { CourseStructureDetailPage } from "../features/teacher/course-structure/
 
 export function meta() {
   return [
-    { title: "Quản lý môn học | M-L Master" },
+    { title: "Quản lý môn học | Học LLCT" },
     {
       name: "description",
       content: "Quản lý chương, bài học và tài liệu theo môn học.",

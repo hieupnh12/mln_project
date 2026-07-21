@@ -84,7 +84,7 @@ export function PageLoadingShell({
   title,
   description,
   statusLabel = "Bảo mật 256-bit",
-  footerLabel = "ML Learning · Xác thực an toàn",
+  footerLabel = "Học LLCT · Xác thực an toàn",
 }: PageLoadingShellProps) {
   const progress = useSimulatedProgress();
 

@@ -40,7 +40,7 @@ export function LoginCard({ isLoading, onGoogleLogin }: LoginCardProps) {
         </div>
 
         <header className="mt-7">
-          <p className="text-label-md font-semibold text-landing-red">Mác - Lê Nin</p>
+          <p className="text-label-md font-semibold text-landing-red">Học LLCT</p>
           <h1 className="mt-3 font-serif text-[32px] font-bold leading-tight text-landing-text sm:text-[42px]">
             Chào mừng trở lại
           </h1>

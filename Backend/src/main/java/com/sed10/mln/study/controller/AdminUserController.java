@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 
@@ -26,6 +28,7 @@ public class AdminUserController {
 
     private static final int SUCCESS_CODE = 0;
     private static final int VALIDATION_CODE = 1001;
+    private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
     private final UserService userService;
 
@@ -140,6 +143,13 @@ public class AdminUserController {
                 .role(user.getRole())
                 .isActive(user.getIsActive())
                 .googleId(user.getGoogleId())
+                .createdAt(formatDateTime(user.getCreatedAt()))
+                .lastSeenAt(formatDateTime(user.getLastSeenAt()))
+                .online(UserService.isOnline(user.getLastSeenAt()))
                 .build();
+    }
+
+    private String formatDateTime(LocalDateTime value) {
+        return value == null ? null : value.format(DATE_TIME_FORMAT);
     }
 }

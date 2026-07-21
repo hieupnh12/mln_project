@@ -1,5 +1,7 @@
+import { getPublicOrigin } from "~/shared/utils/public-origin";
+
 export function loader({ request }: { request: Request }) {
-  const origin = new URL(request.url).origin;
+  const origin = getPublicOrigin(request);
   const robots = [
     "User-agent: *",
     "Allow: /",

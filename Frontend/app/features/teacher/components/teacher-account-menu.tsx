@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { useLogout } from "~/features/auth/hooks/use-logout";
 import type { AuthUserViewModel } from "~/features/auth/hooks/use-auth-user";
+import { WorkspaceSwitcher } from "~/shared/components/workspace-switcher";
 
 import { MaterialIcon } from "./teacher-icons";
 
@@ -93,6 +94,9 @@ export function TeacherAccountMenu({ collapsed = false, user }: TeacherAccountMe
                 {user.email}
               </p>
             ) : null}
+          </div>
+          <div className="border-b border-outline-variant/20 p-2">
+            <WorkspaceSwitcher className="w-full" variant="nav" />
           </div>
           <button
             className="flex w-full items-center gap-3 px-4 py-3 text-left text-label-md font-medium text-error transition hover:bg-error-container/50"

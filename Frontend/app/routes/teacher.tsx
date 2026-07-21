@@ -4,7 +4,7 @@ import { ROUTE_ACCESS } from "../shared/constants/route-access";
 
 export function meta() {
   return [
-    { title: "Giáo viên | M-L Master" },
+    { title: "Giáo viên | Học LLCT" },
     {
       name: "description",
       content: "Bảng điều khiển quản lý khóa học dành cho giáo viên.",

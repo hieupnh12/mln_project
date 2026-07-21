@@ -2,7 +2,7 @@ import { QuestionLibraryPage } from "../features/teacher/question-library/pages/
 
 export function meta() {
   return [
-    { title: "Ngân hàng câu hỏi | M-L Master" },
+    { title: "Ngân hàng câu hỏi | Học LLCT" },
     {
       name: "description",
       content: "Quản lý và import câu hỏi theo môn, chương, bài.",

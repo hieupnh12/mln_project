@@ -31,7 +31,7 @@ export function BrandLogo({
       <span
         className={`${textClassName} whitespace-nowrap font-bold leading-none text-[#d60000]`}
       >
-        ML Learning
+        Học LLCT
       </span>
     </span>
   );
