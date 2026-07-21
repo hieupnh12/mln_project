@@ -32,23 +32,22 @@ export function PracticeAnswerFeedback({
               ? explanation
               : "Câu hỏi này chưa có phần giải thích. Bạn có thể tiếp tục luyện câu tiếp theo."}
           </p>
+          {autoAdvance ? (
+            <p className="mt-2 flex items-center gap-1.5 text-label-sm text-on-surface-variant">
+              <MaterialIcon className="text-[16px]">timer</MaterialIcon>
+              Tự chuyển sau {autoAdvanceSeconds} giây — bấm Tiếp theo để bỏ qua
+            </p>
+          ) : null}
         </div>
 
-        {autoAdvance ? (
-          <p className="flex min-h-12 items-center justify-center gap-2 rounded-lg bg-surface-container-low px-4 py-3 text-label-md font-semibold text-primary">
-            <MaterialIcon className="text-[18px]">timer</MaterialIcon>
-            Tự chuyển sau {autoAdvanceSeconds} giây
-          </p>
-        ) : (
-          <button
-            className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-label-md font-bold text-on-primary shadow-md shadow-primary/10 transition hover:opacity-90 active:scale-95"
-            onClick={onContinue}
-            type="button"
-          >
-            Tiếp theo
-            <MaterialIcon>arrow_forward</MaterialIcon>
-          </button>
-        )}
+        <button
+          className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-label-md font-bold text-on-primary shadow-md shadow-primary/10 transition hover:opacity-90 active:scale-95"
+          onClick={onContinue}
+          type="button"
+        >
+          Tiếp theo
+          <MaterialIcon>arrow_forward</MaterialIcon>
+        </button>
       </div>
     </section>
   );

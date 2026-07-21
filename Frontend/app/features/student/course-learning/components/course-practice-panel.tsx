@@ -91,6 +91,7 @@ function QuestionPane({
         onSubmitAnswer={session.handleSubmitAnswer}
         selectedOptionIndices={session.selectedOptionIndices}
         settings={settings}
+        showShortcutsHint={false}
       />
     </article>
   );

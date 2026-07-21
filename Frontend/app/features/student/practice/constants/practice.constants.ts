@@ -19,7 +19,7 @@ export const PRACTICE_QUERY_STALE_TIME_MS = 5 * 60 * 1000;
 export const DEFAULT_PRACTICE_SETTINGS: PracticeModeSettings = {
   autoAdvance: false,
   requireContinue: true,
-  autoAdvanceSeconds: 8,
+  autoAdvanceSeconds: 1,
 };
 
-export const PRACTICE_AUTO_SECONDS_OPTIONS = [5, 8, 12, 15] as const;
+export const PRACTICE_AUTO_SECONDS_OPTIONS = [1, 2, 3, 5, 8] as const;

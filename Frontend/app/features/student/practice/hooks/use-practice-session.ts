@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import type {
   PracticeAnswerState,
@@ -12,7 +12,7 @@ import { pickRandomQuestion } from "../utils/pick-random-question";
 type UsePracticeSessionOptions = {
   questions: PracticeQuestion[];
   settings: PracticeModeSettings;
-  onAutoAdvance: () => void;
+  onAutoAdvance?: () => void;
   /** When false, session timer does not tick (e.g. tab hidden). */
   sessionActive?: boolean;
 };
@@ -40,6 +40,18 @@ export function usePracticeSession({
   });
   const [countdownActive, setCountdownActive] = useState(false);
 
+  const currentQuestionIdRef = useRef<string | null>(null);
+  const isAdvancingRef = useRef(false);
+  const onAutoAdvanceRef = useRef(onAutoAdvance);
+
+  useEffect(() => {
+    onAutoAdvanceRef.current = onAutoAdvance;
+  }, [onAutoAdvance]);
+
+  useEffect(() => {
+    currentQuestionIdRef.current = currentQuestion?.id ?? null;
+  }, [currentQuestion?.id]);
+
   const pool = useMemo(
     () => questions.filter((q) => q.options.length >= 2),
     [questions],
@@ -49,20 +61,27 @@ export function usePracticeSession({
     setAnswerState("idle");
     setSelectedOptionIndices([]);
     setCountdownActive(false);
+    isAdvancingRef.current = false;
   }, []);
 
   const loadNextQuestion = useCallback(() => {
-    const next = pickRandomQuestion(pool, currentQuestion?.id ?? null);
+    const next = pickRandomQuestion(pool, currentQuestionIdRef.current);
     if (!next) {
+      isAdvancingRef.current = false;
+      setCountdownActive(false);
       return;
     }
+
+    currentQuestionIdRef.current = next.id;
     setCurrentQuestion(next);
     resetAnswerState();
     setDisplayIndex((value) => value + 1);
-  }, [currentQuestion?.id, pool, resetAnswerState]);
+  }, [pool, resetAnswerState]);
 
   const startSession = useCallback(() => {
     const first = pickRandomQuestion(pool, null);
+    currentQuestionIdRef.current = first?.id ?? null;
+    isAdvancingRef.current = false;
     setCurrentQuestion(first);
     resetAnswerState();
     setDisplayIndex(1);
@@ -125,16 +144,28 @@ export function usePracticeSession({
     submitAnswer(selectedOptionIndices);
   }, [selectedOptionIndices, submitAnswer]);
 
-  const handleContinue = useCallback(() => {
+  const advanceToNext = useCallback(() => {
+    if (isAdvancingRef.current) {
+      return;
+    }
+    isAdvancingRef.current = true;
     setCountdownActive(false);
     loadNextQuestion();
   }, [loadNextQuestion]);
 
+  const handleContinue = useCallback(() => {
+    advanceToNext();
+  }, [advanceToNext]);
+
   const handleCountdownComplete = useCallback(() => {
+    if (isAdvancingRef.current) {
+      return;
+    }
+    isAdvancingRef.current = true;
     setCountdownActive(false);
-    onAutoAdvance();
+    onAutoAdvanceRef.current?.();
     loadNextQuestion();
-  }, [loadNextQuestion, onAutoAdvance]);
+  }, [loadNextQuestion]);
 
   const isCorrect =
     currentQuestion != null

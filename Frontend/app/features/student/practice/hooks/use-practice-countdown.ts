@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type UsePracticeCountdownOptions = {
   totalSeconds: number;
@@ -6,50 +6,69 @@ type UsePracticeCountdownOptions = {
   onComplete: () => void;
 };
 
+/**
+ * Countdown for auto-advance. Completion uses a single timeout + guard so
+ * React Strict Mode remounts and progress ticks cannot fire onComplete twice.
+ */
 export function usePracticeCountdown({
   totalSeconds,
   active,
   onComplete,
 }: UsePracticeCountdownOptions) {
-  const [remainingMs, setRemainingMs] = useState(totalSeconds * 1000);
+  const safeTotalSeconds = Number.isFinite(totalSeconds) ? Math.max(totalSeconds, 0) : 0;
+  const durationMs = safeTotalSeconds * 1000;
+  const [remainingMs, setRemainingMs] = useState(durationMs);
   const onCompleteRef = useRef(onComplete);
+  const completedRef = useRef(false);
 
   useEffect(() => {
     onCompleteRef.current = onComplete;
   }, [onComplete]);
 
-  const reset = useCallback(() => {
-    setRemainingMs(totalSeconds * 1000);
-  }, [totalSeconds]);
-
   useEffect(() => {
     if (!active) {
-      reset();
+      completedRef.current = false;
+      setRemainingMs(durationMs);
       return;
     }
 
-    reset();
+    completedRef.current = false;
     const startedAt = Date.now();
-    const intervalId = window.setInterval(() => {
-      const elapsed = Date.now() - startedAt;
-      const nextRemaining = Math.max(totalSeconds * 1000 - elapsed, 0);
-      setRemainingMs(nextRemaining);
+    setRemainingMs(durationMs);
 
-      if (nextRemaining <= 0) {
-        window.clearInterval(intervalId);
-        onCompleteRef.current();
+    const finish = () => {
+      if (completedRef.current) {
+        return;
       }
+      completedRef.current = true;
+      setRemainingMs(0);
+      onCompleteRef.current();
+    };
+
+    if (durationMs <= 0) {
+      const immediateId = window.setTimeout(finish, 0);
+      return () => window.clearTimeout(immediateId);
+    }
+
+    const timeoutId = window.setTimeout(finish, durationMs);
+    const intervalId = window.setInterval(() => {
+      if (completedRef.current) {
+        return;
+      }
+      const elapsed = Date.now() - startedAt;
+      setRemainingMs(Math.max(durationMs - elapsed, 0));
     }, 50);
 
-    return () => window.clearInterval(intervalId);
-  }, [active, reset, totalSeconds]);
+    return () => {
+      window.clearTimeout(timeoutId);
+      window.clearInterval(intervalId);
+    };
+  }, [active, durationMs]);
 
-  const progressPercent =
-    totalSeconds <= 0 ? 0 : (remainingMs / (totalSeconds * 1000)) * 100;
+  const progressPercent = durationMs <= 0 ? 0 : (remainingMs / durationMs) * 100;
 
   return {
     remainingMs,
     progressPercent,
-    reset,
   };
 }

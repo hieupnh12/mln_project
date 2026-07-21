@@ -43,7 +43,8 @@ export function PracticeSetupPanel({
       <h2 className="text-headline-md font-semibold text-primary">Thiết lập luyện tập</h2>
       <p className="mt-2 text-body-md text-on-surface-variant">
         Chọn phạm vi bài/chương và chế độ chuyển câu. Mỗi lần hiển thị một câu ngẫu nhiên từ
-        ngân hàng, hết câu này sẽ chuyển sang câu khác.
+        ngân hàng. Trong phiên luyện tập dùng phím A–D / 1–4 để chọn đáp án, Enter để xác nhận
+        hoặc sang câu tiếp theo.
       </p>
 
       <div className="mt-4 flex flex-col gap-sm rounded-lg bg-surface-container-low px-4 py-3 sm:flex-row sm:items-center sm:justify-between">

@@ -1,4 +1,5 @@
 import { usePracticeCountdown } from "../hooks/use-practice-countdown";
+import { usePracticeKeyboard } from "../hooks/use-practice-keyboard";
 import type {
   PracticeAnswerState,
   PracticeModeSettings,
@@ -8,6 +9,7 @@ import { PracticeAnswerFeedback } from "./practice-answer-feedback";
 import { PracticeCountdownBar } from "./practice-countdown-bar";
 import { PracticeOptionsList } from "./practice-options-list";
 import { PracticeQuestionCard } from "./practice-question-card";
+import { PracticeShortcutsHint } from "./practice-shortcuts-hint";
 
 type PracticeSessionContentProps = {
   settings: PracticeModeSettings;
@@ -17,6 +19,8 @@ type PracticeSessionContentProps = {
   selectedOptionIndices: number[];
   countdownActive: boolean;
   countdownVariant?: "inline" | "fixed";
+  showShortcutsHint?: boolean;
+  keyboardEnabled?: boolean;
   onSelectOption: (index: number) => void;
   onSubmitAnswer: () => void;
   onContinue: () => void;
@@ -31,6 +35,8 @@ export function PracticeSessionContent({
   selectedOptionIndices,
   countdownActive,
   countdownVariant = "inline",
+  showShortcutsHint = true,
+  keyboardEnabled = true,
   onSelectOption,
   onSubmitAnswer,
   onContinue,
@@ -40,6 +46,17 @@ export function PracticeSessionContent({
     totalSeconds: settings.autoAdvanceSeconds,
     active: countdownActive,
     onComplete: onCountdownComplete,
+  });
+
+  usePracticeKeyboard({
+    enabled: keyboardEnabled,
+    optionCount: currentQuestion.options.length,
+    answerState,
+    isMultipleChoice: currentQuestion.isMultipleChoice,
+    hasSelection: selectedOptionIndices.length > 0,
+    onSelectOption,
+    onSubmitAnswer,
+    onContinue,
   });
 
   const showFeedback = answerState === "answered";
@@ -82,6 +99,9 @@ export function PracticeSessionContent({
             <span className="rounded-full bg-on-primary/15 px-2 py-0.5 text-label-sm">
               {selectedOptionIndices.length}
             </span>
+            <kbd className="rounded border border-on-primary/25 bg-on-primary/10 px-1.5 py-0.5 font-mono text-label-sm">
+              Enter
+            </kbd>
           </button>
         </div>
       ) : null}
@@ -94,6 +114,8 @@ export function PracticeSessionContent({
           onContinue={onContinue}
         />
       ) : null}
+
+      {showShortcutsHint ? <PracticeShortcutsHint compact /> : null}
     </div>
   );
 }

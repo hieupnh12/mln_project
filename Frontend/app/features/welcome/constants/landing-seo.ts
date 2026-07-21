@@ -8,9 +8,9 @@ export const LANDING_ASSETS = {
 export const LANDING_SEO = {
   title: "Mác - Lê Nin | Tri thức - Lịch sử - Cách mạng",
   description:
-    "Landing page giới thiệu dự án Mác - Lê Nin: nền tảng học tập lịch sử, lý luận, quiz, chatbot AI, tài liệu và timeline tương tác cho sinh viên.",
+    "Landing page giới thiệu dự án Mác - Lê Nin: nền tảng học tập lịch sử, lý luận, quiz, tài liệu và timeline tương tác cho sinh viên.",
   keywords:
-    "Mác Lê Nin, Marxism Leninism, chủ nghĩa Mác Lê Nin, học tập chính trị, lịch sử cách mạng, quiz Mác Lê Nin, chatbot AI giáo dục",
+    "Mác Lê Nin, Marxism Leninism, chủ nghĩa Mác Lê Nin, học tập chính trị, lịch sử cách mạng, quiz Mác Lê Nin",
   siteName: "Mác - Lê Nin",
   siteOrigin: "https://hocllct.io.vn",
   locale: "vi_VN",

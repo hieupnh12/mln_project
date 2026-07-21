@@ -1,5 +1,4 @@
 import {
-  Bot,
   BookOpenCheck,
   GalleryHorizontal,
   LibraryBig,
@@ -55,11 +54,6 @@ export const LEARNING_FEATURES: LearningPreviewFeature[] = [
     title: "Quiz",
     description: "Ôn tập theo chủ đề, nhận biết lỗ hổng kiến thức và luyện phản xạ trước kỳ kiểm tra.",
     icon: BookOpenCheck,
-  },
-  {
-    title: "AI chatbot",
-    description: "Đặt câu hỏi, gợi mở khái niệm và nhận giải thích theo ngữ cảnh học tập.",
-    icon: Bot,
   },
   {
     title: "Learning materials",
