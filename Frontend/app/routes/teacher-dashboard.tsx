@@ -3,7 +3,7 @@ import { TeacherOverviewPage } from "../features/teacher/overview/pages/teacher-
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Giáo viên | M-L Master" },
+    { title: "Giáo viên | Học LLCT" },
     {
       name: "description",
       content: "Bảng điều khiển quản lý khóa học dành cho giáo viên.",

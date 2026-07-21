@@ -103,7 +103,7 @@ export function ImportUploadZone({
               : "mb-2 flex h-16 w-16 items-center justify-center rounded-full bg-landing-gray/50 text-landing-text-soft"
           }
         >
-          <MaterialIcon className="text-4xl">
+          <MaterialIcon className="text-[40px]">
             {hasFile ? "check_circle" : "cloud_upload"}
           </MaterialIcon>
         </div>

@@ -17,9 +17,9 @@ export function IntroductionSection() {
       <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[minmax(0,1fr)_440px] lg:items-center">
         <SectionHeading
           align="left"
-          description="Chủ nghĩa Mác - Lê Nin được trình bày như một hệ thống tri thức có cấu trúc: dễ tiếp cận, có bối cảnh lịch sử và được hỗ trợ bởi công cụ học tập hiện đại."
+          description="Lý luận chính trị được trình bày như một hệ thống tri thức có cấu trúc: dễ tiếp cận, có bối cảnh lịch sử và được hỗ trợ bởi công cụ học tập hiện đại."
           eyebrow="Introduction"
-          title="Một cổng vào hiện đại cho học tập lý luận"
+          title="Một cổng vào hiện đại cho học tập lý luận chính trị"
         />
 
         <Reveal delay={0.12}>
@@ -27,7 +27,7 @@ export function IntroductionSection() {
             <picture>
               <source srcSet={LANDING_VISUAL_ASSETS.modernHeroWebp} type="image/webp" />
               <img
-                alt="Minh họa không gian học tập hiện đại của dự án Mác - Lê Nin"
+                alt="Minh họa không gian học tập hiện đại của Học LLCT — Lý luận chính trị"
                 className="aspect-[4/3] w-full rounded-xl object-cover"
                 decoding="async"
                 loading="lazy"

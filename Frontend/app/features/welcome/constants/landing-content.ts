@@ -1,5 +1,4 @@
 import {
-  Bot,
   BookOpenCheck,
   GalleryHorizontal,
   LibraryBig,
@@ -57,11 +56,6 @@ export const LEARNING_FEATURES: LearningPreviewFeature[] = [
     icon: BookOpenCheck,
   },
   {
-    title: "AI chatbot",
-    description: "Đặt câu hỏi, gợi mở khái niệm và nhận giải thích theo ngữ cảnh học tập.",
-    icon: Bot,
-  },
-  {
     title: "Learning materials",
     description: "Tài liệu được tổ chức theo học phần, khái niệm, nhân vật và sự kiện trọng tâm.",
     icon: LibraryBig,
@@ -117,13 +111,13 @@ export const FOOTER_GROUPS: FooterLinkGroup[] = [
     links: [
       { label: "Facebook", href: "https://www.facebook.com" },
       { label: "YouTube", href: "https://www.youtube.com" },
-      { label: "Email", href: "mailto:contact@mln-master.edu.vn" },
+      { label: "Email", href: "mailto:contact@hocllct.io.vn" },
     ],
   },
 ];
 
 export const INTRO_POINTS = [
-  "Hệ thống hóa kiến thức chủ nghĩa Mác - Lê Nin theo hướng dễ học, dễ ôn tập.",
+  "Hệ thống hóa kiến thức Lý luận chính trị theo hướng dễ học, dễ ôn tập.",
   "Kết nối lý luận với bối cảnh lịch sử, nhân vật, sự kiện và câu hỏi kiểm tra.",
   "Tạo một cổng vào nghiêm túc cho sinh viên trước khi bước vào hệ thống học tập chính.",
 ] as const;

@@ -9,8 +9,9 @@ export type LoginFeature = {
 };
 
 export const LOGIN_META = {
-  title: "Đăng nhập | Mác - Lê Nin",
-  description: "Đăng nhập Mác - Lê Nin để tiếp tục học tập, luyện quiz và khám phá tài liệu.",
+  title: "Đăng nhập | Học LLCT",
+  description:
+    "Đăng nhập Học LLCT để tiếp tục học tập Lý luận chính trị, luyện quiz và khám phá tài liệu.",
 } as const;
 
 export const LOGIN_SUPPORT_LINKS = [
@@ -47,12 +48,12 @@ export const LOGIN_HERO_BADGES = ["Tri thức", "Lịch sử", "Cách mạng"] a
 
 export const LOGIN_HERO_ASSET = {
   src: "/images/marx-lenin-hero-modern.webp",
-  alt: "Không gian học tập hiện đại về Mác - Lê Nin",
+  alt: "Không gian học tập hiện đại về Lý luận chính trị — Học LLCT",
 } as const;
 
 export const LOGIN_QUOTE = {
-  text: "Đăng nhập để bước vào hệ thống học tập Mác - Lê Nin.",
-  author: "M-L Learning Platform",
+  text: "Đăng nhập để bước vào hệ thống học tập Lý luận chính trị.",
+  author: "Học LLCT",
 } as const;
 
 export const LOGIN_FORM_FEATURES = [

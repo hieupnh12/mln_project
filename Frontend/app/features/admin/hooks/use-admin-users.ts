@@ -13,6 +13,7 @@ export function useAdminUsersQuery() {
   return useQuery({
     queryKey: ADMIN_USERS_QUERY_KEY,
     queryFn: getAdminUsers,
+    refetchInterval: 60_000,
   });
 }
 

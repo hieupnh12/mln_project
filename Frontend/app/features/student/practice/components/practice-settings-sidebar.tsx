@@ -6,6 +6,7 @@ import type {
 } from "../../course-learning/types/course-learning.types";
 import { PRACTICE_AUTO_SECONDS_OPTIONS } from "../constants/practice.constants";
 import type { PracticeModeSettings, PracticeScope } from "../types/practice.types";
+import { PracticeShortcutsHint } from "./practice-shortcuts-hint";
 import { PracticeTestsSidebar } from "./practice-tests-sidebar";
 
 type PracticeSettingsSidebarProps = {
@@ -148,6 +149,8 @@ export function PracticeSettingsSidebar({
         onSelectTest={() => undefined}
         tests={[]}
       />
+
+      <PracticeShortcutsHint />
     </div>
   );
 }

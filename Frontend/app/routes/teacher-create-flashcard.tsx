@@ -2,7 +2,7 @@ import { CreateFlashcardPage } from "../features/teacher/flashcard/pages/create-
 
 export function meta() {
   return [
-    { title: "Tạo Flashcard | M-L Master" },
+    { title: "Tạo Flashcard | Học LLCT" },
     {
       name: "description",
       content: "Tạo bộ thẻ ghi nhớ mới cho sinh viên.",

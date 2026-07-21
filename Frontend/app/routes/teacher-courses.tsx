@@ -2,7 +2,7 @@ import { CourseStructurePage } from "../features/teacher/course-structure/pages/
 
 export function meta() {
   return [
-    { title: "Cấu trúc khóa học | M-L Master" },
+    { title: "Cấu trúc khóa học | Học LLCT" },
     {
       name: "description",
       content: "Quản lý chương và bài học trong cổng giáo viên.",

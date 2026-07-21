@@ -1,4 +1,5 @@
 import { LANDING_SITEMAP_PATHS } from "~/features/welcome/constants/landing-seo";
+import { getPublicOrigin } from "~/shared/utils/public-origin";
 
 function escapeXml(value: string) {
   return value
@@ -10,7 +11,7 @@ function escapeXml(value: string) {
 }
 
 export function loader({ request }: { request: Request }) {
-  const origin = new URL(request.url).origin;
+  const origin = getPublicOrigin(request);
   const updatedAt = new Date().toISOString();
   const entries = LANDING_SITEMAP_PATHS.map((path) => {
     const url = `${origin}${path}`;

@@ -21,6 +21,7 @@ export function useCoursePractice({ subjectId, active }: UseCoursePracticeOption
   const [scope, setScope] = useState<PracticeScope>({ chapterId: null, lessonId: null });
   const [settings, setSettings] = useState<PracticeModeSettings>(DEFAULT_PRACTICE_SETTINGS);
   const scopeKeyRef = useRef("");
+  const sessionStartedRef = useRef(false);
 
   const { chaptersQuery, lessonsQuery } = usePracticeScope(subjectId, scope);
 
@@ -40,33 +41,32 @@ export function useCoursePractice({ subjectId, active }: UseCoursePracticeOption
   const session = usePracticeSession({
     questions: questionsQuery.data ?? [],
     settings,
-    onAutoAdvance: () => undefined,
     sessionActive: active,
   });
 
   const scopeKey = `${scope.chapterId ?? ""}-${scope.lessonId ?? ""}`;
-  const wasActiveRef = useRef(false);
 
   useEffect(() => {
-    if (!active || questionsQuery.isLoading || session.poolEmpty) {
-      if (!active) {
-        wasActiveRef.current = false;
-      }
+    if (!active) {
+      sessionStartedRef.current = false;
+      scopeKeyRef.current = "";
+      return;
+    }
+
+    if (questionsQuery.isLoading || session.poolEmpty) {
       return;
     }
 
     const scopeChanged = scopeKeyRef.current !== scopeKey;
-    const tabOpened = !wasActiveRef.current;
     scopeKeyRef.current = scopeKey;
-    wasActiveRef.current = true;
 
-    if (scopeChanged || tabOpened) {
+    if (!sessionStartedRef.current || scopeChanged) {
       session.startSession();
+      sessionStartedRef.current = true;
     }
   }, [
     active,
     questionsQuery.isLoading,
-    questionsQuery.data,
     scopeKey,
     session.poolEmpty,
     session.startSession,

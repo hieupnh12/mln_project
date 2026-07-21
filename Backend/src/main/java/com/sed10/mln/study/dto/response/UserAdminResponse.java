@@ -22,4 +22,7 @@ public class UserAdminResponse {
     String role;
     Boolean isActive;
     String googleId;
+    String createdAt;
+    String lastSeenAt;
+    Boolean online;
 }

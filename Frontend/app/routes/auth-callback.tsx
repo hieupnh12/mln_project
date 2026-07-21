@@ -12,7 +12,7 @@ function isAppUserRole(value: string | null): value is AppUserRole {
 
 export function meta() {
   return [
-    { title: "Xác thực | M-L Master" },
+    { title: "Xác thực | Học LLCT" },
   ];
 }
 

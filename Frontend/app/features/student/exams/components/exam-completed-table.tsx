@@ -40,7 +40,7 @@ export function ExamCompletedTable({ courseId, rows, subjectTitle }: ExamComplet
                 </td>
                 <td className="px-6 py-4">
                   <span className="rounded-full bg-secondary-container/45 px-3 py-1 text-label-sm font-semibold text-secondary">
-                    {subjectTitle || "Mác - Lê Nin"}
+                    {subjectTitle || "Lý luận chính trị"}
                   </span>
                 </td>
                 <td className="px-6 py-4 text-sm text-landing-text-soft">{row.submittedAt}</td>
