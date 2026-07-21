@@ -19,6 +19,7 @@ export function TeacherMobileNav() {
           className={(state) => getTeacherNavLinkClassName(state, "mobile-bottom")}
           end={item.to === TEACHER_ROUTES.dashboard}
           key={item.to}
+          prefetch="intent"
           title={item.label}
           to={item.to}
         >

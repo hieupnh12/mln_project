@@ -9,6 +9,7 @@ export default [
   route("admin", "routes/admin.tsx", [
     index("routes/admin-dashboard.tsx"),
     route("dashboard", "routes/admin-dashboard-redirect.tsx"),
+    route("traffic", "routes/admin-traffic.tsx"),
   ]),
   route("student", "routes/student.tsx", [
     index("routes/student-dashboard.tsx"),

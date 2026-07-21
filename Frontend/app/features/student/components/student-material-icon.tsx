@@ -22,7 +22,7 @@ export function StudentMaterialIcon({
   return (
     <span
       aria-hidden="true"
-      className={`material-symbols-outlined inline-flex shrink-0 items-center justify-center leading-none ${SIZE_CLASSES[size]} ${className}`}
+      className={`material-symbols-outlined inline-flex shrink-0 items-center justify-center whitespace-nowrap leading-none ${SIZE_CLASSES[size]} ${className}`}
       style={filled ? { fontVariationSettings: "'FILL' 1" } : undefined}
     >
       {children}

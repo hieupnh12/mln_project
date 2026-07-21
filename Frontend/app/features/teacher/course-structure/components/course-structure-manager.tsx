@@ -74,7 +74,7 @@ export function CourseStructureManager({ subjectId }: CourseStructureManagerProp
       await deleteChapterMutation.mutateAsync(deleteChapterTarget.id);
       if (activeChapterId === deleteChapterTarget.id) {
         searchParams.delete("chapter");
-        setSearchParams(searchParams, { replace: true });
+        setSearchParams(searchParams, { replace: true, preventScrollReset: true });
       }
       showSuccessToast("Đã xóa chương và toàn bộ bài học/tài liệu bên trong.");
       setDeleteChapterTarget(null);
@@ -165,7 +165,10 @@ export function CourseStructureManager({ subjectId }: CourseStructureManagerProp
               } else {
                 searchParams.set("chapter", String(chapterId));
               }
-              setSearchParams(searchParams, { replace: true });
+              setSearchParams(searchParams, {
+                replace: true,
+                preventScrollReset: true,
+              });
             }}
             subjectId={subjectId}
           />

@@ -2,7 +2,7 @@ import { PdfDocumentPage } from "../features/teacher/pdf-document/pages/pdf-docu
 
 export function meta() {
   return [
-    { title: "Tài liệu PDF | M-L Master" },
+    { title: "Tài liệu PDF | Học LLCT" },
     {
       name: "description",
       content: "Quản lý tài liệu PDF theo chương học.",

@@ -138,60 +138,60 @@ export function AdminUserManagementPage() {
 
   return (
     <>
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-5">
-            <AdminUsersToolbar
-              keyword={keyword}
-              roleFilter={roleFilter}
-              onKeywordChange={setKeyword}
-              onRoleFilterChange={setRoleFilter}
-              onCreateClick={openCreateModal}
-            />
+      <div className="flex w-full flex-col gap-4">
+        <AdminUsersToolbar
+          keyword={keyword}
+          onCreateClick={openCreateModal}
+          onKeywordChange={setKeyword}
+          onRoleFilterChange={setRoleFilter}
+          roleFilter={roleFilter}
+        />
 
-            {usersQuery.isLoading ? (
-              <div className="rounded-xl border border-outline-variant/30 bg-surface-container-lowest p-6 text-sm text-on-surface-variant">
-                Đang tải danh sách người dùng...
-              </div>
-            ) : null}
-
-            {usersQuery.isError ? (
-              <div className="rounded-xl border border-error/25 bg-error-container p-6 text-sm text-on-error-container">
-                {usersQuery.error instanceof Error
-                  ? usersQuery.error.message
-                  : "Không thể tải danh sách người dùng."}
-              </div>
-            ) : null}
-
-            {!usersQuery.isLoading && !usersQuery.isError && filteredUsers.length === 0 ? (
-              <div className="rounded-xl border border-outline-variant/30 bg-surface-container-lowest p-6 text-sm text-on-surface-variant">
-                Chưa có người dùng phù hợp với bộ lọc hiện tại.
-              </div>
-            ) : null}
-
-            {!usersQuery.isLoading && !usersQuery.isError && filteredUsers.length > 0 ? (
-              <AdminUsersTable
-                users={paginatedUsers}
-                deletingUserId={deleteUserMutation.variables ?? null}
-                onEdit={openEditModal}
-                onDelete={handleDeleteUser}
-                totalItems={totalItems}
-                rangeStart={rangeStart}
-                rangeEnd={rangeEnd}
-                page={page}
-                totalPages={totalPages}
-                onPageChange={setPage}
-              />
-            ) : null}
+        {usersQuery.isLoading ? (
+          <div className="rounded-xl border border-outline-variant/30 bg-surface-container-lowest p-6 text-sm text-on-surface-variant">
+            Đang tải danh sách người dùng...
           </div>
+        ) : null}
+
+        {usersQuery.isError ? (
+          <div className="rounded-xl border border-error/25 bg-error-container p-6 text-sm text-on-error-container">
+            {usersQuery.error instanceof Error
+              ? usersQuery.error.message
+              : "Không thể tải danh sách người dùng."}
+          </div>
+        ) : null}
+
+        {!usersQuery.isLoading && !usersQuery.isError && filteredUsers.length === 0 ? (
+          <div className="rounded-xl border border-outline-variant/30 bg-surface-container-lowest p-6 text-sm text-on-surface-variant">
+            Chưa có người dùng phù hợp với bộ lọc hiện tại.
+          </div>
+        ) : null}
+
+        {!usersQuery.isLoading && !usersQuery.isError && filteredUsers.length > 0 ? (
+          <AdminUsersTable
+            deletingUserId={deleteUserMutation.variables ?? null}
+            onDelete={handleDeleteUser}
+            onEdit={openEditModal}
+            onPageChange={setPage}
+            page={page}
+            rangeEnd={rangeEnd}
+            rangeStart={rangeStart}
+            totalItems={totalItems}
+            totalPages={totalPages}
+            users={paginatedUsers}
+          />
+        ) : null}
+      </div>
 
       {isFormOpen ? (
         <AdminUserFormModal
-          open={isFormOpen}
-          mode={editingUser ? "edit" : "create"}
           initialValue={formInitialValue}
           isSubmitting={isSubmitting}
-          submitError={null}
+          mode={editingUser ? "edit" : "create"}
           onClose={closeModal}
           onSubmit={handleSubmitForm}
+          open={isFormOpen}
+          submitError={null}
         />
       ) : null}
     </>

@@ -3,7 +3,7 @@ import { useParams } from "react-router";
 import { ChapterFlashcardsPage } from "~/features/student/flashcards/pages/chapter-flashcards-page";
 
 export function meta() {
-  return [{ title: "Thẻ ghi nhớ Chương | M-L Master" }];
+  return [{ title: "Thẻ ghi nhớ Chương | Học LLCT" }];
 }
 
 export default function StudentChapterFlashcardsRoute() {

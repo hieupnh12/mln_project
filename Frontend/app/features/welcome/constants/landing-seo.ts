@@ -6,12 +6,13 @@ export const LANDING_ASSETS = {
 } as const;
 
 export const LANDING_SEO = {
-  title: "Mác - Lê Nin | Tri thức - Lịch sử - Cách mạng",
+  title: "Học LLCT | Nền tảng học tập Lý luận chính trị",
   description:
-    "Landing page giới thiệu dự án Mác - Lê Nin: nền tảng học tập lịch sử, lý luận, quiz, chatbot AI, tài liệu và timeline tương tác cho sinh viên.",
+    "Học LLCT — nền tảng học tập Lý luận chính trị dành cho sinh viên: quiz, tài liệu, timeline tương tác và lộ trình ôn luyện có cấu trúc.",
   keywords:
-    "Mác Lê Nin, Marxism Leninism, chủ nghĩa Mác Lê Nin, học tập chính trị, lịch sử cách mạng, quiz Mác Lê Nin, chatbot AI giáo dục",
-  siteName: "Mác - Lê Nin",
+    "học LLCT, lý luận chính trị, học lý luận chính trị, quiz lý luận chính trị, ôn tập chính trị, hocllct, tài liệu lý luận chính trị",
+  siteName: "Học LLCT",
+  courseName: "Lý luận chính trị",
   siteOrigin: "https://hocllct.io.vn",
   locale: "vi_VN",
 } as const;
@@ -43,7 +44,10 @@ export function landingMeta(canonicalUrl = getCanonicalUrl()) {
     { property: "og:site_name", content: LANDING_SEO.siteName },
     { property: "og:locale", content: LANDING_SEO.locale },
     { property: "og:image", content: `${canonicalUrl.replace(/\/$/, "")}${LANDING_ASSETS.heroWebp}` },
-    { property: "og:image:alt", content: "Không gian học tập lịch sử cinematic cho dự án Mác - Lê Nin" },
+    {
+      property: "og:image:alt",
+      content: "Không gian học tập hiện đại cho nền tảng Học LLCT — Lý luận chính trị",
+    },
     { name: "twitter:card", content: "summary_large_image" },
     { name: "twitter:title", content: LANDING_SEO.title },
     { name: "twitter:description", content: LANDING_SEO.description },
@@ -81,7 +85,7 @@ export function createLandingJsonLd(canonicalUrl = getCanonicalUrl()): JsonLdObj
       {
         "@type": "Course",
         "@id": `${canonicalUrl}#course`,
-        name: "Mác - Lê Nin",
+        name: LANDING_SEO.courseName,
         description: LANDING_SEO.description,
         provider: {
           "@id": `${canonicalUrl}#organization`,

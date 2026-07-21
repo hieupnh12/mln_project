@@ -13,6 +13,7 @@ import type { Route } from "./+types/root";
 import { AsyncActivityBar } from "./shared/components/async-activity-bar";
 import { GOOGLE_SITE_VERIFICATION_CODE } from "./shared/constants/site-verification.constants";
 import { NotFoundPage } from "./shared/components/not-found-page";
+import { SiteAnalyticsTracker } from "./shared/components/site-analytics-tracker";
 import { AppQueryProvider } from "./shared/providers/query-provider";
 import "./app.css";
 
@@ -63,7 +64,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  return <Outlet />;
+  return (
+    <>
+      <SiteAnalyticsTracker />
+      <Outlet />
+    </>
+  );
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

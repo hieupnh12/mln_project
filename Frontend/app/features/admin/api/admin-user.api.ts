@@ -19,12 +19,23 @@ function assertSuccess<T>(response: BackendApiResponse<T>, fallback: string): T 
   return response.result;
 }
 
+function mapAdminUser(user: AdminUser): AdminUser {
+  return {
+    ...user,
+    createdAt: user.createdAt ?? null,
+    lastSeenAt: user.lastSeenAt ?? null,
+    online: Boolean(user.online),
+  };
+}
+
 export async function fetchAdminUsers() {
   const response = await apiClient.get<BackendApiResponse<AdminUser[]>>(
     ADMIN_USER_ENDPOINTS.users,
   );
 
-  return assertSuccess(response.data, "Không thể tải danh sách người dùng.");
+  return assertSuccess(response.data, "Không thể tải danh sách người dùng.").map(
+    mapAdminUser,
+  );
 }
 
 export async function createAdminUser(payload: AdminUserUpsertPayload) {

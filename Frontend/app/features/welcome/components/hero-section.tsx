@@ -67,10 +67,10 @@ export function HeroSection() {
             id="hero-title"
             className="landing-soviet-type font-serif text-[48px] font-bold leading-[0.98] text-landing-text sm:text-[72px] md:text-[88px]"
           >
-            Mác - Lê Nin
+            Lý luận chính trị
           </h1>
           <p className="mt-5 max-w-2xl text-2xl font-semibold leading-tight text-landing-red sm:text-[36px]">
-            Tri thức - Lịch sử - Cách mạng
+            Học tập - Ôn luyện - Tri thức
           </p>
           <p className="mt-6 max-w-2xl text-body-lg text-landing-text-muted">
             Nền tảng học tập lý luận chính trị với trải nghiệm trực quan, hiện đại,
@@ -106,7 +106,7 @@ export function HeroSection() {
             <picture>
               <source srcSet={LANDING_VISUAL_ASSETS.modernHeroWebp} type="image/webp" />
               <img
-                alt="Minh họa 3D hiện đại cho nền tảng học tập Mác - Lê Nin"
+                alt="Minh họa 3D hiện đại cho nền tảng học tập Lý luận chính trị — Học LLCT"
                 className="aspect-[16/10] w-full rounded-[1.5rem] object-cover"
                 decoding="async"
                 fetchPriority="high"

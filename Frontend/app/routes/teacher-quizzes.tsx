@@ -2,7 +2,7 @@ import { QuizManagementPage } from "../features/teacher/quiz-management/pages/qu
 
 export function meta() {
   return [
-    { title: "Quản lý Quiz | M-L Master" },
+    { title: "Quản lý Quiz | Học LLCT" },
     {
       name: "description",
       content: "Tạo quiz từ ngân hàng câu hỏi và publish cho sinh viên.",

@@ -41,8 +41,8 @@ export function LandingFooter() {
             <BrandLogo />
           </Link>
           <p className="mt-5 w-full whitespace-normal text-body-md text-landing-text-soft [overflow-wrap:normal] [word-break:normal]">
-            Dự án giới thiệu và hỗ trợ học tập học phần Mác - Lê Nin với tinh thần
-            học thuật, lịch sử và công nghệ giáo dục hiện đại.
+            Dự án giới thiệu và hỗ trợ học tập Lý luận chính trị với tinh thần
+            học thuật, rõ ràng và công nghệ giáo dục hiện đại.
           </p>
           <p className="mt-4 w-full whitespace-normal text-label-md text-landing-text-soft [overflow-wrap:normal] [word-break:normal]">
             Đại học / Khoa Lý luận chính trị
@@ -64,8 +64,8 @@ export function LandingFooter() {
       </div>
 
       <div className="mx-auto mt-10 flex w-full max-w-7xl flex-col gap-3 border-t border-outline-variant/40 pt-6 text-label-sm text-landing-text-soft sm:flex-row sm:items-center sm:justify-between">
-        <p>© 2026 Mác - Lê Nin. All rights reserved.</p>
-        <p>Built for historical learning, accessible knowledge and focused study.</p>
+        <p>© 2026 Học LLCT. All rights reserved.</p>
+        <p>Built for political theory learning, accessible knowledge and focused study.</p>
       </div>
     </footer>
   );

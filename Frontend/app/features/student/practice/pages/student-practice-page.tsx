@@ -86,7 +86,6 @@ export function StudentPracticePage() {
   const session = usePracticeSession({
     questions,
     settings,
-    onAutoAdvance: () => undefined,
   });
 
   const courseTitle = subjectQuery.data?.title ?? "Môn học";

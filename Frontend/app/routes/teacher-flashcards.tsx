@@ -2,7 +2,7 @@ import { FlashcardPage } from "../features/teacher/flashcard/pages/flashcard-pag
 
 export function meta() {
   return [
-    { title: "Flashcard | M-L Master" },
+    { title: "Flashcard | Học LLCT" },
     {
       name: "description",
       content: "Quản lý bộ thẻ ghi nhớ cho sinh viên.",

@@ -25,7 +25,7 @@ export function LandingNavbar() {
         }`}
       >
         <Link
-          aria-label="Mác - Lê Nin"
+          aria-label="Học LLCT"
           className="flex min-w-0 items-center gap-3 rounded-full outline-none transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-landing-red"
           to="/"
         >

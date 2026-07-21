@@ -41,13 +41,13 @@ export function ImportSuccessModal({
       role="dialog"
     >
       <div
-        className={`max-h-[calc(100vh-32px)] w-full max-w-lg overflow-y-auto p-lg transition-all duration-300 ${TEACHER_MODAL_SHELL} ${
+        className={`mx-auto max-h-[calc(100vh-32px)] w-full max-w-lg overflow-y-auto p-lg transition-all duration-300 ${TEACHER_MODAL_SHELL} ${
           visible ? "scale-100 opacity-100" : "scale-95 opacity-0"
         }`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-catalog-cyan/12">
-          <MaterialIcon className="text-4xl text-catalog-cobalt">check_circle</MaterialIcon>
+        <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-catalog-cyan/12 text-catalog-cobalt">
+          <MaterialIcon className="text-[40px]">check_circle</MaterialIcon>
         </div>
         <h4
           className="mb-2 text-center text-headline-md font-semibold text-landing-text"

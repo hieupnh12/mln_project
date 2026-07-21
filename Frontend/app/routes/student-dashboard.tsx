@@ -2,10 +2,10 @@ import { StudentDashboardPage } from "../features/student/dashboard/pages/studen
 
 export function meta() {
   return [
-    { title: "Học viên | Mác - Lê Nin" },
+    { title: "Học viên | Học LLCT" },
     {
       name: "description",
-      content: "Không gian học tập và theo dõi tiến độ dành cho học viên Mác - Lê Nin.",
+      content: "Không gian học tập và theo dõi tiến độ dành cho học viên Lý luận chính trị trên Học LLCT.",
     },
   ];
 }
