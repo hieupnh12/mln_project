@@ -1,3 +1,5 @@
+import { formatAdminDateTime } from "../utils/format-admin-datetime";
+
 type AdminOnlineBadgeProps = {
   online: boolean;
   lastSeenAt: string | null;
@@ -18,7 +20,9 @@ export function AdminOnlineBadge({ online, lastSeenAt }: AdminOnlineBadgeProps) 
         {online ? "Online" : "Offline"}
       </span>
       {!online && lastSeenAt ? (
-        <span className="sr-only">Lần cuối hoạt động: {lastSeenAt}</span>
+        <span className="sr-only">
+          Lần cuối hoạt động: {formatAdminDateTime(lastSeenAt)}
+        </span>
       ) : null}
     </span>
   );
