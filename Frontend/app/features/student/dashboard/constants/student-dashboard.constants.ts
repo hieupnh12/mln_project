@@ -1,35 +1,9 @@
 import { STUDENT_ROUTES } from "../../constants/student-routes.constants";
 import type { CourseTone, StudentNavItem } from "../../types/student.types";
 
-export const studentDashboardNavItems: StudentNavItem[] = [
-  { label: "Tổng quan", href: "#dashboard" },
-  { label: "Chương trình", href: "#curriculum" },
-  { label: "Tài liệu", href: "#documents" },
-  { label: "Tiến độ", href: "#analytics" },
-];
+export const studentDashboardNavItems: StudentNavItem[] = [];
 
-export const studentDashboardBottomNavItems: StudentNavItem[] = [
-  {
-    label: "Tổng quan",
-    icon: "home",
-    href: `${STUDENT_ROUTES.dashboard}#dashboard`,
-  },
-  {
-    label: "Khóa học",
-    icon: "menu_book",
-    href: `${STUDENT_ROUTES.dashboard}#curriculum`,
-  },
-  {
-    label: "Tài liệu",
-    icon: "description",
-    href: `${STUDENT_ROUTES.dashboard}#documents`,
-  },
-  {
-    label: "Tiến độ",
-    icon: "query_stats",
-    href: `${STUDENT_ROUTES.dashboard}#analytics`,
-  },
-];
+export const studentDashboardBottomNavItems: StudentNavItem[] = [];
 
 export const courseToneClass: Record<
   CourseTone,

@@ -61,7 +61,13 @@ public class TeacherFlashcardController {
 
     @GetMapping("/chapters/{chapterId}/flashcards")
     public ApiResponse<List<FlashcardResponse>> getFlashcards(@PathVariable Long chapterId) {
+        System.out.println("[BACKEND DEBUG] GET /api/teacher/chapters/" + chapterId + "/flashcards");
         List<Flashcard> flashcards = flashcardService.getFlashcardsByChapter(chapterId);
+        System.out.println("[BACKEND DEBUG] Found flashcards count: " + flashcards.size());
+        for (Flashcard fc : flashcards) {
+            System.out.println("  - FC ID: " + fc.getId() + " | Term: " + fc.getTerm() + " | Def: " + fc.getDefinition());
+        }
+        
         List<FlashcardResponse> response = flashcards.stream()
                 .map(fc -> new FlashcardResponse(
                         fc.getId(),
@@ -82,6 +88,8 @@ public class TeacherFlashcardController {
     public ApiResponse<FlashcardResponse> createFlashcard(
             @PathVariable Long chapterId,
             @RequestBody FlashcardRequest request) {
+        System.out.println("[BACKEND DEBUG] POST /api/teacher/chapters/" + chapterId + "/flashcards");
+        System.out.println("  - Request: Term: " + request.term() + " | Def: " + request.definition());
         
         Flashcard flashcard = Flashcard.builder()
                 .term(request.term())
@@ -89,6 +97,8 @@ public class TeacherFlashcardController {
                 .build();
 
         Flashcard saved = flashcardService.createFlashcard(chapterId, flashcard);
+        System.out.println("[BACKEND DEBUG] Successfully saved flashcard. Generated ID: " + saved.getId());
+        
         FlashcardResponse response = new FlashcardResponse(
                 saved.getId(),
                 saved.getChapter().getId(),

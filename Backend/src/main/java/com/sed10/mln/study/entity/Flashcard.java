@@ -16,6 +16,6 @@ import java.time.LocalDateTime;
 public class Flashcard {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) @EqualsAndHashCode.Include Long id;
     @ManyToOne @JoinColumn(name = "chapter_id") Chapter chapter;
-    @Column(length = 255) String term;
+    @Column(columnDefinition = "TEXT") String term;
     @Column(columnDefinition = "LONGTEXT") String definition;
 }

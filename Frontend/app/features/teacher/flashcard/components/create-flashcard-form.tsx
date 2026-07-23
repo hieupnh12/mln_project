@@ -22,7 +22,7 @@ export function CreateFlashcardForm() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const { data: chapters, isLoading: isLoadingChapters } = useTeacherFlashcardSets();
-  const createBulkMutation = useCreateFlashcardsBulk(selectedChapterId);
+  const createBulkMutation = useCreateFlashcardsBulk();
 
   const generateId = () => Math.random().toString(36).substring(2, 9);
 
@@ -74,11 +74,14 @@ export function CreateFlashcardForm() {
     }
 
     try {
-      await createBulkMutation.mutateAsync(validCards, {
-        onSuccess: () => {
-          navigate("/teacher/flashcards");
+      await createBulkMutation.mutateAsync(
+        { chapterId: selectedChapterId, requests: validCards },
+        {
+          onSuccess: () => {
+            navigate("/teacher/flashcards");
+          },
         },
-      });
+      );
     } catch {
       setErrorMessage("Đã xảy ra lỗi khi tạo bộ thẻ. Vui lòng thử lại!");
     }
