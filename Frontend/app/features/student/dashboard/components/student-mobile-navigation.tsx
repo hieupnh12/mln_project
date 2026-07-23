@@ -10,6 +10,10 @@ type StudentMobileNavigationProps = {
 export function StudentMobileNavigation({
   activeSectionHref,
 }: StudentMobileNavigationProps) {
+  if (studentDashboardBottomNavItems.length === 0) {
+    return null;
+  }
+
   return (
     <nav
       aria-label="Điều hướng học viên trên điện thoại"

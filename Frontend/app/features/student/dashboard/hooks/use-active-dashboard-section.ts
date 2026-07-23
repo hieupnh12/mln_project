@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 import { studentDashboardNavItems } from "../constants/student-dashboard.constants";
 
-const DEFAULT_SECTION_HREF = studentDashboardNavItems[0].href;
+const DEFAULT_SECTION_HREF = studentDashboardNavItems[0]?.href ?? "#curriculum";
 const SECTION_OFFSET = 112;
 
 function getActiveSectionHref() {

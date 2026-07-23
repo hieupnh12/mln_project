@@ -10,7 +10,6 @@ import { useCourseChaptersQuery } from "../hooks/use-course-learning-queries";
 import { getLessonsByChapterId } from "../services/course-learning.service";
 import type { CourseMaterialSummary } from "../types/course-learning.types";
 import { CourseCurriculumChapter } from "./course-curriculum-chapter";
-import { CourseMaterialDownloadButton } from "./course-material-download-button";
 
 type CourseCurriculumPanelProps = {
   expandedChapterId: number | null;
@@ -155,10 +154,6 @@ export function CourseCurriculumPanel({
             Chưa có chương nào cho môn học này.
           </p>
         ) : null}
-      </div>
-
-      <div className="mt-md shrink-0">
-        <CourseMaterialDownloadButton selectedMaterialId={selectedMaterialId} />
       </div>
     </>
   );

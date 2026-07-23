@@ -26,12 +26,7 @@ public class FlashcardService {
     LessonRepository lessonRepository;
 
     public List<Chapter> getAllChapters() {
-        List<Lesson> lessons = lessonRepository.findAllWithChapterAndSubject();
-        return lessons.stream()
-                .map(Lesson::getChapter)
-                .filter(java.util.Objects::nonNull)
-                .distinct()
-                .toList();
+        return chapterRepository.findAll();
     }
 
     public List<Flashcard> getFlashcardsByChapter(Long chapterId) {

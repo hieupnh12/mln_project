@@ -50,11 +50,11 @@ export function FlashcardVocabularyCatalog({
                 #{String(index + 1).padStart(2, "0")}
               </span>
 
-              <div className="font-serif text-body-lg font-bold leading-snug tracking-wide text-landing-text md:pr-4">
+              <div className="font-serif text-body-lg font-bold leading-snug tracking-wide text-landing-text whitespace-pre-wrap break-words md:pr-4">
                 {card.term}
               </div>
 
-              <div className="py-2 text-body-md leading-relaxed text-landing-text-soft md:border-l md:border-outline-variant/30 md:py-1 md:pl-6">
+              <div className="py-2 text-body-md leading-relaxed text-landing-text-soft whitespace-pre-wrap break-words md:border-l md:border-outline-variant/30 md:py-1 md:pl-6">
                 {card.definition}
               </div>
 
