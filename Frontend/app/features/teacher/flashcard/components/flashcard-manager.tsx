@@ -34,9 +34,9 @@ export function FlashcardManager() {
   const { data: flashcards, isLoading: isLoadingCards, isError: isErrorCards } =
     useFlashcardsByChapter(selectedChapterId, selectedChapterId > 0);
 
-  const createMutation = useCreateFlashcard(selectedChapterId);
-  const updateMutation = useUpdateFlashcard(selectedChapterId);
-  const deleteMutation = useDeleteFlashcard(selectedChapterId);
+  const createMutation = useCreateFlashcard();
+  const updateMutation = useUpdateFlashcard();
+  const deleteMutation = useDeleteFlashcard();
   const isSaving = createMutation.isPending || updateMutation.isPending;
 
   const openSet = (set: FlashcardSet) => {
@@ -57,10 +57,17 @@ export function FlashcardManager() {
   const handleFormSubmit = async (formData: { term: string; definition: string }) => {
     try {
       if (selectedCard) {
-        await updateMutation.mutateAsync({ id: selectedCard.id, request: formData });
+        await updateMutation.mutateAsync({
+          chapterId: selectedChapterId,
+          id: selectedCard.id,
+          request: formData,
+        });
         showSuccessToast("Đã cập nhật thẻ ghi nhớ thành công!");
       } else {
-        await createMutation.mutateAsync(formData);
+        await createMutation.mutateAsync({
+          chapterId: selectedChapterId,
+          request: formData,
+        });
         showSuccessToast("Đã thêm thẻ ghi nhớ mới thành công!");
       }
       setIsFormOpen(false);
@@ -75,7 +82,10 @@ export function FlashcardManager() {
     }
 
     try {
-      await deleteMutation.mutateAsync(cardId);
+      await deleteMutation.mutateAsync({
+        chapterId: selectedChapterId,
+        cardId,
+      });
       showSuccessToast("Đã xóa thẻ ghi nhớ thành công!");
     } catch {
       showErrorToast("Không thể xóa thẻ ghi nhớ. Vui lòng thử lại!");

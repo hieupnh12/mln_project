@@ -26,7 +26,7 @@ public class GlobalExceptionHandler {
         apiResponse.setCode(1001);
         apiResponse.setMessage("Không thể thực hiện vì dữ liệu này đang được liên kết ở nơi khác (ví dụ: đang có khóa học, bài giảng...).");
 
-        return ResponseEntity.ok(apiResponse);
+        return ResponseEntity.status(org.springframework.http.HttpStatus.BAD_REQUEST).body(apiResponse);
     }
 
     @ExceptionHandler(value = AppException.class)

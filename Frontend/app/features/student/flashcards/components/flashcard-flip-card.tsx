@@ -87,9 +87,11 @@ export function FlashcardFlipCard({
             label="Thuật ngữ"
             labelIcon={<HelpCircle aria-hidden="true" className="h-4 w-4" />}
           >
-            <h2 className="px-6 font-serif text-headline-lg font-bold leading-snug text-landing-text sm:text-[2rem]">
-              {card.term}
-            </h2>
+            <div className="w-full max-h-full overflow-y-auto px-6 sm:px-10 custom-scrollbar text-left">
+              <h2 className="font-serif text-headline-lg font-bold leading-snug text-landing-text whitespace-pre-wrap break-words sm:text-[1.75rem]">
+                {card.term}
+              </h2>
+            </div>
           </FlashcardFace>
 
           <FlashcardFace
@@ -118,9 +120,11 @@ export function FlashcardFlipCard({
             label="Định nghĩa"
             labelIcon={<Brain aria-hidden="true" className="h-4 w-4 text-secondary" />}
           >
-            <p className="max-h-[70%] overflow-y-auto px-8 text-body-lg font-medium leading-relaxed text-landing-text custom-scrollbar sm:text-[1.35rem]">
-              {card.definition}
-            </p>
+            <div className="w-full max-h-full overflow-y-auto px-6 sm:px-10 custom-scrollbar text-left">
+              <p className="text-body-lg font-medium leading-relaxed text-landing-text whitespace-pre-wrap break-words sm:text-[1.25rem]">
+                {card.definition}
+              </p>
+            </div>
           </FlashcardFace>
         </div>
       </div>
@@ -151,14 +155,14 @@ function FlashcardFace({
     >
       <div className="absolute right-4 top-4 flex items-center gap-2">{actions}</div>
 
-      <span className="mt-10 flex items-center gap-1.5 text-label-sm font-semibold uppercase tracking-widest text-landing-text-soft">
+      <span className="mt-8 flex shrink-0 items-center gap-1.5 text-label-sm font-semibold uppercase tracking-widest text-landing-text-soft">
         {labelIcon}
         {label}
       </span>
 
-      <div className="my-auto flex w-full items-center justify-center">{children}</div>
+      <div className="my-auto flex flex-1 min-h-0 w-full items-center justify-center py-3">{children}</div>
 
-      <p className="mb-2 text-label-sm text-landing-text-soft/70">{hint}</p>
+      <p className="mb-1 shrink-0 text-label-sm text-landing-text-soft/70">{hint}</p>
     </div>
   );
 }

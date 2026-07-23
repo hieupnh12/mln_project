@@ -32,9 +32,9 @@ export function FlashcardListDialog({
     refetch,
   } = useFlashcardsByChapter(chapterId, isOpen);
 
-  const createMutation = useCreateFlashcard(chapterId);
-  const updateMutation = useUpdateFlashcard(chapterId);
-  const deleteMutation = useDeleteFlashcard(chapterId);
+  const createMutation = useCreateFlashcard();
+  const updateMutation = useUpdateFlashcard();
+  const deleteMutation = useDeleteFlashcard();
 
   // States for nested Form Dialog
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -57,7 +57,7 @@ export function FlashcardListDialog({
   const handleDeleteClick = async (cardId: number) => {
     if (window.confirm("Bạn có chắc chắn muốn xóa thẻ ghi nhớ này không?")) {
       try {
-        await deleteMutation.mutateAsync(cardId);
+        await deleteMutation.mutateAsync({ chapterId, cardId });
       } catch (err) {
         console.error("Xóa thẻ thất bại:", err);
       }
@@ -72,12 +72,16 @@ export function FlashcardListDialog({
       if (selectedCard) {
         // Edit flow
         await updateMutation.mutateAsync({
+          chapterId,
           id: selectedCard.id,
           request: formData,
         });
       } else {
         // Create flow
-        await createMutation.mutateAsync(formData);
+        await createMutation.mutateAsync({
+          chapterId,
+          request: formData,
+        });
       }
       setIsFormOpen(false);
     } catch (err) {
