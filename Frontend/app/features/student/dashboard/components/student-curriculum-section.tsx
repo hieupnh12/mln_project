@@ -1,4 +1,4 @@
-import { ArrowRight, BookOpen, RefreshCw, Route } from "lucide-react";
+import { ArrowRight, BookOpen, RefreshCw } from "lucide-react";
 import { Link } from "react-router";
 
 import { StudentMaterialIcon as MaterialIcon } from "../../components/student-material-icon";
@@ -22,7 +22,7 @@ function CurriculumSkeleton() {
     <>
       {Array.from({ length: 3 }).map((_, index) => (
         <div
-          className="min-h-64 animate-pulse rounded-xl border border-outline-variant/35 bg-landing-white p-gutter"
+          className="min-h-64 animate-pulse rounded-xl border border-outline-variant/25 bg-landing-white p-gutter"
           key={index}
         >
           <div className="mb-5 h-10 w-10 rounded-xl bg-landing-gray" />
@@ -58,60 +58,64 @@ function SubjectCourseCard({ subject, index }: SubjectCourseCardProps) {
 
   return (
     <Link
-      className={`group relative flex min-h-64 min-w-0 flex-col justify-between overflow-hidden rounded-xl border p-gutter shadow-lg shadow-landing-text/5 transition duration-300 hover:-translate-y-1 hover:shadow-xl ${tone.card} ${tone.border}`}
+      className={`group relative flex min-h-64 min-w-0 flex-col overflow-hidden rounded-xl border bg-landing-white p-gutter shadow-sm transition duration-300 hover:-translate-y-0.5 hover:shadow-md ${tone.card} ${tone.border}`}
       to={coursePath}
     >
       <div
         aria-hidden="true"
-        className={`pointer-events-none absolute -right-12 -top-12 h-32 w-32 rounded-full blur-2xl ${tone.glow}`}
+        className={`pointer-events-none absolute -right-16 -top-16 h-28 w-28 rounded-full opacity-60 blur-3xl ${tone.glow}`}
       />
       <span
         aria-hidden="true"
-        className="absolute right-5 top-16 font-serif text-6xl font-bold text-landing-text/5"
+        className="pointer-events-none absolute bottom-3 right-4 font-serif text-5xl font-bold leading-none text-landing-text/[0.04]"
       >
         {String(index + 1).padStart(2, "0")}
       </span>
-      <div className="min-w-0">
-        <div className="mb-5 flex items-start justify-between gap-4">
+
+      <div className="relative flex min-h-0 flex-1 flex-col">
+        <div className="mb-4 flex items-start justify-between gap-3">
           <span
-            className={`relative max-w-[70%] truncate rounded-full px-3 py-1 text-label-sm font-semibold shadow-md ${tone.badge}`}
+            className={`max-w-[70%] truncate rounded-full px-3 py-1 text-label-sm font-semibold ${tone.badge}`}
           >
             {course.status}
           </span>
           <span
-            className={`relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl shadow-lg ${tone.icon}`}
+            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${tone.icon}`}
           >
             <MaterialIcon>{course.icon}</MaterialIcon>
           </span>
         </div>
-        <h3 className="line-clamp-2 text-headline-md font-semibold leading-snug text-landing-text">
+
+        <h3 className="line-clamp-2 min-h-[3.25rem] text-headline-md font-semibold leading-snug text-landing-text">
           {course.title}
         </h3>
-        <p className="mt-3 line-clamp-2 text-label-md leading-6 text-landing-text-soft">
+        <p className="mt-2 line-clamp-2 min-h-12 text-label-md leading-6 text-landing-text-soft">
           {course.lessons}
         </p>
-      </div>
 
-      <div className="mt-8 space-y-4">
-        <div className="h-2 w-full overflow-hidden rounded-full bg-outline-variant/20">
-          <div
-            className={`h-full min-w-1.5 rounded-full bg-gradient-to-r transition-all duration-500 ${tone.progress}`}
-            style={{ width: `${progressPercent}%` }}
-          />
-        </div>
-        <div className="flex items-center justify-between gap-4 text-label-sm font-semibold">
-          <span className="text-landing-text-soft">
-            {progressQuery.isLoading ? "Đang tải..." : `${progressPercent}% hoàn thành`}
-          </span>
-          <span
-            className={`inline-flex items-center gap-1 rounded-lg bg-landing-white/80 px-3 py-2 shadow-sm transition group-hover:bg-landing-white ${tone.action}`}
-          >
-            {actionLabel}
-            <ArrowRight
-              aria-hidden="true"
-              className="h-4 w-4 transition-transform group-hover:translate-x-1"
+        <div className="mt-auto space-y-3 pt-6">
+          <div className="h-1.5 w-full overflow-hidden rounded-full bg-outline-variant/20">
+            <div
+              className={`h-full rounded-full bg-gradient-to-r transition-all duration-500 ${tone.progress}`}
+              style={{ width: `${Math.max(progressPercent, 0)}%` }}
             />
-          </span>
+          </div>
+          <div className="flex items-center justify-between gap-3 text-label-sm font-semibold">
+            <span className="text-landing-text-soft">
+              {progressQuery.isLoading
+                ? "Đang tải..."
+                : `${progressPercent}% hoàn thành`}
+            </span>
+            <span
+              className={`inline-flex items-center gap-1 rounded-lg border border-outline-variant/25 bg-landing-white px-3 py-1.5 transition group-hover:border-transparent ${tone.action}`}
+            >
+              {actionLabel}
+              <ArrowRight
+                aria-hidden="true"
+                className="h-4 w-4 transition-transform group-hover:translate-x-1"
+              />
+            </span>
+          </div>
         </div>
       </div>
     </Link>
@@ -122,11 +126,11 @@ export function StudentCurriculumSection() {
   const { data: subjects, isLoading, isError, error, refetch } = useSubjects();
 
   return (
-    <section className="space-y-md scroll-mt-24" id="curriculum">
+    <section className="flex flex-col gap-8 scroll-mt-24" id="curriculum">
       <StudentDashboardSectionHeader
-        description="Các học phần lý luận chính trị trong học kỳ này."
-        eyebrow="Lộ trình của bạn"
-        icon={Route}
+        description="Danh sách các môn học lí luận chính trị."
+        eyebrow="Học phần"
+        icon={BookOpen}
         title="Chương trình học tập"
       />
 
@@ -156,7 +160,7 @@ export function StudentCurriculumSection() {
       ) : null}
 
       {!isLoading && !isError && (subjects?.length ?? 0) === 0 ? (
-        <div className="rounded-xl border border-outline-variant/35 bg-landing-white p-gutter text-center shadow-lg shadow-landing-text/5">
+        <div className="rounded-xl border border-outline-variant/35 bg-landing-white p-gutter text-center shadow-sm">
           <BookOpen aria-hidden="true" className="mx-auto h-10 w-10 text-landing-red" />
           <p className="mt-4 text-headline-md font-semibold text-landing-text">
             Chưa có khóa học nào
@@ -168,7 +172,7 @@ export function StudentCurriculumSection() {
       ) : null}
 
       {!isLoading && !isError && (subjects?.length ?? 0) > 0 ? (
-        <div className="grid grid-cols-1 gap-gutter md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 items-stretch gap-gutter md:grid-cols-2 xl:grid-cols-3">
           {subjects?.map((subject, index) => (
             <SubjectCourseCard index={index} key={subject.id} subject={subject} />
           ))}
