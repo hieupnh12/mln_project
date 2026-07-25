@@ -128,7 +128,7 @@ export function StudentCurriculumSection() {
   return (
     <section className="flex flex-col gap-8 scroll-mt-24" id="curriculum">
       <StudentDashboardSectionHeader
-        description="Danh sách các môn học lí luận chính trị."
+        description="Các môn học lí luận chính trị."
         eyebrow="Học phần"
         icon={BookOpen}
         title="Chương trình học tập"
