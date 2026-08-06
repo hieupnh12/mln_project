@@ -2,10 +2,10 @@ import type { ReactNode } from "react";
 
 import { TeacherPageShell } from "../../components/teacher-page-shell";
 
-type PdfDocumentShellProps = {
+type SubjectDocumentShellProps = {
   children: ReactNode;
 };
 
-export function PdfDocumentShell({ children }: PdfDocumentShellProps) {
+export function SubjectDocumentShell({ children }: SubjectDocumentShellProps) {
   return <TeacherPageShell>{children}</TeacherPageShell>;
 }

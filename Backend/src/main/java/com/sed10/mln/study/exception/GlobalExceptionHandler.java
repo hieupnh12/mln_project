@@ -2,6 +2,7 @@ package com.sed10.mln.study.exception;
 
 import com.sed10.mln.study.dto.response.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -20,13 +21,22 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(ErrorCode.UNCATEGORIZED_EXCEPTION.getStatusCode()).body(apiResponse);
     }
 
-    @ExceptionHandler(value = org.springframework.dao.DataIntegrityViolationException.class)
-    public ResponseEntity<ApiResponse<Object>> handlingDataIntegrityViolationException(org.springframework.dao.DataIntegrityViolationException exception) {
-        ApiResponse<Object> apiResponse = new ApiResponse<>();
-        apiResponse.setCode(1001);
-        apiResponse.setMessage("Không thể thực hiện vì dữ liệu này đang được liên kết ở nơi khác (ví dụ: đang có khóa học, bài giảng...).");
+    @ExceptionHandler(value = DataIntegrityViolationException.class)
+    public ResponseEntity<ApiResponse<Object>> handlingDataIntegrityViolationException(
+            DataIntegrityViolationException exception) {
+        ErrorCode errorCode = DataIntegrityErrorResolver.resolve(exception);
+        log.warn(
+                "DataIntegrityViolation [{}]: {}",
+                errorCode.getCode(),
+                exception.getMostSpecificCause() != null
+                        ? exception.getMostSpecificCause().getMessage()
+                        : exception.getMessage());
 
-        return ResponseEntity.status(org.springframework.http.HttpStatus.BAD_REQUEST).body(apiResponse);
+        ApiResponse<Object> apiResponse = new ApiResponse<>();
+        apiResponse.setCode(errorCode.getCode());
+        apiResponse.setMessage(errorCode.getMessage());
+
+        return ResponseEntity.status(errorCode.getStatusCode()).body(apiResponse);
     }
 
     @ExceptionHandler(value = AppException.class)

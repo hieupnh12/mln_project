@@ -1,18 +1,19 @@
-import { MaterialIcon } from "../../components/teacher-icons";
-import type { PdfDocument } from "~/shared/types/pdf-document.types";
-import { PdfDocumentRow } from "./pdf-document-row";
+import type { SubjectDocument } from "~/shared/types/subject-document.types";
 
-type PdfDocumentListProps = {
-  documents: PdfDocument[];
+import { MaterialIcon } from "../../components/teacher-icons";
+import { SubjectDocumentRow } from "./subject-document-row";
+
+type SubjectDocumentListProps = {
+  documents: SubjectDocument[];
   isDeleting: boolean;
   isError?: boolean;
   isLoading?: boolean;
-  onDelete: (materialId: number, documentTitle: string) => void;
+  onDelete: (documentId: number, documentTitle: string) => void;
   onSearchChange: (value: string) => void;
   search: string;
 };
 
-export function PdfDocumentList({
+export function SubjectDocumentList({
   documents,
   isDeleting,
   isError = false,
@@ -20,7 +21,7 @@ export function PdfDocumentList({
   onDelete,
   onSearchChange,
   search,
-}: PdfDocumentListProps) {
+}: SubjectDocumentListProps) {
   return (
     <section className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -48,15 +49,19 @@ export function PdfDocumentList({
 
       {isError ? (
         <div className="rounded-2xl border border-error/30 bg-error-container/30 p-md text-label-md font-medium text-error">
-          Không thể tải danh sách tài liệu PDF.
+          Không thể tải danh sách tài liệu.
         </div>
       ) : null}
 
       {!isLoading && !isError && documents.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-outline-variant/40 bg-landing-gray/25 p-lg text-center">
-          <MaterialIcon className="mx-auto mb-3 text-[36px] text-catalog-cobalt/70">picture_as_pdf</MaterialIcon>
+          <MaterialIcon className="mx-auto mb-3 text-[36px] text-catalog-cobalt/70">
+            folder_open
+          </MaterialIcon>
           <p className="text-body-md text-landing-text-soft">
-            {search.trim() ? "Không có tài liệu phù hợp từ khóa tìm kiếm." : "Chưa có tài liệu PDF nào."}
+            {search.trim()
+              ? "Không có tài liệu phù hợp từ khóa tìm kiếm."
+              : "Chưa có tài liệu trong môn này."}
           </p>
         </div>
       ) : null}
@@ -64,10 +69,10 @@ export function PdfDocumentList({
       {!isLoading && !isError && documents.length > 0 ? (
         <div className="space-y-3">
           {documents.map((document) => (
-            <PdfDocumentRow
+            <SubjectDocumentRow
               document={document}
               isDeleting={isDeleting}
-              key={document.materialId}
+              key={document.documentId}
               onDelete={onDelete}
             />
           ))}

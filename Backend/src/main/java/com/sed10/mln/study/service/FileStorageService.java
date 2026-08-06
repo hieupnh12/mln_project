@@ -17,6 +17,7 @@ import java.util.Map;
 public class FileStorageService {
 
     private static final String ROOT_FOLDER = "mln-study/materials";
+    private static final String SUBJECT_DOCUMENT_ROOT_FOLDER = "mln-study/subject-documents";
 
     private final Cloudinary cloudinary;
 
@@ -49,14 +50,32 @@ public class FileStorageService {
         return uploadAndGetUrl(fileBytes, params);
     }
 
+    public String storeSubjectDocument(Long documentId, String filename, byte[] fileBytes) {
+        String extension = getExtension(filename);
+        Map<String, Object> params = ObjectUtils.asMap(
+                "folder", buildSubjectDocumentFolder(documentId),
+                "public_id", "file." + extension,
+                "overwrite", true,
+                "resource_type", "raw");
+
+        return uploadAndGetUrl(fileBytes, params);
+    }
+
     public void deleteMaterialFiles(Long materialId) {
-        String prefix = buildFolder(materialId) + "/";
+        deleteByPrefix(buildFolder(materialId) + "/", "material " + materialId);
+    }
+
+    public void deleteSubjectDocumentFiles(Long documentId) {
+        deleteByPrefix(buildSubjectDocumentFolder(documentId) + "/", "subject document " + documentId);
+    }
+
+    private void deleteByPrefix(String prefix, String label) {
         try {
             cloudinary.api().deleteResourcesByPrefix(prefix, ObjectUtils.asMap("resource_type", "image"));
             cloudinary.api().deleteResourcesByPrefix(prefix, ObjectUtils.asMap("resource_type", "raw"));
             cloudinary.api().deleteResourcesByPrefix(prefix, ObjectUtils.asMap("resource_type", "auto"));
         } catch (Exception exception) {
-            log.warn("Failed to delete Cloudinary files for material {}: {}", materialId, exception.getMessage());
+            log.warn("Failed to delete Cloudinary files for {}: {}", label, exception.getMessage());
         }
     }
 
@@ -80,5 +99,9 @@ public class FileStorageService {
 
     private String buildFolder(Long materialId) {
         return ROOT_FOLDER + "/" + materialId;
+    }
+
+    private String buildSubjectDocumentFolder(Long documentId) {
+        return SUBJECT_DOCUMENT_ROOT_FOLDER + "/" + documentId;
     }
 }

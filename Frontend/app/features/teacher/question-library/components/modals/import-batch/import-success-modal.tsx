@@ -41,7 +41,7 @@ export function ImportSuccessModal({
       role="dialog"
     >
       <div
-        className={`mx-auto max-h-[calc(100vh-32px)] w-full max-w-lg overflow-y-auto p-lg transition-all duration-300 ${TEACHER_MODAL_SHELL} ${
+        className={`mx-auto max-h-[calc(100vh-32px)] w-[min(calc(100vw-32px),32rem)] shrink-0 overflow-y-auto p-lg transition-all duration-300 ${TEACHER_MODAL_SHELL} ${
           visible ? "scale-100 opacity-100" : "scale-95 opacity-0"
         }`}
         onClick={(e) => e.stopPropagation()}

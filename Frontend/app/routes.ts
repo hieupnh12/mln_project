@@ -34,6 +34,7 @@ export default [
     route("courses", "routes/teacher-courses.tsx"),
     route("courses/:subjectId", "routes/teacher-course-detail.tsx"),
     route("pdfs", "routes/teacher-pdfs.tsx"),
+    route("pdfs/:subjectId", "routes/teacher-pdfs-detail.tsx"),
     route("lessons/:lessonId/mindmap", "routes/teacher-lesson-mindmap.tsx"),
     route("flashcards", "routes/teacher-flashcards.tsx"),
     route("flashcards/new", "routes/teacher-create-flashcard.tsx"),

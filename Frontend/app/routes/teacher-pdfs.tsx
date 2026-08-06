@@ -1,15 +1,15 @@
-import { PdfDocumentPage } from "../features/teacher/pdf-document/pages/pdf-document-page";
+import { SubjectDocumentListPage } from "../features/teacher/subject-document/pages/subject-document-list-page";
 
 export function meta() {
   return [
-    { title: "Tài liệu PDF | Học LLCT" },
+    { title: "Tài liệu học tập | Học LLCT" },
     {
       name: "description",
-      content: "Quản lý tài liệu PDF theo chương học.",
+      content: "Chọn môn học để quản lý giáo trình và tài liệu tải về.",
     },
   ];
 }
 
 export default function TeacherPdfsRoute() {
-  return <PdfDocumentPage />;
+  return <SubjectDocumentListPage />;
 }

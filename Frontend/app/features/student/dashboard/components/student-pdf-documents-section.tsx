@@ -8,14 +8,14 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
-import { usePdfDocumentsQuery } from "~/shared/hooks/use-pdf-documents";
+import { useSubjectDocumentsQuery } from "~/shared/hooks/use-subject-documents";
 import { studentDashboardAccentClasses } from "../constants/student-dashboard.constants";
 import { StudentDashboardSectionHeader } from "./student-dashboard-section-header";
 
 const INITIAL_DOCUMENT_COUNT = 3;
 
 export function StudentPdfDocumentsSection() {
-  const documentsQuery = usePdfDocumentsQuery();
+  const documentsQuery = useSubjectDocumentsQuery();
   const [showAll, setShowAll] = useState(false);
   const documents = documentsQuery.data ?? [];
   const visibleDocuments = showAll
@@ -43,7 +43,7 @@ export function StudentPdfDocumentsSection() {
             </button>
           ) : null
         }
-        description="Giáo trình và tài liệu do giảng viên chia sẻ."
+        description="Giáo trình và tài liệu do giảng viên chia sẻ theo từng môn."
         eyebrow="Học liệu"
         icon={Files}
         title="Tài liệu học tập"
@@ -63,7 +63,7 @@ export function StudentPdfDocumentsSection() {
       {documentsQuery.isError ? (
         <div className="rounded-xl border border-error/30 bg-error-container/40 p-gutter">
           <p className="text-body-md font-medium text-error">
-            Không thể tải danh sách tài liệu PDF.
+            Không thể tải danh sách tài liệu.
           </p>
           <button
             className="mt-4 inline-flex items-center gap-2 rounded-lg bg-landing-red px-5 py-2 text-label-md font-medium text-on-primary transition hover:bg-landing-red-deep"
@@ -82,7 +82,7 @@ export function StudentPdfDocumentsSection() {
         <div className="rounded-xl border border-outline-variant/35 bg-landing-white p-gutter text-center shadow-lg shadow-landing-text/5">
           <FileText aria-hidden="true" className="mx-auto h-10 w-10 text-landing-red" />
           <p className="mt-4 text-headline-md font-semibold text-landing-text">
-            Chưa có tài liệu PDF
+            Chưa có tài liệu
           </p>
           <p className="mt-2 text-body-md text-landing-text-soft">
             Tài liệu mới từ giảng viên sẽ xuất hiện tại đây.
@@ -100,7 +100,7 @@ export function StudentPdfDocumentsSection() {
             return (
               <article
                 className="group relative flex min-h-52 flex-col overflow-hidden rounded-xl border border-outline-variant/35 bg-landing-white p-5 shadow-lg shadow-landing-text/5 transition duration-300 hover:-translate-y-1 hover:border-outline/30 hover:shadow-xl"
-                key={document.materialId}
+                key={document.documentId}
               >
                 <div
                   aria-hidden="true"
@@ -113,7 +113,7 @@ export function StudentPdfDocumentsSection() {
                     <FileText aria-hidden="true" className="h-5 w-5" />
                   </div>
                   <span className="rounded-full border border-outline-variant/25 bg-landing-cream px-3 py-1 text-label-sm font-semibold text-landing-text-soft">
-                    {document.pageCount ? `${document.pageCount} trang` : "PDF"}
+                    {document.fileExtension ?? "FILE"}
                   </span>
                 </div>
 
@@ -122,8 +122,10 @@ export function StudentPdfDocumentsSection() {
                     {document.title}
                   </h3>
                   <p className="mt-2 line-clamp-2 text-label-sm leading-5 text-landing-text-soft">
-                    {document.subjectTitle} / {document.chapterTitle} /{" "}
-                    {document.lessonTitle}
+                    {document.subjectTitle ?? "Môn học"}
+                    {document.originalFilename
+                      ? ` · ${document.originalFilename}`
+                      : ""}
                   </p>
                 </div>
 

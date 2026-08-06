@@ -23,9 +23,9 @@ export const teacherNavItems: TeacherNavItem[] = [
     to: TEACHER_ROUTES.courses,
   },
   {
-    label: "Tài liệu PDF",
-    shortLabel: "PDF",
-    icon: "picture_as_pdf",
+    label: "Tài liệu",
+    shortLabel: "Tài liệu",
+    icon: "folder",
     to: TEACHER_ROUTES.pdfs,
   },
   {
